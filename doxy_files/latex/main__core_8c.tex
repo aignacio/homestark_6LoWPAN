@@ -1,0 +1,87 @@
+\hypertarget{main__core_8c}{\section{Referência ao ficheiro main\+\_\+core.\+c}
+\label{main__core_8c}\index{main\+\_\+core.\+c@{main\+\_\+core.\+c}}
+}
+
+
+Arquivo principal do código fonte da rede mesh 6\+Lo\+W\+P\+A\+N ~\newline
+ Para compilar este código, execute o makefile com o target desejado, por exemplo\+: ~\newline
+ {\bfseries \char`\"{}make T\+A\+R\+G\+E\+T=srf06-\/cc26xx\char`\"{}} ~\newline
+ Caso não reconheça qual o T\+A\+R\+G\+E\+T correto, utiliza o comando ~\newline
+ {\bfseries \char`\"{}make targets\char`\"{}} ~\newline
+ para listar os tags disponíveis.  
+
+
+{\ttfamily \#include \char`\"{}contiki.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}lib/random.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}sys/ctimer.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}sys/etimer.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}net/ip/uip.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}net/ipv6/uip-\/ds6.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}mqtt-\/sn.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}dev/leds.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}net/rime/rime.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}simple-\/udp.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$stdio.\+h$>$}\\*
+{\ttfamily \#include $<$string.\+h$>$}\\*
+Diagrama de dependências de inclusão para main\+\_\+core.\+c\+:
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{main__core_8c_a7342deb9bd9ebf195e550e2d8e7c38b4}{\#define {\bfseries U\+D\+P\+\_\+\+P\+O\+R\+T}~1884}\label{main__core_8c_a7342deb9bd9ebf195e550e2d8e7c38b4}
+
+\item 
+\hypertarget{main__core_8c_a13db5c5acaada956f323e7c00460e59c}{\#define {\bfseries R\+E\+Q\+U\+E\+S\+T\+\_\+\+R\+E\+T\+R\+I\+E\+S}~15}\label{main__core_8c_a13db5c5acaada956f323e7c00460e59c}
+
+\item 
+\hypertarget{main__core_8c_a025a7a44dbf006d20501a1f366ac5031}{\#define {\bfseries D\+E\+F\+A\+U\+L\+T\+\_\+\+S\+E\+N\+D\+\_\+\+I\+N\+T\+E\+R\+V\+A\+L}~(1 $\ast$ C\+L\+O\+C\+K\+\_\+\+S\+E\+C\+O\+N\+D)}\label{main__core_8c_a025a7a44dbf006d20501a1f366ac5031}
+
+\item 
+\hypertarget{main__core_8c_a592524705d41754c771ffeba4348eb31}{\#define {\bfseries R\+E\+P\+L\+Y\+\_\+\+T\+I\+M\+E\+O\+U\+T}~(0.\+5 $\ast$ C\+L\+O\+C\+K\+\_\+\+S\+E\+C\+O\+N\+D)}\label{main__core_8c_a592524705d41754c771ffeba4348eb31}
+
+\end{DoxyCompactItemize}
+\subsection*{Funções}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{main__core_8c_a04dd60effcf87cfb83718ec8b00e5b86}{{\bfseries P\+R\+O\+C\+E\+S\+S} (example\+\_\+mqttsn\+\_\+process,\char`\"{}Configure Connection and Topic Registration\char`\"{})}\label{main__core_8c_a04dd60effcf87cfb83718ec8b00e5b86}
+
+\item 
+\hypertarget{main__core_8c_aba283fe8b812a35fc74a9f8b4fb34af0}{{\bfseries P\+R\+O\+C\+E\+S\+S} (publish\+\_\+process,\char`\"{}register topic and publish data\char`\"{})}\label{main__core_8c_aba283fe8b812a35fc74a9f8b4fb34af0}
+
+\item 
+\hypertarget{main__core_8c_a09abfc07dd613c9bc4533c82bc76b5a4}{{\bfseries P\+R\+O\+C\+E\+S\+S} (ctrl\+\_\+subscription\+\_\+process,\char`\"{}subscribe to a device control channel\char`\"{})}\label{main__core_8c_a09abfc07dd613c9bc4533c82bc76b5a4}
+
+\item 
+\hypertarget{main__core_8c_a16b44a4da530b0afe9c79d7770e851fe}{{\bfseries P\+R\+O\+C\+E\+S\+S\+\_\+\+T\+H\+R\+E\+A\+D} (publish\+\_\+process, ev, data)}\label{main__core_8c_a16b44a4da530b0afe9c79d7770e851fe}
+
+\item 
+\hypertarget{main__core_8c_ab4dd2ddd7e4924b69e4db6db5a9ea826}{{\bfseries P\+R\+O\+C\+E\+S\+S\+\_\+\+T\+H\+R\+E\+A\+D} (ctrl\+\_\+subscription\+\_\+process, ev, data)}\label{main__core_8c_ab4dd2ddd7e4924b69e4db6db5a9ea826}
+
+\item 
+\hypertarget{main__core_8c_a7c4aca34051816cc80cc51f648d9d723}{{\bfseries P\+R\+O\+C\+E\+S\+S\+\_\+\+T\+H\+R\+E\+A\+D} (example\+\_\+mqttsn\+\_\+process, ev, data)}\label{main__core_8c_a7c4aca34051816cc80cc51f648d9d723}
+
+\end{DoxyCompactItemize}
+\subsection*{Variáveis}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{main__core_8c_a3033bfed45e20d7a9dddedaf0b068b09}{A\+U\+T\+O\+S\+T\+A\+R\+T\+\_\+\+P\+R\+O\+C\+E\+S\+S\+E\+S \& {\bfseries example\+\_\+mqttsn\+\_\+process}}\label{main__core_8c_a3033bfed45e20d7a9dddedaf0b068b09}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Descrição detalhada}
+Arquivo principal do código fonte da rede mesh 6\+Lo\+W\+P\+A\+N ~\newline
+ Para compilar este código, execute o makefile com o target desejado, por exemplo\+: ~\newline
+ {\bfseries \char`\"{}make T\+A\+R\+G\+E\+T=srf06-\/cc26xx\char`\"{}} ~\newline
+ Caso não reconheça qual o T\+A\+R\+G\+E\+T correto, utiliza o comando ~\newline
+ {\bfseries \char`\"{}make targets\char`\"{}} ~\newline
+ para listar os tags disponíveis. 
+
+\begin{DoxyAuthor}{Autor}
+Ânderson Ignácio da Silva 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Data}
+19 Ago 2016 
+\end{DoxyDate}
+\begin{DoxySeeAlso}{Veja também}
+\href{http://www.aignacio.com}{\tt http\+://www.\+aignacio.\+com} 
+\end{DoxySeeAlso}

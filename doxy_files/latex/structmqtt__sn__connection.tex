@@ -1,0 +1,53 @@
+\hypertarget{structmqtt__sn__connection}{\section{Referência à estrutura mqtt\+\_\+sn\+\_\+connection}
+\label{structmqtt__sn__connection}\index{mqtt\+\_\+sn\+\_\+connection@{mqtt\+\_\+sn\+\_\+connection}}
+}
+
+
+Diagrama de colaboração para mqtt\+\_\+sn\+\_\+connection\+:
+\subsection*{Membros públicos}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{structmqtt__sn__connection_ab346420684659c5deaf7980b69e12430}{{\bfseries L\+I\+S\+T\+\_\+\+S\+T\+R\+U\+C\+T} (requests)}\label{structmqtt__sn__connection_ab346420684659c5deaf7980b69e12430}
+
+\end{DoxyCompactItemize}
+\subsection*{Atributos Públicos}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{structmqtt__sn__connection_abd6e4343d5a574be10f88a65ed671b64}{struct simple\+\_\+udp\+\_\+connection {\bfseries sock}}\label{structmqtt__sn__connection_abd6e4343d5a574be10f88a65ed671b64}
+
+\item 
+\hypertarget{structmqtt__sn__connection_af3b8991df7c8139dc8d60d3f5b0734c7}{uint16\+\_\+t {\bfseries next\+\_\+message\+\_\+id}}\label{structmqtt__sn__connection_af3b8991df7c8139dc8d60d3f5b0734c7}
+
+\item 
+\hypertarget{structmqtt__sn__connection_a9c6fb1996a7e9de65a5b6eb6375de117}{struct ctimer {\bfseries receive\+\_\+timer}}\label{structmqtt__sn__connection_a9c6fb1996a7e9de65a5b6eb6375de117}
+
+\item 
+\hypertarget{structmqtt__sn__connection_a751337f5fccb207bf9345696cd0cd693}{struct ctimer {\bfseries send\+\_\+timer}}\label{structmqtt__sn__connection_a751337f5fccb207bf9345696cd0cd693}
+
+\item 
+\hypertarget{structmqtt__sn__connection_a990275e5e6698b0931feb1f63daefbca}{clock\+\_\+time\+\_\+t {\bfseries keep\+\_\+alive}}\label{structmqtt__sn__connection_a990275e5e6698b0931feb1f63daefbca}
+
+\item 
+\hypertarget{structmqtt__sn__connection_ab7878adb516129260457e5b0cfb4ccd9}{\hyperlink{structconnack__packet__t}{connack\+\_\+packet\+\_\+t} {\bfseries last\+\_\+connack}}\label{structmqtt__sn__connection_ab7878adb516129260457e5b0cfb4ccd9}
+
+\item 
+\hypertarget{structmqtt__sn__connection_a285cf4c9a26ff68218fb312f9ba1652f}{const char $\ast$ {\bfseries client\+\_\+id}}\label{structmqtt__sn__connection_a285cf4c9a26ff68218fb312f9ba1652f}
+
+\item 
+\hypertarget{structmqtt__sn__connection_ae942d94f75b382db824a4032ddd5518d}{enum mqttsn\+\_\+connection\+\_\+status {\bfseries stat}}\label{structmqtt__sn__connection_ae942d94f75b382db824a4032ddd5518d}
+
+\item 
+\hypertarget{structmqtt__sn__connection_a73488bf96532a376591bb2f2a739e7be}{uint8\+\_\+t {\bfseries connection\+\_\+retries}}\label{structmqtt__sn__connection_a73488bf96532a376591bb2f2a739e7be}
+
+\item 
+\hypertarget{structmqtt__sn__connection_ae76761094406a6877b87201cab1d60ba}{struct process $\ast$ {\bfseries client\+\_\+process}}\label{structmqtt__sn__connection_ae76761094406a6877b87201cab1d60ba}
+
+\item 
+\hypertarget{structmqtt__sn__connection_a8db5a6e4d67db8c3c0db7930cb99285b}{const struct \hyperlink{structmqtt__sn__callbacks}{mqtt\+\_\+sn\+\_\+callbacks} $\ast$ {\bfseries mc}}\label{structmqtt__sn__connection_a8db5a6e4d67db8c3c0db7930cb99285b}
+
+\end{DoxyCompactItemize}
+
+
+A documentação para esta estrutura foi gerada a partir do seguinte ficheiro\+:\begin{DoxyCompactItemize}
+\item 
+mqtt-\/sn.\+h\end{DoxyCompactItemize}

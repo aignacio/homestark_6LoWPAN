@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.8"/>
+<title>HomeStark: Referência ao ficheiro main_core.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { searchBox.OnSelectItem(0); });
+</script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="logo_symbol.png"/></td>
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">HomeStark
+   &#160;<span id="projectnumber">1.0</span>
+   </div>
+   <div id="projectbrief">Projeto de rede mesh 6LoWPAN para dispositivos embarcados</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Gerado por Doxygen 1.8.8 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>Página&#160;principal</span></a></li>
+      <li><a href="pages.html"><span>Páginas&#160;relacionadas</span></a></li>
+      <li><a href="annotated.html"><span>Classes</span></a></li>
+      <li class="current"><a href="files.html"><span>Ficheiros</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Localizar" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="files.html"><span>Lista&#160;de&#160;ficheiros</span></a></li>
+    </ul>
+  </div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Páginas</a></div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+</div><!-- top -->
+<div class="header">
+  <div class="summary">
+<a href="#define-members">Macros</a> &#124;
+<a href="#func-members">Funções</a> &#124;
+<a href="#var-members">Variáveis</a>  </div>
+  <div class="headertitle">
+<div class="title">Referência ao ficheiro main_core.c</div>  </div>
+</div><!--header-->
+<div class="contents">
+
+<p>Arquivo principal do código fonte da rede mesh 6LoWPAN <br />
+ Para compilar este código, execute o makefile com o target desejado, por exemplo: <br />
+ <b>"make TARGET=srf06-cc26xx"</b> <br />
+ Caso não reconheça qual o TARGET correto, utiliza o comando <br />
+ <b>"make targets"</b> <br />
+ para listar os tags disponíveis.  
+<a href="#details">Mais...</a></p>
+<div class="textblock"><code>#include &quot;contiki.h&quot;</code><br />
+<code>#include &quot;lib/random.h&quot;</code><br />
+<code>#include &quot;sys/ctimer.h&quot;</code><br />
+<code>#include &quot;sys/etimer.h&quot;</code><br />
+<code>#include &quot;net/ip/uip.h&quot;</code><br />
+<code>#include &quot;net/ipv6/uip-ds6.h&quot;</code><br />
+<code>#include &quot;mqtt-sn.h&quot;</code><br />
+<code>#include &quot;dev/leds.h&quot;</code><br />
+<code>#include &quot;net/rime/rime.h&quot;</code><br />
+<code>#include &quot;simple-udp.h&quot;</code><br />
+<code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Diagrama de dependências de inclusão para main_core.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="main__core_8c__incl.png" border="0" usemap="#main__core_8c" alt=""/></div>
+<map name="main__core_8c" id="main__core_8c">
+</map>
+</div>
+</div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a7342deb9bd9ebf195e550e2d8e7c38b4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7342deb9bd9ebf195e550e2d8e7c38b4"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>UDP_PORT</b>&#160;&#160;&#160;1884</td></tr>
+<tr class="separator:a7342deb9bd9ebf195e550e2d8e7c38b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13db5c5acaada956f323e7c00460e59c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a13db5c5acaada956f323e7c00460e59c"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>REQUEST_RETRIES</b>&#160;&#160;&#160;15</td></tr>
+<tr class="separator:a13db5c5acaada956f323e7c00460e59c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a025a7a44dbf006d20501a1f366ac5031"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a025a7a44dbf006d20501a1f366ac5031"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>DEFAULT_SEND_INTERVAL</b>&#160;&#160;&#160;(1 * CLOCK_SECOND)</td></tr>
+<tr class="separator:a025a7a44dbf006d20501a1f366ac5031"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a592524705d41754c771ffeba4348eb31"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a592524705d41754c771ffeba4348eb31"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>REPLY_TIMEOUT</b>&#160;&#160;&#160;(0.5 * CLOCK_SECOND)</td></tr>
+<tr class="separator:a592524705d41754c771ffeba4348eb31"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Funções</h2></td></tr>
+<tr class="memitem:a04dd60effcf87cfb83718ec8b00e5b86"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a04dd60effcf87cfb83718ec8b00e5b86"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS</b> (example_mqttsn_process,&quot;Configure Connection and Topic Registration&quot;)</td></tr>
+<tr class="separator:a04dd60effcf87cfb83718ec8b00e5b86"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba283fe8b812a35fc74a9f8b4fb34af0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aba283fe8b812a35fc74a9f8b4fb34af0"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS</b> (publish_process,&quot;register topic and publish data&quot;)</td></tr>
+<tr class="separator:aba283fe8b812a35fc74a9f8b4fb34af0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09abfc07dd613c9bc4533c82bc76b5a4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a09abfc07dd613c9bc4533c82bc76b5a4"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS</b> (ctrl_subscription_process,&quot;subscribe to a device control channel&quot;)</td></tr>
+<tr class="separator:a09abfc07dd613c9bc4533c82bc76b5a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16b44a4da530b0afe9c79d7770e851fe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a16b44a4da530b0afe9c79d7770e851fe"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS_THREAD</b> (publish_process, ev, data)</td></tr>
+<tr class="separator:a16b44a4da530b0afe9c79d7770e851fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab4dd2ddd7e4924b69e4db6db5a9ea826"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab4dd2ddd7e4924b69e4db6db5a9ea826"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS_THREAD</b> (ctrl_subscription_process, ev, data)</td></tr>
+<tr class="separator:ab4dd2ddd7e4924b69e4db6db5a9ea826"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c4aca34051816cc80cc51f648d9d723"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7c4aca34051816cc80cc51f648d9d723"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS_THREAD</b> (example_mqttsn_process, ev, data)</td></tr>
+<tr class="separator:a7c4aca34051816cc80cc51f648d9d723"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variáveis</h2></td></tr>
+<tr class="memitem:a3033bfed45e20d7a9dddedaf0b068b09"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3033bfed45e20d7a9dddedaf0b068b09"></a>
+AUTOSTART_PROCESSES &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>example_mqttsn_process</b></td></tr>
+<tr class="separator:a3033bfed45e20d7a9dddedaf0b068b09"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Descrição detalhada</h2>
+<div class="textblock"><p>Arquivo principal do código fonte da rede mesh 6LoWPAN <br />
+ Para compilar este código, execute o makefile com o target desejado, por exemplo: <br />
+ <b>"make TARGET=srf06-cc26xx"</b> <br />
+ Caso não reconheça qual o TARGET correto, utiliza o comando <br />
+ <b>"make targets"</b> <br />
+ para listar os tags disponíveis. </p>
+<dl class="section author"><dt>Autor</dt><dd>Ânderson Ignácio da Silva </dd></dl>
+<dl class="section date"><dt>Data</dt><dd>19 Ago 2016 </dd></dl>
+<dl class="section see"><dt>Veja também</dt><dd><a href="http://www.aignacio.com">http://www.aignacio.com</a> </dd></dl>
+</div></div><!-- contents -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+Gerado em Sexta, 19 de Agosto de 2016 23:33:30 para HomeStark por &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.8
+</small></address>
+</body>
+</html>

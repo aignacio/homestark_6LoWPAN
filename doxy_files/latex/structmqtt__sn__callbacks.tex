@@ -1,0 +1,43 @@
+\hypertarget{structmqtt__sn__callbacks}{\section{Referência à estrutura mqtt\+\_\+sn\+\_\+callbacks}
+\label{structmqtt__sn__callbacks}\index{mqtt\+\_\+sn\+\_\+callbacks@{mqtt\+\_\+sn\+\_\+callbacks}}
+}
+\subsection*{Atributos Públicos}
+\begin{DoxyCompactItemize}
+\item 
+void($\ast$ \hyperlink{structmqtt__sn__callbacks_abb5a49835c717825b5578762401e13c6}{pub\+\_\+recv} )(struct \hyperlink{structmqtt__sn__connection}{mqtt\+\_\+sn\+\_\+connection} $\ast$mqc, const uip\+\_\+ipaddr\+\_\+t $\ast$source\+\_\+addr, const uint8\+\_\+t $\ast$data, uint16\+\_\+t datalen)
+\item 
+\hypertarget{structmqtt__sn__callbacks_a1b7defdc8e21bcd18888d4eb2090a06b}{void($\ast$ {\bfseries pingreq\+\_\+recv} )(struct \hyperlink{structmqtt__sn__connection}{mqtt\+\_\+sn\+\_\+connection} $\ast$mqc, const uip\+\_\+ipaddr\+\_\+t $\ast$source\+\_\+addr, const uint8\+\_\+t $\ast$data, uint16\+\_\+t datalen)}\label{structmqtt__sn__callbacks_a1b7defdc8e21bcd18888d4eb2090a06b}
+
+\item 
+\hypertarget{structmqtt__sn__callbacks_ae7d8d1060e63df4c063e1020fa89dd16}{void($\ast$ {\bfseries pingresp\+\_\+recv} )(struct \hyperlink{structmqtt__sn__connection}{mqtt\+\_\+sn\+\_\+connection} $\ast$mqc, const uip\+\_\+ipaddr\+\_\+t $\ast$source\+\_\+addr, const uint8\+\_\+t $\ast$data, uint16\+\_\+t datalen)}\label{structmqtt__sn__callbacks_ae7d8d1060e63df4c063e1020fa89dd16}
+
+\item 
+\hypertarget{structmqtt__sn__callbacks_afdbb19f71585ba5b4cea7f494b0683e7}{void($\ast$ {\bfseries connack\+\_\+recv} )(struct \hyperlink{structmqtt__sn__connection}{mqtt\+\_\+sn\+\_\+connection} $\ast$mqc, const uip\+\_\+ipaddr\+\_\+t $\ast$source\+\_\+addr, const uint8\+\_\+t $\ast$data, uint16\+\_\+t datalen)}\label{structmqtt__sn__callbacks_afdbb19f71585ba5b4cea7f494b0683e7}
+
+\item 
+\hypertarget{structmqtt__sn__callbacks_aa64bd28c8cf75cb9f0ff38ab13598e26}{void($\ast$ {\bfseries regack\+\_\+recv} )(struct \hyperlink{structmqtt__sn__connection}{mqtt\+\_\+sn\+\_\+connection} $\ast$mqc, const uip\+\_\+ipaddr\+\_\+t $\ast$source\+\_\+addr, const uint8\+\_\+t $\ast$data, uint16\+\_\+t datalen)}\label{structmqtt__sn__callbacks_aa64bd28c8cf75cb9f0ff38ab13598e26}
+
+\item 
+\hypertarget{structmqtt__sn__callbacks_a3b3d41b5c5b297dd28fd9114f6686e70}{void($\ast$ {\bfseries puback\+\_\+recv} )(struct \hyperlink{structmqtt__sn__connection}{mqtt\+\_\+sn\+\_\+connection} $\ast$mqc, const uip\+\_\+ipaddr\+\_\+t $\ast$source\+\_\+addr, const uint8\+\_\+t $\ast$data, uint16\+\_\+t datalen)}\label{structmqtt__sn__callbacks_a3b3d41b5c5b297dd28fd9114f6686e70}
+
+\item 
+\hypertarget{structmqtt__sn__callbacks_aed4da3de327394445e6742a76e5cbbc1}{void($\ast$ {\bfseries suback\+\_\+recv} )(struct \hyperlink{structmqtt__sn__connection}{mqtt\+\_\+sn\+\_\+connection} $\ast$mqc, const uip\+\_\+ipaddr\+\_\+t $\ast$source\+\_\+addr, const uint8\+\_\+t $\ast$data, uint16\+\_\+t datalen)}\label{structmqtt__sn__callbacks_aed4da3de327394445e6742a76e5cbbc1}
+
+\item 
+\hypertarget{structmqtt__sn__callbacks_af2efc842c2e60d863599ad77fa767a42}{void($\ast$ {\bfseries disconnect\+\_\+recv} )(struct \hyperlink{structmqtt__sn__connection}{mqtt\+\_\+sn\+\_\+connection} $\ast$mqc, const uip\+\_\+ipaddr\+\_\+t $\ast$source\+\_\+addr, const uint8\+\_\+t $\ast$data, uint16\+\_\+t datalen)}\label{structmqtt__sn__callbacks_af2efc842c2e60d863599ad77fa767a42}
+
+\item 
+\hypertarget{structmqtt__sn__callbacks_a5e55df3d3f6ef76593045024d945130f}{void($\ast$ {\bfseries keepalive\+\_\+timeout} )(struct \hyperlink{structmqtt__sn__connection}{mqtt\+\_\+sn\+\_\+connection} $\ast$mqc)}\label{structmqtt__sn__callbacks_a5e55df3d3f6ef76593045024d945130f}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Documentação dos dados membro}
+\hypertarget{structmqtt__sn__callbacks_abb5a49835c717825b5578762401e13c6}{\index{mqtt\+\_\+sn\+\_\+callbacks@{mqtt\+\_\+sn\+\_\+callbacks}!pub\+\_\+recv@{pub\+\_\+recv}}
+\index{pub\+\_\+recv@{pub\+\_\+recv}!mqtt\+\_\+sn\+\_\+callbacks@{mqtt\+\_\+sn\+\_\+callbacks}}
+\subsubsection[{pub\+\_\+recv}]{\setlength{\rightskip}{0pt plus 5cm}void($\ast$  mqtt\+\_\+sn\+\_\+callbacks\+::pub\+\_\+recv)(struct {\bf mqtt\+\_\+sn\+\_\+connection} $\ast$mqc, const uip\+\_\+ipaddr\+\_\+t $\ast$source\+\_\+addr, const uint8\+\_\+t $\ast$data, uint16\+\_\+t datalen)}}\label{structmqtt__sn__callbacks_abb5a49835c717825b5578762401e13c6}
+Called when a packet has been received by the mqtt\+\_\+sn module or other event needs handled 
+
+A documentação para esta estrutura foi gerada a partir do seguinte ficheiro\+:\begin{DoxyCompactItemize}
+\item 
+mqtt-\/sn.\+h\end{DoxyCompactItemize}
