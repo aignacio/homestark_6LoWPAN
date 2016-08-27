@@ -41,7 +41,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
     <ul class="tablist">
       <li><a href="index.html"><span>Página&#160;principal</span></a></li>
       <li><a href="pages.html"><span>Páginas&#160;relacionadas</span></a></li>
-      <li><a href="annotated.html"><span>Classes</span></a></li>
+      <li><a href="annotated.html"><span>Estruturas&#160;de&#160;dados</span></a></li>
       <li class="current"><a href="files.html"><span>Ficheiros</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
@@ -64,6 +64,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="files.html"><span>Lista&#160;de&#160;ficheiros</span></a></li>
+      <li><a href="globals.html"><span>Globais</span></a></li>
     </ul>
   </div>
 <!-- window showing the filter options -->
@@ -71,7 +72,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Páginas</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Estruturas de dados</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Funções</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Definições de tipos</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerações</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Valores da enumeração</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Páginas</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -83,7 +84,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Funções</a> &#124;
 <a href="#var-members">Variáveis</a>  </div>
   <div class="headertitle">
@@ -100,11 +100,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
 <a href="#details">Mais...</a></p>
 <div class="textblock"><code>#include &quot;contiki.h&quot;</code><br />
 <code>#include &quot;lib/random.h&quot;</code><br />
+<code>#include &quot;clock.h&quot;</code><br />
 <code>#include &quot;sys/ctimer.h&quot;</code><br />
-<code>#include &quot;sys/etimer.h&quot;</code><br />
 <code>#include &quot;net/ip/uip.h&quot;</code><br />
 <code>#include &quot;net/ipv6/uip-ds6.h&quot;</code><br />
-<code>#include &quot;mqtt-sn.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="mqtt__sn_8h_source.html">mqtt_sn.h</a>&quot;</code><br />
 <code>#include &quot;dev/leds.h&quot;</code><br />
 <code>#include &quot;net/rime/rime.h&quot;</code><br />
 <code>#include &quot;simple-udp.h&quot;</code><br />
@@ -115,50 +115,26 @@ Diagrama de dependências de inclusão para main_core.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="main__core_8c__incl.png" border="0" usemap="#main__core_8c" alt=""/></div>
 <map name="main__core_8c" id="main__core_8c">
-</map>
+<area shape="rect" id="node8" href="mqtt__sn_8h.html" title=" &#160;&#160;&#160;Conjunto de protótipos e definiçoes do protocolo MQTT&#45;SN &#160;" alt="" coords="370,80,450,107"/></map>
 </div>
 </div><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
-Macros</h2></td></tr>
-<tr class="memitem:a7342deb9bd9ebf195e550e2d8e7c38b4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7342deb9bd9ebf195e550e2d8e7c38b4"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>UDP_PORT</b>&#160;&#160;&#160;1884</td></tr>
-<tr class="separator:a7342deb9bd9ebf195e550e2d8e7c38b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a13db5c5acaada956f323e7c00460e59c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a13db5c5acaada956f323e7c00460e59c"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>REQUEST_RETRIES</b>&#160;&#160;&#160;15</td></tr>
-<tr class="separator:a13db5c5acaada956f323e7c00460e59c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a025a7a44dbf006d20501a1f366ac5031"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a025a7a44dbf006d20501a1f366ac5031"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>DEFAULT_SEND_INTERVAL</b>&#160;&#160;&#160;(1 * CLOCK_SECOND)</td></tr>
-<tr class="separator:a025a7a44dbf006d20501a1f366ac5031"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a592524705d41754c771ffeba4348eb31"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a592524705d41754c771ffeba4348eb31"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>REPLY_TIMEOUT</b>&#160;&#160;&#160;(0.5 * CLOCK_SECOND)</td></tr>
-<tr class="separator:a592524705d41754c771ffeba4348eb31"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Funções</h2></td></tr>
-<tr class="memitem:a04dd60effcf87cfb83718ec8b00e5b86"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a04dd60effcf87cfb83718ec8b00e5b86"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS</b> (example_mqttsn_process,&quot;Configure Connection and Topic Registration&quot;)</td></tr>
-<tr class="separator:a04dd60effcf87cfb83718ec8b00e5b86"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba283fe8b812a35fc74a9f8b4fb34af0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aba283fe8b812a35fc74a9f8b4fb34af0"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS</b> (publish_process,&quot;register topic and publish data&quot;)</td></tr>
-<tr class="separator:aba283fe8b812a35fc74a9f8b4fb34af0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a09abfc07dd613c9bc4533c82bc76b5a4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a09abfc07dd613c9bc4533c82bc76b5a4"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS</b> (ctrl_subscription_process,&quot;subscribe to a device control channel&quot;)</td></tr>
-<tr class="separator:a09abfc07dd613c9bc4533c82bc76b5a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a16b44a4da530b0afe9c79d7770e851fe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a16b44a4da530b0afe9c79d7770e851fe"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS_THREAD</b> (publish_process, ev, data)</td></tr>
-<tr class="separator:a16b44a4da530b0afe9c79d7770e851fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab4dd2ddd7e4924b69e4db6db5a9ea826"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab4dd2ddd7e4924b69e4db6db5a9ea826"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS_THREAD</b> (ctrl_subscription_process, ev, data)</td></tr>
-<tr class="separator:ab4dd2ddd7e4924b69e4db6db5a9ea826"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7c4aca34051816cc80cc51f648d9d723"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7c4aca34051816cc80cc51f648d9d723"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS_THREAD</b> (example_mqttsn_process, ev, data)</td></tr>
-<tr class="separator:a7c4aca34051816cc80cc51f648d9d723"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79354dfce54fd0bece29f8d443321b88"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a79354dfce54fd0bece29f8d443321b88"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS</b> (init_system_process,&quot;[Contiki-OS] Iniciando sistema operacional&quot;)</td></tr>
+<tr class="separator:a79354dfce54fd0bece29f8d443321b88"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7683f5bdcb8cfbbb750ce92e76d1b7eb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7683f5bdcb8cfbbb750ce92e76d1b7eb"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS_THREAD</b> (init_system_process, ev, data)</td></tr>
+<tr class="separator:a7683f5bdcb8cfbbb750ce92e76d1b7eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variáveis</h2></td></tr>
-<tr class="memitem:a3033bfed45e20d7a9dddedaf0b068b09"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3033bfed45e20d7a9dddedaf0b068b09"></a>
-AUTOSTART_PROCESSES &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>example_mqttsn_process</b></td></tr>
-<tr class="separator:a3033bfed45e20d7a9dddedaf0b068b09"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab4d8d85432cb332a0eed09f5f268d234"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab4d8d85432cb332a0eed09f5f268d234"></a>
+<a class="el" href="structmqtt__sn__t.html">mqtt_sn_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>mqtt_sn_connection</b></td></tr>
+<tr class="separator:ab4d8d85432cb332a0eed09f5f268d234"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac531a18312af7e29d65ccde0edd8b894"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac531a18312af7e29d65ccde0edd8b894"></a>
+AUTOSTART_PROCESSES &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>init_system_process</b></td></tr>
+<tr class="separator:ac531a18312af7e29d65ccde0edd8b894"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Descrição detalhada</h2>
 <div class="textblock"><p>Arquivo principal do código fonte da rede mesh 6LoWPAN <br />
@@ -173,7 +149,7 @@ AUTOSTART_PROCESSES &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Gerado em Sexta, 19 de Agosto de 2016 23:33:30 para HomeStark por &#160;<a href="http://www.doxygen.org/index.html">
+Gerado em Sexta, 26 de Agosto de 2016 09:41:45 para HomeStark por &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.8
 </small></address>

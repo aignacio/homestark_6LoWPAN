@@ -1,5 +1,5 @@
 all: main_core
-PROJECT_SOURCEFILES += mqtt-sn.c
+PROJECT_SOURCEFILES += mqtt_sn.c
 
 WITH_UIP6=1
 UIP_CONF_IPV6=1

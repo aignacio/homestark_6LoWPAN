@@ -40,8 +40,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Página&#160;principal</span></a></li>
-      <li><a href="pages.html"><span>Páginas&#160;relacionadas</span></a></li>
-      <li><a href="annotated.html"><span>Classes</span></a></li>
+      <li><a href="annotated.html"><span>Estruturas&#160;de&#160;dados</span></a></li>
       <li class="current"><a href="files.html"><span>Ficheiros</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
@@ -64,6 +63,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="files.html"><span>Lista&#160;de&#160;ficheiros</span></a></li>
+      <li><a href="globals.html"><span>Globais</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -72,7 +72,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Páginas</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Estruturas de dados</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Macros</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -271,7 +271,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
 <div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;</div>
 <div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;<span class="keyword">struct </span><a class="code" href="structmqtt__sn__connection.html">mqtt_sn_connection</a>;</div>
 <div class="line"><a name="l00185"></a><span class="lineno"><a class="line" href="structmqtt__sn__callbacks.html">  185</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structmqtt__sn__callbacks.html">mqtt_sn_callbacks</a> {</div>
-<div class="line"><a name="l00187"></a><span class="lineno"><a class="line" href="structmqtt__sn__callbacks.html#abb5a49835c717825b5578762401e13c6">  187</a></span>&#160;  void (* <a class="code" href="structmqtt__sn__callbacks.html#abb5a49835c717825b5578762401e13c6">pub_recv</a>)(<span class="keyword">struct </span><a class="code" href="structmqtt__sn__connection.html">mqtt_sn_connection</a> *mqc, <span class="keyword">const</span> uip_ipaddr_t *source_addr, <span class="keyword">const</span> uint8_t *data, uint16_t datalen);</div>
+<div class="line"><a name="l00187"></a><span class="lineno"><a class="line" href="structmqtt__sn__callbacks.html#a52516850dd00bb113cbface2a0b2a9d8">  187</a></span>&#160;  void (* <a class="code" href="structmqtt__sn__callbacks.html#a52516850dd00bb113cbface2a0b2a9d8">pub_recv</a>)(<span class="keyword">struct </span><a class="code" href="structmqtt__sn__connection.html">mqtt_sn_connection</a> *mqc, <span class="keyword">const</span> uip_ipaddr_t *source_addr, <span class="keyword">const</span> uint8_t *data, uint16_t datalen);</div>
 <div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;  void (* pingreq_recv)(<span class="keyword">struct </span><a class="code" href="structmqtt__sn__connection.html">mqtt_sn_connection</a> *mqc, <span class="keyword">const</span> uip_ipaddr_t *source_addr, <span class="keyword">const</span> uint8_t *data, uint16_t datalen);</div>
 <div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;  void (* pingresp_recv)(<span class="keyword">struct </span><a class="code" href="structmqtt__sn__connection.html">mqtt_sn_connection</a> *mqc, <span class="keyword">const</span> uip_ipaddr_t *source_addr, <span class="keyword">const</span> uint8_t *data, uint16_t datalen);</div>
 <div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;  void (* connack_recv)(<span class="keyword">struct </span><a class="code" href="structmqtt__sn__connection.html">mqtt_sn_connection</a> *mqc, <span class="keyword">const</span> uip_ipaddr_t *source_addr, <span class="keyword">const</span> uint8_t *data, uint16_t datalen);</div>
@@ -428,7 +428,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
 <div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;</div>
 <div class="ttc" id="structconnect__packet__t_html"><div class="ttname"><a href="structconnect__packet__t.html">connect_packet_t</a></div><div class="ttdef"><b>Definition:</b> mqtt-sn.h:104</div></div>
 <div class="ttc" id="structconnack__packet__t_html"><div class="ttname"><a href="structconnack__packet__t.html">connack_packet_t</a></div><div class="ttdef"><b>Definition:</b> mqtt-sn.h:113</div></div>
-<div class="ttc" id="structmqtt__sn__callbacks_html_abb5a49835c717825b5578762401e13c6"><div class="ttname"><a href="structmqtt__sn__callbacks.html#abb5a49835c717825b5578762401e13c6">mqtt_sn_callbacks::pub_recv</a></div><div class="ttdeci">void(* pub_recv)(struct mqtt_sn_connection *mqc, const uip_ipaddr_t *source_addr, const uint8_t *data, uint16_t datalen)</div><div class="ttdef"><b>Definition:</b> mqtt-sn.h:187</div></div>
 <div class="ttc" id="structmqttsn__topic_html"><div class="ttname"><a href="structmqttsn__topic.html">mqttsn_topic</a></div><div class="ttdef"><b>Definition:</b> mqtt-sn.h:230</div></div>
 <div class="ttc" id="structtopic__map_html"><div class="ttname"><a href="structtopic__map.html">topic_map</a></div><div class="ttdef"><b>Definition:</b> mqtt-sn.h:178</div></div>
 <div class="ttc" id="structmqtt__sn__request_html"><div class="ttname"><a href="structmqtt__sn__request.html">mqtt_sn_request</a></div><div class="ttdef"><b>Definition:</b> mqtt-sn.h:309</div></div>
@@ -438,10 +437,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
 <div class="ttc" id="structmqtt__sn__callbacks_html"><div class="ttname"><a href="structmqtt__sn__callbacks.html">mqtt_sn_callbacks</a></div><div class="ttdef"><b>Definition:</b> mqtt-sn.h:185</div></div>
 <div class="ttc" id="structregack__packet__t_html"><div class="ttname"><a href="structregack__packet__t.html">regack_packet_t</a></div><div class="ttdef"><b>Definition:</b> mqtt-sn.h:127</div></div>
 <div class="ttc" id="structpuback__packet__t_html"><div class="ttname"><a href="structpuback__packet__t.html">puback_packet_t</a></div><div class="ttdef"><b>Definition:</b> mqtt-sn.h:144</div></div>
+<div class="ttc" id="structmqtt__sn__callbacks_html_a52516850dd00bb113cbface2a0b2a9d8"><div class="ttname"><a href="structmqtt__sn__callbacks.html#a52516850dd00bb113cbface2a0b2a9d8">mqtt_sn_callbacks::pub_recv</a></div><div class="ttdeci">void(* pub_recv)(struct mqtt_sn_connection *mqc, const uip_ipaddr_t *source_addr, const uint8_t *data, uint16_t datalen)</div><div class="ttdoc">Called when a packet has been received by the mqtt_sn module or other event needs handled...</div><div class="ttdef"><b>Definition:</b> mqtt-sn.h:187</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Gerado em Sexta, 19 de Agosto de 2016 23:33:30 para HomeStark por &#160;<a href="http://www.doxygen.org/index.html">
+Gerado em Sábado, 20 de Agosto de 2016 01:40:49 para HomeStark por &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.8
 </small></address>

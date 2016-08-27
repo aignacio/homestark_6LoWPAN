@@ -40,8 +40,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Página&#160;principal</span></a></li>
-      <li><a href="pages.html"><span>Páginas&#160;relacionadas</span></a></li>
-      <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
+      <li class="current"><a href="annotated.html"><span>Estruturas&#160;de&#160;dados</span></a></li>
       <li><a href="files.html"><span>Ficheiros</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
@@ -63,9 +62,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
   </div>
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
-      <li><a href="annotated.html"><span>Lista&#160;de&#160;componentes</span></a></li>
-      <li><a href="classes.html"><span>Índice&#160;dos&#160;componentes</span></a></li>
-      <li><a href="functions.html"><span>Componentes&#160;membro</span></a></li>
+      <li><a href="annotated.html"><span>Estruturas&#160;de&#160;dados</span></a></li>
+      <li><a href="classes.html"><span>Índice&#160;das&#160;estruturas&#160;de&#160;dados</span></a></li>
+      <li><a href="functions.html"><span>Campos&#160;de&#160;dados</span></a></li>
     </ul>
   </div>
 <!-- window showing the filter options -->
@@ -73,7 +72,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Páginas</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Estruturas de dados</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Macros</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -86,8 +85,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Membros públicos</a> &#124;
-<a href="#pub-attribs">Atributos Públicos</a> &#124;
-<a href="structmqtt__sn__connection-members.html">Mostrar lista completa dos membros</a>  </div>
+<a href="#pub-attribs">Campos de Dados</a>  </div>
   <div class="headertitle">
 <div class="title">Referência à estrutura mqtt_sn_connection</div>  </div>
 </div><!--header-->
@@ -97,50 +95,50 @@ Diagrama de colaboração para mqtt_sn_connection:</div>
 <div class="dyncontent">
 <div class="center"><img src="structmqtt__sn__connection__coll__graph.png" border="0" usemap="#mqtt__sn__connection_coll__map" alt="Collaboration graph"/></div>
 <map name="mqtt__sn__connection_coll__map" id="mqtt__sn__connection_coll__map">
-</map>
+<area shape="rect" id="node2" href="structmqtt__sn__callbacks.html" title="mqtt_sn_callbacks" alt="" coords="5,5,136,32"/><area shape="rect" id="node3" href="structconnack__packet__t.html" title="connack_packet_t" alt="" coords="160,5,288,32"/></map>
 <center><span class="legend">[<a href="graph_legend.html">legenda</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Membros públicos</h2></td></tr>
-<tr class="memitem:ab346420684659c5deaf7980b69e12430"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab346420684659c5deaf7980b69e12430"></a>
+<tr class="memitem:ae825853452efa9c82bcaf89a50fef185"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae825853452efa9c82bcaf89a50fef185"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>LIST_STRUCT</b> (requests)</td></tr>
-<tr class="separator:ab346420684659c5deaf7980b69e12430"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:ae825853452efa9c82bcaf89a50fef185"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Atributos Públicos</h2></td></tr>
-<tr class="memitem:abd6e4343d5a574be10f88a65ed671b64"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abd6e4343d5a574be10f88a65ed671b64"></a>
+Campos de Dados</h2></td></tr>
+<tr class="memitem:ad171b51232de8bcdefba9d69f78b1f2b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad171b51232de8bcdefba9d69f78b1f2b"></a>
 struct simple_udp_connection&#160;</td><td class="memItemRight" valign="bottom"><b>sock</b></td></tr>
-<tr class="separator:abd6e4343d5a574be10f88a65ed671b64"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af3b8991df7c8139dc8d60d3f5b0734c7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af3b8991df7c8139dc8d60d3f5b0734c7"></a>
+<tr class="separator:ad171b51232de8bcdefba9d69f78b1f2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5f06fa20c24cfc66b191395b1ef2b56"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad5f06fa20c24cfc66b191395b1ef2b56"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>next_message_id</b></td></tr>
-<tr class="separator:af3b8991df7c8139dc8d60d3f5b0734c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9c6fb1996a7e9de65a5b6eb6375de117"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9c6fb1996a7e9de65a5b6eb6375de117"></a>
+<tr class="separator:ad5f06fa20c24cfc66b191395b1ef2b56"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae172b04589d6f7d3f097c263aa20def2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae172b04589d6f7d3f097c263aa20def2"></a>
 struct ctimer&#160;</td><td class="memItemRight" valign="bottom"><b>receive_timer</b></td></tr>
-<tr class="separator:a9c6fb1996a7e9de65a5b6eb6375de117"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a751337f5fccb207bf9345696cd0cd693"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a751337f5fccb207bf9345696cd0cd693"></a>
+<tr class="separator:ae172b04589d6f7d3f097c263aa20def2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39e71e16aa3e853f62aca3efc64f584c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a39e71e16aa3e853f62aca3efc64f584c"></a>
 struct ctimer&#160;</td><td class="memItemRight" valign="bottom"><b>send_timer</b></td></tr>
-<tr class="separator:a751337f5fccb207bf9345696cd0cd693"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a990275e5e6698b0931feb1f63daefbca"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a990275e5e6698b0931feb1f63daefbca"></a>
+<tr class="separator:a39e71e16aa3e853f62aca3efc64f584c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afbbcf4a001540a2a6ec7f26aa6058661"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afbbcf4a001540a2a6ec7f26aa6058661"></a>
 clock_time_t&#160;</td><td class="memItemRight" valign="bottom"><b>keep_alive</b></td></tr>
-<tr class="separator:a990275e5e6698b0931feb1f63daefbca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab7878adb516129260457e5b0cfb4ccd9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab7878adb516129260457e5b0cfb4ccd9"></a>
+<tr class="separator:afbbcf4a001540a2a6ec7f26aa6058661"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab30ea1c81fc48a2b08f5deaaafb2d4e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aab30ea1c81fc48a2b08f5deaaafb2d4e"></a>
 <a class="el" href="structconnack__packet__t.html">connack_packet_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>last_connack</b></td></tr>
-<tr class="separator:ab7878adb516129260457e5b0cfb4ccd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a285cf4c9a26ff68218fb312f9ba1652f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a285cf4c9a26ff68218fb312f9ba1652f"></a>
+<tr class="separator:aab30ea1c81fc48a2b08f5deaaafb2d4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab4524148feaa9d4fe5c15722114aedf5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab4524148feaa9d4fe5c15722114aedf5"></a>
 const char *&#160;</td><td class="memItemRight" valign="bottom"><b>client_id</b></td></tr>
-<tr class="separator:a285cf4c9a26ff68218fb312f9ba1652f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae942d94f75b382db824a4032ddd5518d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae942d94f75b382db824a4032ddd5518d"></a>
+<tr class="separator:ab4524148feaa9d4fe5c15722114aedf5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47d5ca8da9b4b6faa46c933c51e64b53"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a47d5ca8da9b4b6faa46c933c51e64b53"></a>
 enum mqttsn_connection_status&#160;</td><td class="memItemRight" valign="bottom"><b>stat</b></td></tr>
-<tr class="separator:ae942d94f75b382db824a4032ddd5518d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a73488bf96532a376591bb2f2a739e7be"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a73488bf96532a376591bb2f2a739e7be"></a>
+<tr class="separator:a47d5ca8da9b4b6faa46c933c51e64b53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af32dc65bf9337fb62f3c5ee66c87222c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af32dc65bf9337fb62f3c5ee66c87222c"></a>
 uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>connection_retries</b></td></tr>
-<tr class="separator:a73488bf96532a376591bb2f2a739e7be"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae76761094406a6877b87201cab1d60ba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae76761094406a6877b87201cab1d60ba"></a>
+<tr class="separator:af32dc65bf9337fb62f3c5ee66c87222c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a77d0584b9412e8139bd1593e958bc6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9a77d0584b9412e8139bd1593e958bc6"></a>
 struct process *&#160;</td><td class="memItemRight" valign="bottom"><b>client_process</b></td></tr>
-<tr class="separator:ae76761094406a6877b87201cab1d60ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8db5a6e4d67db8c3c0db7930cb99285b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8db5a6e4d67db8c3c0db7930cb99285b"></a>
+<tr class="separator:a9a77d0584b9412e8139bd1593e958bc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a091e65235231be3ce1f4dbcfd746e727"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a091e65235231be3ce1f4dbcfd746e727"></a>
 const struct <a class="el" href="structmqtt__sn__callbacks.html">mqtt_sn_callbacks</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>mc</b></td></tr>
-<tr class="separator:a8db5a6e4d67db8c3c0db7930cb99285b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a091e65235231be3ce1f4dbcfd746e727"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>A documentação para esta estrutura foi gerada a partir do seguinte ficheiro:<ul>
 <li><a class="el" href="mqtt-sn_8h_source.html">mqtt-sn.h</a></li>
@@ -148,7 +146,7 @@ const struct <a class="el" href="structmqtt__sn__callbacks.html">mqtt_sn_callbac
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Gerado em Sexta, 19 de Agosto de 2016 23:33:30 para HomeStark por &#160;<a href="http://www.doxygen.org/index.html">
+Gerado em Sábado, 20 de Agosto de 2016 01:40:49 para HomeStark por &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.8
 </small></address>

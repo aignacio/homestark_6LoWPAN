@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['puback_5fpacket_5ft',['puback_packet_t',['../structpuback__packet__t.html',1,'']]]
+  ['publish_5fpacket_5ft',['publish_packet_t',['../structpublish__packet__t.html',1,'']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['pub_5frecv',['pub_recv',['../structmqtt__sn__callbacks.html#abb5a49835c717825b5578762401e13c6',1,'mqtt_sn_callbacks']]]
+  ['client_5fid',['client_id',['../structmqtt__sn__t.html#a3880622ca383fee22fbbac18442bae32',1,'mqtt_sn_t']]]
 ];

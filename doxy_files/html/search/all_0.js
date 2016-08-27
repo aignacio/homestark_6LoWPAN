@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['connack_5fpacket_5ft',['connack_packet_t',['../structconnack__packet__t.html',1,'']]],
+  ['client_5fid',['client_id',['../structmqtt__sn__t.html#a3880622ca383fee22fbbac18442bae32',1,'mqtt_sn_t']]],
   ['connect_5fpacket_5ft',['connect_packet_t',['../structconnect__packet__t.html',1,'']]]
 ];

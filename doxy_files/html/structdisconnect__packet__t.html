@@ -40,8 +40,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Página&#160;principal</span></a></li>
-      <li><a href="pages.html"><span>Páginas&#160;relacionadas</span></a></li>
-      <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
+      <li class="current"><a href="annotated.html"><span>Estruturas&#160;de&#160;dados</span></a></li>
       <li><a href="files.html"><span>Ficheiros</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
@@ -63,9 +62,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
   </div>
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
-      <li><a href="annotated.html"><span>Lista&#160;de&#160;componentes</span></a></li>
-      <li><a href="classes.html"><span>Índice&#160;dos&#160;componentes</span></a></li>
-      <li><a href="functions.html"><span>Componentes&#160;membro</span></a></li>
+      <li><a href="annotated.html"><span>Estruturas&#160;de&#160;dados</span></a></li>
+      <li><a href="classes.html"><span>Índice&#160;das&#160;estruturas&#160;de&#160;dados</span></a></li>
+      <li><a href="functions.html"><span>Campos&#160;de&#160;dados</span></a></li>
     </ul>
   </div>
 <!-- window showing the filter options -->
@@ -73,7 +72,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Páginas</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Estruturas de dados</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Macros</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -85,24 +84,23 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-attribs">Atributos Públicos</a> &#124;
-<a href="structdisconnect__packet__t-members.html">Mostrar lista completa dos membros</a>  </div>
+<a href="#pub-attribs">Campos de Dados</a>  </div>
   <div class="headertitle">
 <div class="title">Referência à estrutura disconnect_packet_t</div>  </div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Atributos Públicos</h2></td></tr>
-<tr class="memitem:ae040bbd3cf30dc507447d3c3f03fdd2a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae040bbd3cf30dc507447d3c3f03fdd2a"></a>
+Campos de Dados</h2></td></tr>
+<tr class="memitem:ab2b3adeb2a67e656ff030b56727fd0ac"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab2b3adeb2a67e656ff030b56727fd0ac"></a>
 uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>length</b></td></tr>
-<tr class="separator:ae040bbd3cf30dc507447d3c3f03fdd2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a666b42d5da2d9c45a37515217f470932"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a666b42d5da2d9c45a37515217f470932"></a>
+<tr class="separator:ab2b3adeb2a67e656ff030b56727fd0ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d127017fb298b889f4ba24752d08b8e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1d127017fb298b889f4ba24752d08b8e"></a>
 uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr>
-<tr class="separator:a666b42d5da2d9c45a37515217f470932"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4d0f4307f03380c20cfbed4b4a52737a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4d0f4307f03380c20cfbed4b4a52737a"></a>
+<tr class="separator:a1d127017fb298b889f4ba24752d08b8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b14ef3e3e30242faa9bbef961493044"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5b14ef3e3e30242faa9bbef961493044"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>duration</b></td></tr>
-<tr class="separator:a4d0f4307f03380c20cfbed4b4a52737a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a5b14ef3e3e30242faa9bbef961493044"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>A documentação para esta estrutura foi gerada a partir do seguinte ficheiro:<ul>
 <li><a class="el" href="mqtt-sn_8h_source.html">mqtt-sn.h</a></li>
@@ -110,7 +108,7 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>duration</b></td>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Gerado em Sexta, 19 de Agosto de 2016 23:33:30 para HomeStark por &#160;<a href="http://www.doxygen.org/index.html">
+Gerado em Sábado, 20 de Agosto de 2016 01:40:49 para HomeStark por &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.8
 </small></address>

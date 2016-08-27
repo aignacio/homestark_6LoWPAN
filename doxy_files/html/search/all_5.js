@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['topic_5fmap',['topic_map',['../structtopic__map.html',1,'']]]
+  ['length',['length',['../structconnect__packet__t.html#af9d495c1655d813d553030485d00fea7',1,'connect_packet_t::length()'],['../structregister__packet__t.html#af9d495c1655d813d553030485d00fea7',1,'register_packet_t::length()']]],
+  ['lista_20de_20tarefas',['Lista de tarefas',['../todo.html',1,'']]]
 ];

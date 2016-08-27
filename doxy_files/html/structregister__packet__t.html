@@ -41,7 +41,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
     <ul class="tablist">
       <li><a href="index.html"><span>Página&#160;principal</span></a></li>
       <li><a href="pages.html"><span>Páginas&#160;relacionadas</span></a></li>
-      <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
+      <li class="current"><a href="annotated.html"><span>Estruturas&#160;de&#160;dados</span></a></li>
       <li><a href="files.html"><span>Ficheiros</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
@@ -63,9 +63,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
   </div>
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
-      <li><a href="annotated.html"><span>Lista&#160;de&#160;componentes</span></a></li>
-      <li><a href="classes.html"><span>Índice&#160;dos&#160;componentes</span></a></li>
-      <li><a href="functions.html"><span>Componentes&#160;membro</span></a></li>
+      <li><a href="annotated.html"><span>Estruturas&#160;de&#160;dados</span></a></li>
+      <li><a href="classes.html"><span>Índice&#160;das&#160;estruturas&#160;de&#160;dados</span></a></li>
+      <li><a href="functions.html"><span>Campos&#160;de&#160;dados</span></a></li>
     </ul>
   </div>
 <!-- window showing the filter options -->
@@ -73,7 +73,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Páginas</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Estruturas de dados</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Funções</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Definições de tipos</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerações</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Valores da enumeração</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Páginas</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -85,38 +85,49 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-attribs">Atributos Públicos</a> &#124;
-<a href="structregister__packet__t-members.html">Mostrar lista completa dos membros</a>  </div>
+<a href="#pub-attribs">Campos de Dados</a>  </div>
   <div class="headertitle">
 <div class="title">Referência à estrutura register_packet_t</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Estrutura de pacotes MQTT-SN do tipo REGISTER.  
+ <a href="structregister__packet__t.html#details">Mais...</a></p>
+
+<p><code>#include &lt;<a class="el" href="mqtt__sn_8h_source.html">mqtt_sn.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Atributos Públicos</h2></td></tr>
-<tr class="memitem:a24462876cab1ee115eab12d1f96f605f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a24462876cab1ee115eab12d1f96f605f"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>length</b></td></tr>
-<tr class="separator:a24462876cab1ee115eab12d1f96f605f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89183a1557a1c6422b0e6b9edf022941"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a89183a1557a1c6422b0e6b9edf022941"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr>
-<tr class="separator:a89183a1557a1c6422b0e6b9edf022941"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2dd9b7da1b08d944eff685021eaefd26"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2dd9b7da1b08d944eff685021eaefd26"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>topic_id</b></td></tr>
-<tr class="separator:a2dd9b7da1b08d944eff685021eaefd26"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af84a2324fa1e64ee1eafbd43e3580f4b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af84a2324fa1e64ee1eafbd43e3580f4b"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>message_id</b></td></tr>
-<tr class="separator:af84a2324fa1e64ee1eafbd43e3580f4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a10223e5325f38eb2da99e06017220cb9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a10223e5325f38eb2da99e06017220cb9"></a>
-char&#160;</td><td class="memItemRight" valign="bottom"><b>topic_name</b> [MQTT_SN_MAX_TOPIC_LENGTH]</td></tr>
-<tr class="separator:a10223e5325f38eb2da99e06017220cb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+Campos de Dados</h2></td></tr>
+<tr class="memitem:af9d495c1655d813d553030485d00fea7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af9d495c1655d813d553030485d00fea7"></a>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structregister__packet__t.html#af9d495c1655d813d553030485d00fea7">length</a></td></tr>
+<tr class="memdesc:af9d495c1655d813d553030485d00fea7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Comprimento total do pacote MQTT-SN. <br /></td></tr>
+<tr class="separator:af9d495c1655d813d553030485d00fea7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7aead736a07eaf25623ad7bfa1f0ee2d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7aead736a07eaf25623ad7bfa1f0ee2d"></a>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structregister__packet__t.html#a7aead736a07eaf25623ad7bfa1f0ee2d">type</a></td></tr>
+<tr class="memdesc:a7aead736a07eaf25623ad7bfa1f0ee2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Descreve o tipo de mensagem que será enviado ao broker. <br /></td></tr>
+<tr class="separator:a7aead736a07eaf25623ad7bfa1f0ee2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0380a82be366f48263095460986c3c7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab0380a82be366f48263095460986c3c7"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structregister__packet__t.html#ab0380a82be366f48263095460986c3c7">topic_id</a></td></tr>
+<tr class="memdesc:ab0380a82be366f48263095460986c3c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Short Topic que será utilizado para envio do REGISTER - Quando enviado pelo nó, usa-se 0x0000. <br /></td></tr>
+<tr class="separator:ab0380a82be366f48263095460986c3c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f2be45182f0cc39afb7cc3a8d55a1f1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5f2be45182f0cc39afb7cc3a8d55a1f1"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structregister__packet__t.html#a5f2be45182f0cc39afb7cc3a8d55a1f1">message_id</a></td></tr>
+<tr class="memdesc:a5f2be45182f0cc39afb7cc3a8d55a1f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Identificador único do REGACK correspondente enviado pelo broker normalmente. <br /></td></tr>
+<tr class="separator:a5f2be45182f0cc39afb7cc3a8d55a1f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4928dc5635290abe481ce340f6d47865"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4928dc5635290abe481ce340f6d47865"></a>
+char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structregister__packet__t.html#a4928dc5635290abe481ce340f6d47865">topic_name</a> [MQTT_SN_MAX_TOPIC_LENGTH]</td></tr>
+<tr class="memdesc:a4928dc5635290abe481ce340f6d47865"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nome do tópico a ser registrado. <br /></td></tr>
+<tr class="separator:a4928dc5635290abe481ce340f6d47865"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>A documentação para esta estrutura foi gerada a partir do seguinte ficheiro:<ul>
-<li><a class="el" href="mqtt-sn_8h_source.html">mqtt-sn.h</a></li>
+<a name="details" id="details"></a><h2 class="groupheader">Descrição detalhada</h2>
+<div class="textblock"><p>Estrutura de pacotes MQTT-SN do tipo REGISTER. </p>
+</div><hr/>A documentação para esta estrutura foi gerada a partir do seguinte ficheiro:<ul>
+<li><a class="el" href="mqtt__sn_8h_source.html">mqtt_sn.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Gerado em Sexta, 19 de Agosto de 2016 23:33:30 para HomeStark por &#160;<a href="http://www.doxygen.org/index.html">
+Gerado em Sexta, 26 de Agosto de 2016 09:41:45 para HomeStark por &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.8
 </small></address>
