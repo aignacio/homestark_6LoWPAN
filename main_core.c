@@ -25,12 +25,12 @@
 #include <stdio.h>
 #include <string.h>
 
-static char mqtt_client_id[] = "anderson\0";
+static char mqtt_client_id[] = "anderson";
 static uint16_t udp_port = 1884;
 static uint16_t keep_alive = 30;
 static uint16_t broker_address[] = {0xaaaa, 0, 0, 0, 0, 0, 0, 0x1};
-
 static struct etimer time_poll;
+static uint16_t error_in = 0;
 
 //Estes tópicos pré-registrados serão mais rápidos de publicar/receber publicações
 static char *topics_mqtt[] = {"/topic_1/device",
@@ -58,14 +58,17 @@ PROCESS_THREAD(init_system_process, ev, data)
   mqtt_sn_init();   // Inicializa alocação de eventos e a principal PROCESS_THREAD do MQTT-SN
   mqtt_sn_create_sck(mqtt_sn_connection,topics_mqtt,sizeof(topics_mqtt)/sizeof(*topics_mqtt));
 
-  etimer_set(&time_poll, CLOCK_SECOND);
+  etimer_set(&time_poll, CLOCK_SECOND/10);
 
   while(1) {
       PROCESS_WAIT_EVENT();
-      mqtt_sn_pub("/topic_1/device","Ola mundo 1 =)",true,0);
-      mqtt_sn_pub("/topic_2/device","Ola mundo 2 =)",true,0);
-      mqtt_sn_pub("/topic_3/device","Ola mundo 3 =)",true,0);
-
+      if (mqtt_sn_check_status() == MQTTSN_CONNECTED) {
+        mqtt_sn_pub("/topic_1/device","Ola mundo 1 =)",true,0);
+        mqtt_sn_pub("/topic_2/device","Ola mundo 2 =)",true,0);
+        mqtt_sn_pub("/topic_3/device","Ola mundo 3 =)",true,0);
+        mqtt_sn_check_queue();
+        debug_os("Erro em:%d",error_in++);
+      }
       if (etimer_expired(&time_poll))
         etimer_reset(&time_poll);
   }

@@ -61,6 +61,10 @@ void parse_mqtt_type_string(uint8_t type, char **type_string){
   }
 }
 
+mqtt_sn_status_t mqtt_sn_check_status(void){
+  return mqtt_status;
+}
+
 resp_con_t mqtt_sn_check_rc(uint8_t rc){
   switch (rc) {
     case ACCEPTED:
@@ -218,8 +222,8 @@ resp_con_t mqtt_sn_pub_send(void){
   //
   //  Pacote PUBLISH
   //  _________________ ______________________ ___________ ________________ ______________ ________________
-  // | Comprimento - 0 | Tipo de mensagem - 1 | Flags - 2 | Topic ID - 3,4 | Msg ID - 5,6 | Data - 7,n ....|
-  // |_________________ ______________________ ___________ ________________ ______________ ________________|
+  // | Comprimento - 0 | Tipo de mensagem - 1 | Flags - 2 | Topic ID - 3,4 | Msg ID - 5,6 | Dado - 7,n ....|
+  // |_________________|______________________|___________ ________________|______________|________________|
   //
   packet.length = 0x07 + (data_len+1);
 
@@ -254,7 +258,9 @@ resp_con_t mqtt_sn_insert_queue(mqtt_sn_task_t new){
 
   temp->data.id_task     = (uint16_t *)g_task_id;
 
-  g_task_id++;
+  if (temp->data.msg_type_q == MQTT_SN_TYPE_REGISTER)
+    g_task_id++;
+
 
   temp->link = NULL;
   if (mqtt_queue_last  ==  NULL) {
@@ -567,10 +573,7 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
               mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_PUBLISH){
         mqtt_sn_pub_send();
         mqtt_sn_delete_queue(); // Deleta requisição de PUBLISH
-
-        if (mqtt_sn_check_empty())
-          debug_mqtt("Processos concluidos");
-        else
+        if (!mqtt_sn_check_empty())
           process_post(&mqtt_sn_main, mqtt_event_run_task, NULL); // Inicia outras tasks caso a fila não esteja vazia
       }
   }

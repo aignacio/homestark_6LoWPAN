@@ -107,7 +107,7 @@
 
 #define MQTT_SN_TIMEOUT    CLOCK_SECOND     /// \brief Tempo base para comunicação MQTT-SN broker <-> nó
 #define MQTT_SN_RETRY      5                /// \brief Número de tentativas de enviar qualquer pacote ao broker antes de desconectar
-#define MAX_QUEUE_MQTT_SN  100              /// \briefNúmero máximo de tarefas a serem inseridas alocadas dinamicamente MQTT-SN
+#define MAX_QUEUE_MQTT_SN  10               /// \briefNúmero máximo de tarefas a serem inseridas alocadas dinamicamente MQTT-SN
 #define MAX_TOPIC_USED     10               /// \brief Número máximo de tópicos que o usuário pode registrar, a API cria um conjunto de
                                             /// estruturas para o bind de topic e short topic id
 /******************************************************************************/
@@ -383,6 +383,8 @@ resp_con_t mqtt_sn_reg_send(void);
  *  @retval SUCCESS_CON   Sucesso ao enviar o pacote CONNECT
  *
  **/
+mqtt_sn_status_t mqtt_sn_check_status(void);
+
 resp_con_t mqtt_sn_con_send(void);
 
 void mqtt_sn_pub(char *topic,char *message, bool retain_flag, uint8_t qos_level);
