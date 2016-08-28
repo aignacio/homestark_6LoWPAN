@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "net/ipv6/uip-ds6.h"
+#include "lib/list.h"
 
 static struct etimer              mqtt_time_connect;       // Estrutura de temporização para envio de CONNECT
 static struct etimer              mqtt_time_register;      // Estrutura de temporização para envio de REGISTER
@@ -26,12 +27,15 @@ static process_event_t            mqtt_event_run_task;   // Evento de req qualqu
 // Comentado por enquanto já que QoS - 0 não envia PUBACK
 // static process_event_t            mqtt_event_puback;     // Evento de req PUBACK   [broker --> nó]
 
-// static char                       *g_message_bind;                   // Buffer temporário para o envio de mensagens do tipo publicação no caso de
 static uint16_t                   g_tries_send = 0;                  // Identificador de tentativas de envio
 static uint16_t                   g_task_id = 0;                     // Identificador unitário de tarefa incremental
 static short_topics_t             g_topic_bind[MAX_TOPIC_USED];      // Vetor que armazena a relação nome do tópico com short topic id
 static mqtt_sn_con_t              g_mqtt_sn_con;                     // Estrutura principal da conexão MQTT
 static mqtt_sn_status_t           mqtt_status = MQTTSN_DISCONNECTED; // ASM principal do MQTT-SN
+
+static struct mqtt_sn_list_task temp;
+
+LIST(mqtt_sn_list);
 
 PROCESS(mqtt_sn_main, "[MQTT-SN] Processo inicial");
 
@@ -58,29 +62,6 @@ void parse_mqtt_type_string(uint8_t type, char **type_string){
     break;
     case MQTT_SN_TYPE_DISCONNECT:
       *type_string = "DISCONNECT";
-    break;
-  }
-}
-
-char* mqtt_sn_check_status_string(void){
-  switch (mqtt_status) {
-    case MQTTSN_DISCONNECTED:
-      return "DESCONECTADO";
-    break;
-    case MQTTSN_WAITING_CONNACK:
-      return "AGUARDANDO CONNACK";
-    break;
-    case MQTTSN_WAITING_REGACK:
-      return "AGUARDANDO REGACK";
-    break;
-    case MQTTSN_CONNECTED:
-      return "#### CONECTADO ####";
-    break;
-    case MQTTSN_TOPIC_REGISTERED:
-      return "TOPICOS REGISTRADOS";
-    break;
-    default:
-      return "ESTADO NAO DESCRITO";
     break;
   }
 }
@@ -124,33 +105,34 @@ uint8_t mqtt_sn_get_qos_flag(int8_t qos){
     }
 }
 
-// void mqtt_sn_pub(char *topic,char *message, bool retain_flag, uint8_t qos){
-//   mqtt_sn_task_t publish_task;
-//
-//   size_t i = 0;
-//   for (i=0; i < MAX_TOPIC_USED; i++)
-//     if (strcmp(g_topic_bind[i].topic_name,topic) == 0) {
-//       publish_task.short_topic = g_topic_bind[i].short_topic_id;
-//       break;
-//     }
-//
-//   publish_task.msg_type_q = MQTT_SN_TYPE_PUBLISH;
-//   //publish_task.long_topic = topic;
-//   //publish_task.message    = message;
-//   g_message_bind[g_task_id] = message;
-//   publish_task.qos_level  = qos;
-//   publish_task.retain     = retain_flag;
-//
-//   // Os campos não preenchidos na estrutura (mqtt_sn_task_t) serão preenchidos
-//   // pela própria função de adição na fila
-//   if (!mqtt_sn_insert_queue(publish_task))
-//     debug_mqtt("ERRO AO ADICIONAR NA FILA");
-//
-//   //process_post(&mqtt_sn_main, mqtt_event_run_task, NULL);
-// }
+void mqtt_sn_pub(char *topic,char *message, bool retain_flag, uint8_t qos){
+  mqtt_sn_task_t publish_task;
+
+  size_t i = 0;
+  for (i=0; i < g_task_id; i++)
+    if (strcmp(g_topic_bind[i].topic_name,topic) == 0) {
+      publish_task.short_topic = g_topic_bind[i].short_topic_id;
+      break;
+    }
+
+  publish_task.msg_type_q = MQTT_SN_TYPE_PUBLISH;
+  publish_task.long_topic = topic;
+  publish_task.message    = message;
+  publish_task.qos_level  = qos;
+  publish_task.retain     = retain_flag;
+
+  // Os campos não preenchidos na estrutura (mqtt_sn_task_t) serão preenchidos
+  // pela própria função de adição na fila
+  if (!mqtt_sn_insert_queue(publish_task))
+    debug_mqtt("ERRO AO ADICIONAR NA FILA");
+
+  process_post(&mqtt_sn_main, mqtt_event_run_task, NULL);
+}
 
 /******************** FUNÇÕES DE ENVIO DE PACOTES MQTT-SN *********************/
 resp_con_t mqtt_sn_con_send(void){
+
+  mqtt_queue_first = list_head(mqtt_sn_list);
   connect_packet_t packet;
 
   // Criação do pacote CONNECT
@@ -171,12 +153,11 @@ resp_con_t mqtt_sn_con_send(void){
 }
 
 resp_con_t mqtt_sn_reg_send(void){
+  mqtt_queue_first = list_head(mqtt_sn_list);
+
   register_packet_t packet;
 
-  uint16_t task_id = mqtt_queue_first->data.id_task;
-  // Leak of memory
-  //size_t topic_name_len = strlen(mqtt_queue_first->data.long_topic); //Pega o primeiro da fila aguardando
-  size_t topic_name_len = strlen(g_topic_bind[task_id].topic_name);
+  size_t topic_name_len = strlen(mqtt_queue_first->data.long_topic); //Pega o primeiro da fila aguardando
 
   if (topic_name_len > MQTT_SN_MAX_TOPIC_LENGTH) {
     debug_mqtt("Erro: Nome do topico excede o limite maximo");
@@ -197,7 +178,7 @@ resp_con_t mqtt_sn_reg_send(void){
   // a relação (short_topic/long_topic) no vetor global g_topic_bind[]
   packet.message_id = uip_htons((int)mqtt_queue_first->data.id_task);
 
-  strncpy(packet.topic_name, g_topic_bind[mqtt_queue_first->data.id_task].topic_name, topic_name_len);
+  strncpy(packet.topic_name, mqtt_queue_first->data.long_topic, topic_name_len);
   packet.length = 0x06 + topic_name_len;
   packet.topic_name[topic_name_len] = '\0';
 
@@ -208,34 +189,37 @@ resp_con_t mqtt_sn_reg_send(void){
   return SUCCESS_CON;
 }
 
-resp_con_t mqtt_sn_pub_send(char *topic,char *message, bool retain_flag, uint8_t qos){
-  publish_packet_t packet;
-  uint16_t stopic = 0x0000;
-  uint8_t data_len = strlen(message);
+resp_con_t mqtt_sn_pub_send(void){
+  mqtt_queue_first = list_head(mqtt_sn_list);
 
-  // if (mqtt_queue_first->data.msg_type_q != MQTT_SN_TYPE_PUBLISH) {
-  //   debug_mqtt("Erro: Pacote a processar nao e do tipo PUBLISH");
-  //   return FAIL_CON;
-  // }
+  publish_packet_t packet;
   size_t i = 0;
-  for (i=0; i < MAX_TOPIC_USED; i++)
-    if (strcmp(g_topic_bind[i].topic_name,topic) == 0) {
-      stopic = g_topic_bind[i].short_topic_id;
-      break;
-    }
+  uint16_t stopic = 0x0000;
+  uint8_t data_len = strlen(mqtt_queue_first->data.message);
+
+  if (mqtt_queue_first->data.msg_type_q != MQTT_SN_TYPE_PUBLISH) {
+    debug_mqtt("Erro: Pacote a processar nao e do tipo PUBLISH");
+    return FAIL_CON;
+  }
 
   if (data_len > sizeof(packet.data)) {
       printf("Erro: Payload e muito grande!\n");
       return FAIL_CON;
   }
 
+  for (i=0; i < g_task_id; i++)
+    if (strcmp(g_topic_bind[i].topic_name,mqtt_queue_first->data.long_topic) == 0) {
+      stopic = g_topic_bind[i].short_topic_id;
+      break;
+    }
+
   packet.type  = MQTT_SN_TYPE_PUBLISH;
   packet.flags = 0x00;
 
-  if (retain_flag)
+  if (mqtt_queue_first->data.retain)
     packet.flags += MQTT_SN_FLAG_RETAIN;
 
-  packet.flags += mqtt_sn_get_qos_flag(qos);
+  packet.flags += mqtt_sn_get_qos_flag(mqtt_queue_first->data.qos_level);
 
   // Segundo a especificação:
   // TopicIdType: indicates whether the field TopicId or TopicName included in this message contains a normal
@@ -245,7 +229,7 @@ resp_con_t mqtt_sn_pub_send(char *topic,char *message, bool retain_flag, uint8_t
 
   packet.topic_id = uip_htons(stopic);
   packet.message_id = uip_htons(0x00); //Relevante somente se QoS > 0
-  strncpy(packet.data, message, data_len+1);
+  strncpy(packet.data, mqtt_queue_first->data.message, data_len+1);
   //
   //  Pacote PUBLISH
   //  _________________ ______________________ ___________ ________________ ______________ ________________
@@ -262,88 +246,84 @@ resp_con_t mqtt_sn_pub_send(char *topic,char *message, bool retain_flag, uint8_t
 
 /************************** FUNÇÕES DE FILA MQTT-SN ***************************/
 resp_con_t mqtt_sn_insert_queue(mqtt_sn_task_t new){
-  struct node *temp,*temp2;
-
-  temp2 = mqtt_queue_first;
-  int cnt = 0;
-  while (temp2) {
-      temp2 = temp2->link;
-      cnt++;
-  }
-
   //Limita o número máximo de tarefas alocadas na fila
-  if (cnt > MAX_QUEUE_MQTT_SN)
-    return FAIL_CON;
+  // if (cnt > MAX_QUEUE_MQTT_SN)
+  //   return FAIL_CON;
 
-  temp = (struct node *)malloc(sizeof(struct node));
-  temp->data.msg_type_q  = new.msg_type_q;
-  temp->data.short_topic = new.short_topic;
-  temp->data.retain      = new.retain;
-  temp->data.qos_level   = new.qos_level;
-  temp->data.id_task     = g_task_id;
+  temp.data.msg_type_q  = new.msg_type_q;
+  temp.data.short_topic = new.short_topic;
+  temp.data.long_topic  = new.long_topic;
+  temp.data.message     = new.message;
+  temp.data.retain      = new.retain;
+  temp.data.qos_level   = new.qos_level;
+  temp.data.id_task     = (uint16_t *)g_task_id;
 
-  //if (temp->data.msg_type_q == MQTT_SN_TYPE_REGISTER)
-  g_task_id++;
+  if (temp.data.msg_type_q == MQTT_SN_TYPE_REGISTER)
+    g_task_id++;
 
+  list_add(mqtt_sn_list, &temp);
+  debug_mqtt("TAREFA ADICIONADA");
 
-  temp->link = NULL;
-  if (mqtt_queue_last  ==  NULL) {
-      mqtt_queue_first = mqtt_queue_last = temp;
-  }
-  else {
-      mqtt_queue_last->link = temp;
-      mqtt_queue_last = temp;
-  }
-
-  char *task_type;
-  //parse_mqtt_type_string(mqtt_queue_first->data.msg_type_q,&task_type_2);
-  //debug_task("Task principal:[%2.0d][%s]",(int)mqtt_queue_first->data.id_task,task_type_2);
-
-  parse_mqtt_type_string(temp->data.msg_type_q,&task_type);
-  debug_task("Task adicionada:[%2.0d][%s]",(int)temp->data.id_task, task_type);
+  // char *task_type,*task_type_2;
+  // parse_mqtt_type_string(mqtt_queue_first->data.msg_type_q,&task_type_2);
+  // debug_mqtt("Task principal:[%2.0d][%s]",(int)mqtt_queue_first->data.id_task,task_type_2);
+  // parse_mqtt_type_string(temp->data.msg_type_q,&task_type);
+  // debug_mqtt("Task adicionada:[%2.0d][%s]",(int)temp->data.id_task, task_type);
   return SUCCESS_CON;
 }
 
 void mqtt_sn_delete_queue(void){
-  struct node *temp;
-  char *task_type;
+  list_pop(mqtt_sn_list);
+  // struct node *temp;
+  //
+  // temp = mqtt_queue_first;
+  // if (mqtt_queue_first->link == NULL) {
+  //     // debug_mqtt("Task info: Fila vazia");
+  //     mqtt_queue_first = mqtt_queue_last = NULL;
+  // }
+  // else {
+  //     char *task_type;
+  //     parse_mqtt_type_string(mqtt_queue_first->data.msg_type_q,&task_type);
+  //     // debug_mqtt("Task removida:[%2.0d][%s]",(int)mqtt_queue_first->data.id_task,task_type);
+  //     mqtt_queue_first = mqtt_queue_first->link;
+  //     free(temp);
+  // }
+  //
+  // char *task_type_2;
+  // parse_mqtt_type_string(mqtt_queue_first->data.msg_type_q,&task_type_2);
+  // // debug_mqtt("Task principal:[%2.0d][%s]",(int)mqtt_queue_first->data.id_task,task_type_2);
 
-  temp = mqtt_queue_first;
-  if (mqtt_queue_first->link == NULL) {
-      g_task_id = 0;
-      parse_mqtt_type_string(mqtt_queue_first->data.msg_type_q,&task_type);
-      debug_task("Task removida:[%2.0d][%s]",(int)mqtt_queue_first->data.id_task,task_type);
-      debug_task("Task info: Fila vazia");
-      mqtt_queue_first = mqtt_queue_last = NULL;
-  }
-  else {
-      g_task_id--;
-      parse_mqtt_type_string(mqtt_queue_first->data.msg_type_q,&task_type);
-      debug_task("Task removida:[%2.0d][%s]",(int)mqtt_queue_first->data.id_task,task_type);
-      mqtt_queue_first = mqtt_queue_first->link;
-      free(temp);
-  }
 }
 
 void mqtt_sn_check_queue(void){
-  int cnt = 0;
-  struct node *temp;
-  char *task_type;
+  // list_add(mqtt_sn_list, &task_1);
+  // list_add(mqtt_sn_list, &task_2);
+  // list_add(mqtt_sn_list, &task_3);
+  // list_add(mqtt_sn_list, &task_4);
+  // debug_os("O primeiro da lista e: %s\n", primeiro->data.message);
+  // primeiro = list_head(mqtt_sn_list);
+  // debug_os("O primeiro da lista agora e: %s\n", primeiro->data.message);
+  //
 
-  temp = mqtt_queue_first;
-
-  debug_task("FILA:");
-  while (temp) {
-      parse_mqtt_type_string(temp->data.msg_type_q,&task_type);
-      debug_task("[%2.0d][%s]",(int)temp->data.id_task, task_type);
-      temp = temp->link;
-      cnt++;
-  }
-  debug_task("Tamanho da fila:[%d]", cnt);
+  // int cnt = 0;
+  // struct node *temp;
+  //
+  // temp = mqtt_queue_first;
+  //
+  // if (mqtt_queue_first  ==  NULL) {
+  //     debug_mqtt("A fila de tarefas esta vazia");
+  // }
+  //
+  // while (temp) {
+  //     debug_mqtt("[%2.0d]-%s", (int)temp->data.id_task,temp->data.long_topic);
+  //     temp = temp->link;
+  //     cnt++;
+  // }
+  // debug_mqtt("Tamanho da fila:[%d]\n", cnt);
 }
 
 bool mqtt_sn_check_empty(void){
-  if (mqtt_queue_first  ==  NULL)
+  if (list_length(mqtt_sn_list) == 0)
     return true;
   else
     return false;
@@ -373,14 +353,13 @@ void mqtt_sn_recv_parser(const uint8_t *data){
         // 15 tópicos
         /// @todo Rever o short topic para adequar bytes [2][3] juntos
         if (mqtt_sn_check_rc(return_code)){
-          for (i = 0;i < MAX_TOPIC_USED; i++) { //Compara o byte menor do MSG ID para atribuir o short topic a requisição REGISTER correta
+          for (i = 0;i < g_task_id; i++) { //Compara o byte menor do MSG ID para atribuir o short topic a requisição REGISTER correta
             if (i == data[5]){
               // debug_mqtt("RECEBIDO REGACK:\nMSG_ID:%d TOPIC_ID:%d",data[5],short_topic);
               g_topic_bind[i].short_topic_id = short_topic;
             }
           }
-          if (mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_REGISTER)
-            process_post(&mqtt_sn_main, mqtt_event_regack, NULL);
+          process_post(&mqtt_sn_main, mqtt_event_regack, NULL);
         }
       break;
       case MQTT_SN_TYPE_PUBACK:
@@ -473,6 +452,7 @@ resp_con_t mqtt_sn_create_sck(mqtt_sn_con_t mqtt_sn_connection, char *topics[], 
   for(i = 0; i < topic_len; i++){
     g_topic_bind[g_task_id].topic_name = topics[i];
     topic_reg.msg_type_q = MQTT_SN_TYPE_REGISTER;
+    topic_reg.long_topic = topics[i];
     if (!mqtt_sn_insert_queue(topic_reg)) break;
   }
   /****************************************************************************/
@@ -483,8 +463,6 @@ resp_con_t mqtt_sn_create_sck(mqtt_sn_con_t mqtt_sn_connection, char *topics[], 
 }
 
 void mqtt_sn_init(void){
-  process_start(&mqtt_sn_main, NULL);
-
   // Alocação de número de evento disponível para os eventos do MQTT-SN
   mqtt_event_connect   = process_alloc_event();
   mqtt_event_connack   = process_alloc_event();
@@ -494,6 +472,9 @@ void mqtt_sn_init(void){
   mqtt_event_pub_qos_0 = process_alloc_event();
   // mqtt_event_puback   = process_alloc_event();
 
+  list_init(mqtt_sn_list);
+
+  process_start(&mqtt_sn_main, NULL);
 }
 
 PROCESS_THREAD(mqtt_sn_main, ev, data){
@@ -504,7 +485,7 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
   while(1) {
       PROCESS_WAIT_EVENT();
       /*************************** CONNECT MQTT-SN ****************************/
-      if (ev == mqtt_event_connect && (mqtt_status == MQTTSN_DISCONNECTED)){
+      if (ev == mqtt_event_connect){
         mqtt_sn_con_send();
         mqtt_status = MQTTSN_WAITING_CONNACK;
         etimer_set(&mqtt_time_connect, 8*MQTT_SN_TIMEOUT);
@@ -536,7 +517,7 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
       }
 
       /*************************** REGISTER MQTT-SN ***************************/
-      else if(ev == mqtt_event_register && (mqtt_status == MQTTSN_CONNECTED)){
+      else if(ev == mqtt_event_register){
         mqtt_sn_reg_send();
         mqtt_status = MQTTSN_WAITING_REGACK;
         etimer_set(&mqtt_time_register, MQTT_SN_TIMEOUT);
@@ -561,8 +542,7 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
         mqtt_sn_delete_queue(); // Deleta requisição de REGISTER
         g_tries_send = 0;
         if (mqtt_sn_check_empty()) {
-          mqtt_status = MQTTSN_TOPIC_REGISTERED; // Indica que os tópicos foram registrados
-          //g_task_id = 0; // Zera o contador de task global
+          mqtt_status = MQTTSN_CONNECTED; // Volta ao estado padrão da ASM
           //debug_mqtt("Tópicos registrados com sucesso");
           // size_t i = 0;
           // for (i=0; i < g_task_id; i++)
@@ -594,7 +574,7 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
       /********************** PUBLISH QoS 0 - MQTT-SN *************************/
       else if((ev == mqtt_event_pub_qos_0) &&
               mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_PUBLISH){
-        // mqtt_sn_pub_send();
+        mqtt_sn_pub_send();
         mqtt_sn_delete_queue(); // Deleta requisição de PUBLISH
         if (!mqtt_sn_check_empty())
           process_post(&mqtt_sn_main, mqtt_event_run_task, NULL); // Inicia outras tasks caso a fila não esteja vazia

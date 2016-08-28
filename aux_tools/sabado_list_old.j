@@ -18,17 +18,9 @@
 #include <stdbool.h>
 
 #define DEBUG_MQTT_SN
-#define DEBUG_OS
-#define DEBUG_TASK
 //#define DEBUG_UDP
+#define DEBUG_OS
 //#define DEBUG_LOGIC
-
-#ifdef DEBUG_TASK
-#define debug_task(fmt, args...) printf("\n[Tarefa] "fmt, ##args)
-#else
-#define debug_task(fmt, ...)
-#endif
-
 
 #ifdef DEBUG_LOGIC
 #define debug_logic(fmt, args...) printf("\n[Logic] "fmt, ##args)
@@ -136,7 +128,9 @@
 typedef struct {
   uint8_t  msg_type_q;
   uint8_t  short_topic;
-  uint16_t id_task;
+  char     *long_topic;
+  char     *message;
+  uint16_t *id_task;
   uint8_t  qos_level;
   uint8_t  retain;
 } mqtt_sn_task_t;
@@ -148,10 +142,9 @@ typedef struct {
  *  @var link
  *    link para a próxima tarefa
  */
-struct node {
+struct mqtt_sn_list_task {
     mqtt_sn_task_t data;
-    struct node *link;
-}*mqtt_queue_first, *mqtt_queue_last;
+}*mqtt_queue_first;
 
 /*---------------------------------------------------------------------------*/
 // Estruturas de controle de pacotes
@@ -245,7 +238,7 @@ typedef enum {
   MQTTSN_WAITING_CONNACK,
   MQTTSN_WAITING_REGACK,
   MQTTSN_CONNECTED,
-  MQTTSN_TOPIC_REGISTERED,
+  MQTTSN_IDDLE,
   MQTTSN_WAITING_PUBACK,
   MQTTSN_WAITING_SUBACK,
   MQTTSN_PUB_REQ,
@@ -393,7 +386,7 @@ mqtt_sn_status_t mqtt_sn_check_status(void);
 
 resp_con_t mqtt_sn_con_send(void);
 
-//void mqtt_sn_pub(char *topic,char *message, bool retain_flag, uint8_t qos_level);
+void mqtt_sn_pub(char *topic,char *message, bool retain_flag, uint8_t qos_level);
 
 bool mqtt_sn_check_empty(void);
 
@@ -401,9 +394,7 @@ void parse_mqtt_type_string(uint8_t type, char **type_string);
 
 void mqtt_sn_init(void);
 
-resp_con_t mqtt_sn_pub_send(char *topic,char *message, bool retain_flag, uint8_t qos);
-
-char* mqtt_sn_check_status_string(void);
+resp_con_t mqtt_sn_pub_send(void);
 
 uint8_t mqtt_sn_get_qos_flag(int8_t qos);
 /** @brief Realiza o registro de uma publicação
