@@ -110,15 +110,25 @@
 #define MQTT_SN_TOPIC_TYPE_PREDEFINED (0x01)
 #define MQTT_SN_TOPIC_TYPE_SHORT      (0x02)
 
+#define ss(x) sizeof(x)/sizeof(*x)  // Computa o tamanho de um vetor de ponteiros
+
 /******************************************************************************/
 // Macros de controle
-
-#define MQTT_SN_TIMEOUT    CLOCK_SECOND     /// \brief Tempo base para comunicação MQTT-SN broker <-> nó
-#define MQTT_SN_RETRY      5                /// \brief Número de tentativas de enviar qualquer pacote ao broker antes de desconectar
-#define MAX_QUEUE_MQTT_SN  10               /// \briefNúmero máximo de tarefas a serem inseridas alocadas dinamicamente MQTT-SN
-#define MAX_TOPIC_USED     10               /// \brief Número máximo de tópicos que o usuário pode registrar, a API cria um conjunto de
+#define MQTT_SN_AUTO_RECONNECT                       /// \brief Define se o dispositivo deve se auto conectar de tempos em tempos
+#define MQTT_SN_RETRY_PING        5                  /// \brief Número de tentativas de envio de PING REQUEST antes de desconectar nó <-> broker
+#define MQTT_SN_TIMEOUT_CONNECT   9*CLOCK_SECOND     /// \brief Tempo base para comunicação MQTT-SN broker <-> nó
+#define MQTT_SN_TIMEOUT           CLOCK_SECOND       /// \brief Tempo base para comunicação MQTT-SN broker <-> nó
+#define MQTT_SN_RETRY             5                  /// \brief Número de tentativas de enviar qualquer pacote ao broker antes de desconectar
+#define MAX_QUEUE_MQTT_SN         10                 /// \briefNúmero máximo de tarefas a serem inseridas alocadas dinamicamente MQTT-SN
+#define MAX_TOPIC_USED            10                 /// \brief Número máximo de tópicos que o usuário pode registrar, a API cria um conjunto de
                                             /// estruturas para o bind de topic e short topic id
 /******************************************************************************/
+
+typedef struct {
+  uint8_t length;
+  uint8_t  msg_type;
+  char *  client_id;
+} ping_req_t;
 
 /** @struct mqtt_sn_task_t
  *  @brief Estrutura de tarefa de fila MQTT-SN
@@ -406,6 +416,16 @@ resp_con_t mqtt_sn_pub_send(char *topic,char *message, bool retain_flag, uint8_t
 char* mqtt_sn_check_status_string(void);
 
 uint8_t mqtt_sn_get_qos_flag(int8_t qos);
+
+resp_con_t mqtt_sn_pub(char *topic,char *message, bool retain_flag, uint8_t qos);
+
+void timeout_con(void *ptr);
+
+void timeout_ping_mqtt(void *ptr);
+
+void mqtt_sn_ping_send(void);
+
+bool unlock_tasks(void);
 /** @brief Realiza o registro de uma publicação
  *
  * 		Cria uma tarefa de publicação que envia ao broker a mensagem

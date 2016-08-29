@@ -1,3 +1,16 @@
+/*
+  Descoberta uma característica do contiki, o que ocorre é que se você utiliza
+  algum  temporizador de evento (etimer) e ele expira, ele gera um evento o que
+  e esperado, porém se você tiver testando diversas condições de forma sequencial
+  1) else if(ev == etimer_expired(....))
+  2) else if(ev == mqtt_event_regack)
+  ...
+  MESMO após ter gerado o evento de "expiração", caso a condição 1) esteja antes
+  da 2), e a 2) que gerou um evento, a 1) será executada anteriormente porque
+  compreendesse que o "timer continua expirado".
+
+*/
+
 #include "contiki.h"
 #include "net/ip/uip.h"
 #include "net/ipv6/uip-ds6.h"
@@ -14,28 +27,42 @@
 #include <stdbool.h>
 #include "net/ipv6/uip-ds6.h"
 
-static struct etimer              mqtt_time_connect;       // Estrutura de temporização para envio de CONNECT
-static struct etimer              mqtt_time_register;      // Estrutura de temporização para envio de REGISTER
+static struct ctimer              mqtt_time_connect;       // Estrutura de temporização para envio de CONNECT
+static struct ctimer              mqtt_time_register;      // Estrutura de temporização para envio de REGISTER
+static struct ctimer              mqtt_time_ping;          // Estrutura de temporização para envio de PING
 
-static process_event_t            mqtt_event_connect;    // Evento de req CONNECT  [nó --> broker]
-static process_event_t            mqtt_event_connack;    // Evento de req CONNACK  [broker --> nó]
-static process_event_t            mqtt_event_register;   // Evento de req REGISTER [nó --> broker]
-static process_event_t            mqtt_event_regack;     // Evento de req REGACK   [broker --> nó]
-static process_event_t            mqtt_event_pub_qos_0;  // Evento de req PUBLISH - QoS - 0 [nó --> broker]
-static process_event_t            mqtt_event_run_task;   // Evento de req qualquer, seja PUBLISH ou SUBSCRIBE [nó --> broker]
+static process_event_t            mqtt_event_connect;          // Evento de req CONNECT  [nó --> broker]
+static process_event_t            mqtt_event_connack;          // Evento de req CONNACK  [broker --> nó]
+static process_event_t            mqtt_event_register;         // Evento de req REGISTER [nó --> broker]
+static process_event_t            mqtt_event_regack;           // Evento de req REGACK   [broker --> nó]
+static process_event_t            mqtt_event_pub_qos_0;        // Evento de req PUBLISH - QoS - 0 [nó --> broker]
+static process_event_t            mqtt_event_run_task;         // Evento de req qualquer, seja PUBLISH ou SUBSCRIBE [nó --> broker]
+static process_event_t            mqtt_event_ping_timeout;     // Evento de req. PING REQUEST em excesso de não resposta do broker [broker <-> nó]
 // Comentado por enquanto já que QoS - 0 não envia PUBACK
 // static process_event_t            mqtt_event_puback;     // Evento de req PUBACK   [broker --> nó]
 
-// static char                       *g_message_bind;                   // Buffer temporário para o envio de mensagens do tipo publicação no caso de
-static uint16_t                   g_tries_send = 0;                  // Identificador de tentativas de envio
+static bool                       g_ping_flag_resp = true;           // Identificador de resposta ao PING REQUEST
+static char                       *g_message_bind;                   // Buffer temporário para o envio de mensagens do tipo publicação no caso de tarefas
+static uint8_t                    g_tries_send = 0;                  // Identificador de tentativas de envio
+static uint8_t                    g_tries_ping = 0;                  // Identificador de tentativas de envio de PING REQUEST
 static uint16_t                   g_task_id = 0;                     // Identificador unitário de tarefa incremental
 static short_topics_t             g_topic_bind[MAX_TOPIC_USED];      // Vetor que armazena a relação nome do tópico com short topic id
 static mqtt_sn_con_t              g_mqtt_sn_con;                     // Estrutura principal da conexão MQTT
 static mqtt_sn_status_t           mqtt_status = MQTTSN_DISCONNECTED; // ASM principal do MQTT-SN
 
+static char                       *topics_reconnect[MAX_TOPIC_USED]; // Vetor de tópicos [reconexão]
+static uint16_t                   topics_len;                        // Comprimento total de tópicos fornecidos pelo usuário [reconexão]
+
 PROCESS(mqtt_sn_main, "[MQTT-SN] Processo inicial");
 
 /*********************** FUNÇÕES AUXILIARES MQTT-SN ***************************/
+bool unlock_tasks(void) {
+  if (mqtt_status == MQTTSN_TOPIC_REGISTERED &&
+      mqtt_status !=  MQTTSN_DISCONNECTED)
+    return true;
+  return false;
+}
+
 void parse_mqtt_type_string(uint8_t type, char **type_string){
   switch (type) {
     case MQTT_SN_TYPE_CONNECT:
@@ -58,6 +85,9 @@ void parse_mqtt_type_string(uint8_t type, char **type_string){
     break;
     case MQTT_SN_TYPE_DISCONNECT:
       *type_string = "DISCONNECT";
+    break;
+    default:
+      *type_string = "Estado nao definido nas opcoes";
     break;
   }
 }
@@ -124,32 +154,63 @@ uint8_t mqtt_sn_get_qos_flag(int8_t qos){
     }
 }
 
-// void mqtt_sn_pub(char *topic,char *message, bool retain_flag, uint8_t qos){
-//   mqtt_sn_task_t publish_task;
-//
-//   size_t i = 0;
-//   for (i=0; i < MAX_TOPIC_USED; i++)
-//     if (strcmp(g_topic_bind[i].topic_name,topic) == 0) {
-//       publish_task.short_topic = g_topic_bind[i].short_topic_id;
-//       break;
-//     }
-//
-//   publish_task.msg_type_q = MQTT_SN_TYPE_PUBLISH;
-//   //publish_task.long_topic = topic;
-//   //publish_task.message    = message;
-//   g_message_bind[g_task_id] = message;
-//   publish_task.qos_level  = qos;
-//   publish_task.retain     = retain_flag;
-//
-//   // Os campos não preenchidos na estrutura (mqtt_sn_task_t) serão preenchidos
-//   // pela própria função de adição na fila
-//   if (!mqtt_sn_insert_queue(publish_task))
-//     debug_mqtt("ERRO AO ADICIONAR NA FILA");
-//
-//   //process_post(&mqtt_sn_main, mqtt_event_run_task, NULL);
-// }
+resp_con_t mqtt_sn_pub(char *topic,char *message, bool retain_flag, uint8_t qos){
+  bool registered_topic = false;
+
+  // Caso haja tópicos para registrar, não habilita a publicação
+  // evitando que prejudique alguma transação, ou seja, tasks
+  // tem prioridade sobre publicações diretas
+  if (!unlock_tasks())
+    return FAIL_CON;
+
+  // Analisamos o buffer de tópicos registrados para ver se já foi registrado o tópico
+  size_t i = 0;
+  for (i=0; i < MAX_TOPIC_USED; i++){
+    if (strcmp(g_topic_bind[i].topic_name,topic) == 0)
+      registered_topic = true;
+    if (g_topic_bind[i].short_topic_id == 0xFF)
+      break;
+  }
+
+  if (registered_topic) //Tópico existe
+    mqtt_sn_pub_send(topic,message, retain_flag, qos);
+  else{ //Tópico não existe, precisamos REGISTRA-LO antes
+    // Preparamos as tasks para registrar já que o tópico não existe
+    // Criamos na sequência duas tarefas: 1-REGISTRAR 2-PUBLICAR O TÓPICO REGISTRADO
+    // 1 - REGISTER
+    debug_mqtt("Topico novo a REGISTRAR");
+    mqtt_sn_task_t topic_reg;
+    g_topic_bind[i].topic_name = topic;
+    topic_reg.msg_type_q = MQTT_SN_TYPE_REGISTER;
+    if (!mqtt_sn_insert_queue(topic_reg))
+      debug_task("ERRO AO ADICIONAR NA FILA");
+
+    // 2 - PUBLISH
+    mqtt_sn_task_t publish_task;
+    g_message_bind                     = message;
+    publish_task.msg_type_q            = MQTT_SN_TYPE_PUBLISH;
+    publish_task.qos_level             = qos;
+    publish_task.retain                = retain_flag;
+    if (!mqtt_sn_insert_queue(publish_task))
+      debug_task("ERRO AO ADICIONAR NA FILA");
+
+    process_post(&mqtt_sn_main, mqtt_event_run_task, NULL);
+  }
+  return SUCCESS_CON;
+}
 
 /******************** FUNÇÕES DE ENVIO DE PACOTES MQTT-SN *********************/
+void mqtt_sn_ping_send(void){
+  ping_req_t ping_request;
+
+  ping_request.msg_type = MQTT_SN_TYPE_PINGREQ;
+  strncpy(ping_request.client_id, g_mqtt_sn_con.client_id, strlen(g_mqtt_sn_con.client_id));
+  ping_request.client_id[strlen(g_mqtt_sn_con.client_id)] = '\0';
+  ping_request.length = 0x01 + strlen(ping_request.client_id);
+
+  simple_udp_send(&g_mqtt_sn_con.udp_con,&ping_request, ping_request.length);
+}
+
 resp_con_t mqtt_sn_con_send(void){
   connect_packet_t packet;
 
@@ -173,7 +234,12 @@ resp_con_t mqtt_sn_con_send(void){
 resp_con_t mqtt_sn_reg_send(void){
   register_packet_t packet;
 
-  uint16_t task_id = mqtt_queue_first->data.id_task;
+  size_t i = 0;
+  for (i=1; i < MAX_TOPIC_USED; i++)
+    if (g_topic_bind[i].short_topic_id == 0xFF)
+      break;
+
+  uint16_t task_id = i;
   // Leak of memory
   //size_t topic_name_len = strlen(mqtt_queue_first->data.long_topic); //Pega o primeiro da fila aguardando
   size_t topic_name_len = strlen(g_topic_bind[task_id].topic_name);
@@ -195,9 +261,9 @@ resp_con_t mqtt_sn_reg_send(void){
   // ele utilizará como message id, o identificador único da task na
   // queue de serviços do MQTT-SN, logo se torna fácil saber como montar
   // a relação (short_topic/long_topic) no vetor global g_topic_bind[]
-  packet.message_id = uip_htons((int)mqtt_queue_first->data.id_task);
+  packet.message_id = uip_htons(task_id);
 
-  strncpy(packet.topic_name, g_topic_bind[mqtt_queue_first->data.id_task].topic_name, topic_name_len);
+  strncpy(packet.topic_name, g_topic_bind[task_id].topic_name, topic_name_len);
   packet.length = 0x06 + topic_name_len;
   packet.topic_name[topic_name_len] = '\0';
 
@@ -355,15 +421,18 @@ void mqtt_sn_recv_parser(const uint8_t *data){
             return_code = 0xFF,
             short_topic;
     size_t i = 0;
-
     // Como o MsgType não se altera de posição, testamos primeiro ele antes do
     // returning code, já que este pode variar
     switch (msg_type) {
       case MQTT_SN_TYPE_CONNACK:
         return_code = data[2]; //No caso do CONNACK - RC[2]
-        if (mqtt_sn_check_rc(return_code))
-          if (mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_CONNECT)
+        if (mqtt_sn_check_rc(return_code)){
+          if (mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_CONNECT &&
+              mqtt_status == MQTTSN_WAITING_CONNACK)
             process_post(&mqtt_sn_main, mqtt_event_connack, NULL);
+          else
+            debug_mqtt("Recebido CONNAC sem requisicao!");
+        }
       break;
       case MQTT_SN_TYPE_REGACK:
         return_code = data[6]; //No caso do REGACK - RC[6]
@@ -371,16 +440,18 @@ void mqtt_sn_recv_parser(const uint8_t *data){
         // Na verdade os bytes de short topic são o [2] e [3], porém
         // só estamos usa-se o [3] porque não consideramos mais do que
         // 15 tópicos
-        /// @todo Rever o short topic para adequar bytes [2][3] juntos
+        /// @todo Rever o short topic para adequar bytes [2][3] juntos..
         if (mqtt_sn_check_rc(return_code)){
           for (i = 0;i < MAX_TOPIC_USED; i++) { //Compara o byte menor do MSG ID para atribuir o short topic a requisição REGISTER correta
             if (i == data[5]){
-              // debug_mqtt("RECEBIDO REGACK:\nMSG_ID:%d TOPIC_ID:%d",data[5],short_topic);
               g_topic_bind[i].short_topic_id = short_topic;
             }
           }
-          if (mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_REGISTER)
+          if (mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_REGISTER &&
+              mqtt_status == MQTTSN_WAITING_REGACK)
             process_post(&mqtt_sn_main, mqtt_event_regack, NULL);
+          else
+            debug_mqtt("Recebido REGACK sem requisicao!");
         }
       break;
       case MQTT_SN_TYPE_PUBACK:
@@ -398,7 +469,12 @@ void mqtt_sn_recv_parser(const uint8_t *data){
       break;
       case MQTT_SN_TYPE_SUBACK:
       break;
-      case MQTT_SN_TYPE_UNSUBACK:
+      case MQTT_SN_TYPE_PINGRESP:
+        g_ping_flag_resp = true;
+        debug_mqtt("Ping respondido");
+      break;
+      case MQTT_SN_TYPE_PINGREQ:
+        mqtt_sn_ping_send();
       break;
       default:
       break;
@@ -416,6 +492,16 @@ void mqtt_sn_udp_rec_cb(struct simple_udp_connection *c,
 }
 
 resp_con_t mqtt_sn_create_sck(mqtt_sn_con_t mqtt_sn_connection, char *topics[], size_t topic_len){
+
+  /************************************ RECONEXÃO******************************/
+  topics_len = topic_len;
+  size_t t = 0;
+  for (t=0; t < topic_len; t++){
+    topics_reconnect[t] = topics[t];
+    debug_mqtt("TOPICO: %s",(char *)topics_reconnect[t]);
+  }
+  /************************************ RECONEXÃO******************************/
+
   static uip_ipaddr_t broker_addr;
   static uint8_t con_udp_status = 0;
 
@@ -471,7 +557,7 @@ resp_con_t mqtt_sn_create_sck(mqtt_sn_con_t mqtt_sn_connection, char *topics[], 
 
   size_t i;
   for(i = 0; i < topic_len; i++){
-    g_topic_bind[g_task_id].topic_name = topics[i];
+    g_topic_bind[g_task_id].topic_name = topics_reconnect[i];
     topic_reg.msg_type_q = MQTT_SN_TYPE_REGISTER;
     if (!mqtt_sn_insert_queue(topic_reg)) break;
   }
@@ -486,14 +572,82 @@ void mqtt_sn_init(void){
   process_start(&mqtt_sn_main, NULL);
 
   // Alocação de número de evento disponível para os eventos do MQTT-SN
-  mqtt_event_connect   = process_alloc_event();
-  mqtt_event_connack   = process_alloc_event();
-  mqtt_event_register  = process_alloc_event();
-  mqtt_event_regack    = process_alloc_event();
-  mqtt_event_run_task  = process_alloc_event();
-  mqtt_event_pub_qos_0 = process_alloc_event();
+  mqtt_event_connect        = process_alloc_event();
+  mqtt_event_connack        = process_alloc_event();
+  mqtt_event_register       = process_alloc_event();
+  mqtt_event_regack         = process_alloc_event();
+  mqtt_event_run_task       = process_alloc_event();
+  mqtt_event_pub_qos_0      = process_alloc_event();
+  mqtt_event_ping_timeout   = process_alloc_event();
   // mqtt_event_puback   = process_alloc_event();
 
+  size_t i;
+  for (i = 1; i < MAX_TOPIC_USED; i++)
+    g_topic_bind[i].short_topic_id = 0xFF;
+
+}
+
+void timeout_con(void *ptr){
+  switch (mqtt_status) {
+    case MQTTSN_WAITING_CONNACK:
+      if (g_tries_send >= MQTT_SN_RETRY) {
+        if (etimer_pending())
+          ctimer_stop(&mqtt_time_connect);
+        g_tries_send = 0;
+        mqtt_status = MQTTSN_DISCONNECTED;
+        debug_mqtt("Limite maximo de pacotes CONNECT");
+      }
+      else{
+        debug_mqtt("Expirou tempo de CONNECT");
+        mqtt_sn_con_send();
+        mqtt_status = MQTTSN_WAITING_CONNACK;
+        ctimer_reset(&mqtt_time_connect);
+        g_tries_send++;
+      }
+    break;
+    case MQTTSN_WAITING_REGACK:
+      if (g_tries_send >= MQTT_SN_RETRY) {
+        ctimer_stop(&mqtt_time_register);
+        mqtt_status = MQTTSN_DISCONNECTED;
+        debug_mqtt("Limite maximo de pacotes REGISTER");
+      }
+      else{
+        debug_mqtt("Expirou tempo de REGISTER");
+        mqtt_sn_reg_send();
+        mqtt_status = MQTTSN_WAITING_REGACK;
+        ctimer_reset(&mqtt_time_register);
+        g_tries_send++;
+      }
+    break;
+    default:
+      debug_mqtt("Expirou tempo de estado desconhecido");
+    break;
+  }
+}
+
+void timeout_ping_mqtt(void *ptr){
+  // debug_mqtt("Tentativas PING:%d",g_tries_ping);
+  if (g_ping_flag_resp) {
+    g_ping_flag_resp = false;
+    g_tries_ping = 0;
+    // debug_mqtt("Enviando PING REQUEST");
+    mqtt_sn_ping_send();
+  }
+  else{
+    if (g_tries_ping >= MQTT_SN_RETRY_PING) {
+      mqtt_status = MQTTSN_DISCONNECTED;
+      g_tries_ping = 0;
+      ctimer_stop(&mqtt_time_ping);
+      debug_mqtt("Limite tentativas de PING RESPONSE");
+      process_post(&mqtt_sn_main,mqtt_event_ping_timeout,NULL);
+    }
+    else{
+      // debug_mqtt("INCREMENTANDO PING");
+      mqtt_sn_ping_send();
+      g_tries_ping++;
+    }
+  }
+  ctimer_reset(&mqtt_time_ping);
 }
 
 PROCESS_THREAD(mqtt_sn_main, ev, data){
@@ -503,81 +657,51 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
 
   while(1) {
       PROCESS_WAIT_EVENT();
+
       /*************************** CONNECT MQTT-SN ****************************/
-      if (ev == mqtt_event_connect && (mqtt_status == MQTTSN_DISCONNECTED)){
+      if (ev == mqtt_event_connect &&
+          mqtt_status == MQTTSN_DISCONNECTED){
         mqtt_sn_con_send();
         mqtt_status = MQTTSN_WAITING_CONNACK;
-        etimer_set(&mqtt_time_connect, 8*MQTT_SN_TIMEOUT);
-      }
-      else if(etimer_expired(&mqtt_time_connect) &&
-              mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_CONNECT){
-        g_tries_send++;
-        if (g_tries_send >= MQTT_SN_RETRY) {
-          if (etimer_pending())
-            etimer_stop(&mqtt_time_connect);
-          g_tries_send = 0;
-          mqtt_status = MQTTSN_DISCONNECTED;
-          debug_mqtt("Limite maximo de pacotes CONNECT");
-        }
-        else{
-          mqtt_sn_con_send();
-          mqtt_status = MQTTSN_WAITING_CONNACK;
-          etimer_reset(&mqtt_time_connect);
-        }
-      }
-      else if(ev == mqtt_event_connack){
+        ctimer_set(&mqtt_time_connect, MQTT_SN_TIMEOUT_CONNECT, timeout_con, NULL);
         g_tries_send = 0;
+      }
+      else if(ev == mqtt_event_connack &&
+              mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_CONNECT){
         mqtt_status = MQTTSN_CONNECTED;
         debug_mqtt("Conectado ao broker MQTT-SN");
-        if (etimer_pending())
-          etimer_stop(&mqtt_time_connect);
+        ctimer_stop(&mqtt_time_connect);
         mqtt_sn_delete_queue(); // Deleta requisição de CONNECT já que estamos conectados;
+        // Iniciamos o PING Request a partir deste momento
+        ctimer_set(&mqtt_time_ping, g_mqtt_sn_con.keep_alive*CLOCK_SECOND , timeout_ping_mqtt, NULL);
         process_post(&mqtt_sn_main, mqtt_event_register, NULL);
       }
 
       /*************************** REGISTER MQTT-SN ***************************/
-      else if(ev == mqtt_event_register && (mqtt_status == MQTTSN_CONNECTED)){
+      else if(ev == mqtt_event_register &&
+              mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_REGISTER){
         mqtt_sn_reg_send();
         mqtt_status = MQTTSN_WAITING_REGACK;
-        etimer_set(&mqtt_time_register, MQTT_SN_TIMEOUT);
-      }
-      else if(etimer_expired(&mqtt_time_register) &&
-              mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_REGISTER){
-        g_tries_send++;
-        if (g_tries_send >= MQTT_SN_RETRY) {
-          if (etimer_pending())
-            etimer_stop(&mqtt_time_register);
-          g_tries_send = 0;
-          mqtt_status = MQTTSN_DISCONNECTED;
-          debug_mqtt("Limite maximo de pacotes REGISTER");
-        }
-        else{
-          mqtt_sn_reg_send();
-          mqtt_status = MQTTSN_WAITING_REGACK;
-          etimer_reset(&mqtt_time_register);
-        }
-      }
-      else if(ev == mqtt_event_regack){
-        mqtt_sn_delete_queue(); // Deleta requisição de REGISTER
+        ctimer_set(&mqtt_time_register, MQTT_SN_TIMEOUT, timeout_con, NULL);
         g_tries_send = 0;
-        if (mqtt_sn_check_empty()) {
-          mqtt_status = MQTTSN_TOPIC_REGISTERED; // Indica que os tópicos foram registrados
-          //g_task_id = 0; // Zera o contador de task global
-          //debug_mqtt("Tópicos registrados com sucesso");
-          // size_t i = 0;
-          // for (i=0; i < g_task_id; i++)
-          //    debug_mqtt("ID:[%d] Short:[%d] Topico:%s",i,(int)g_topic_bind[i].short_topic_id,g_topic_bind[i].topic_name);
-          // debug_mqtt("...");
-          if (etimer_pending())
-            etimer_stop(&mqtt_time_register);
-        }
-        else{
-          process_post(&mqtt_sn_main, mqtt_event_register, NULL); // Inicia o processo de registro de tópicos novamente
+      }
+      else if(ev == mqtt_event_regack &&
+              mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_REGISTER){
+        mqtt_sn_delete_queue(); // Deleta requisição de REGISTER
+        ctimer_stop(&mqtt_time_register);
+        debug_mqtt("Topico registrado no broker");
+        mqtt_status = MQTTSN_TOPIC_REGISTERED;
+
+        if (!mqtt_sn_check_empty()) {
+          process_post(&mqtt_sn_main, mqtt_event_run_task, NULL); // Gera evento de processo de tasks
         }
       }
 
       /*************************** RUN TASKS MQTT-SN **************************/
       else if(ev == mqtt_event_run_task){
+        char *teste;
+        parse_mqtt_type_string(mqtt_queue_first->data.msg_type_q,&teste);
+        debug_task("Task a executar:%s",teste);
         switch (mqtt_queue_first->data.msg_type_q) {
           case MQTT_SN_TYPE_CONNECT:
           break;
@@ -587,6 +711,10 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
           case MQTT_SN_TYPE_SUBSCRIBE:
           break;
           case MQTT_SN_TYPE_REGISTER:
+            process_post(&mqtt_sn_main, mqtt_event_register, NULL);
+          break;
+          default:
+            debug_task("Nenhuma tarefa a ser processada!");
           break;
         }
       }
@@ -594,10 +722,38 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
       /********************** PUBLISH QoS 0 - MQTT-SN *************************/
       else if((ev == mqtt_event_pub_qos_0) &&
               mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_PUBLISH){
-        // mqtt_sn_pub_send();
+        // Este evento de "mqtt_event_pub_qos_0" só ocorre quando não conhecemos
+        // o tópico e precisamos registra, caso contrário a API desenvolvida
+        // envia direto pro broker sem criar task, testes mostraram que a criação
+        // e exclusão de tasks consumia recurso do mcu e afetava desempenho e igual
+        // o nível de QoS é 0.
+        debug_mqtt("Primeira publicacao de novo topico");
+        // Pegamos o nome completo do tópico para a primeira publicação
+        // do tópico recém registrado
+        size_t j = 0;
+        for (j=0; j < MAX_TOPIC_USED; j++)
+          if (g_topic_bind[j].short_topic_id == 0xFF)
+            break;
+        mqtt_sn_pub_send(g_topic_bind[j-1].topic_name,
+                         g_message_bind,
+                         mqtt_queue_first->data.retain,
+                         mqtt_queue_first->data.qos_level);
         mqtt_sn_delete_queue(); // Deleta requisição de PUBLISH
         if (!mqtt_sn_check_empty())
           process_post(&mqtt_sn_main, mqtt_event_run_task, NULL); // Inicia outras tasks caso a fila não esteja vazia
+      }
+
+      /********************** PING REQUEST - MQTT-SN **************************/
+      else if(ev == mqtt_event_ping_timeout){
+        debug_mqtt("Desconectado broker");
+        #ifdef MQTT_SN_AUTO_RECONNECT
+          size_t i;
+          for (i = 1; i < MAX_TOPIC_USED; i++){
+            g_topic_bind[i].short_topic_id = 0xFF;
+            g_topic_bind[i].topic_name = 0;
+          }
+          mqtt_sn_create_sck(g_mqtt_sn_con, topics_reconnect, topics_len);
+        #endif
       }
   }
   PROCESS_END();

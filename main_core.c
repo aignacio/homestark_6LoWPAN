@@ -27,14 +27,14 @@
 
 static char     mqtt_client_id[] = "anderson";
 static uint16_t udp_port = 1884;
-static uint16_t keep_alive = 30;
+static uint16_t keep_alive = 2;
 static uint16_t broker_address[] = {0xaaaa, 0, 0, 0, 0, 0, 0, 0x1};
 static struct   etimer time_poll;
 static uint16_t tick_process = 0;
 
 //Estes tópicos pré-registrados serão mais rápidos de publicar/receber publicações
-static char *topics_mqtt[] = {"/topic_1/device",
-                              "/topic_2/device",
+static char *topics_mqtt[] = {"/retentivo",
+                              "/nao_retentivo",
                               "/topic_3/device"};
 
 mqtt_sn_con_t mqtt_sn_connection;
@@ -56,21 +56,18 @@ PROCESS_THREAD(init_system_process, ev, data)
   mqtt_sn_connection.keep_alive  = keep_alive;
 
   mqtt_sn_init();   // Inicializa alocação de eventos e a principal PROCESS_THREAD do MQTT-SN
-  mqtt_sn_create_sck(mqtt_sn_connection,topics_mqtt,sizeof(topics_mqtt)/sizeof(*topics_mqtt));
+  mqtt_sn_create_sck(mqtt_sn_connection, topics_mqtt, ss(topics_mqtt));
 
-  etimer_set(&time_poll, CLOCK_SECOND/2);
+  etimer_set(&time_poll, CLOCK_SECOND/10);
 
   while(1) {
       PROCESS_WAIT_EVENT();
       debug_os("Execucao[%d]",tick_process++);
 
-      mqtt_sn_check_queue();
-
-      if (mqtt_sn_check_status() == MQTTSN_TOPIC_REGISTERED) {
-        mqtt_sn_pub_send("/topic_1/device","Ola mundo 1 =)",true,0);
-        mqtt_sn_pub_send("/topic_2/device","Ola mundo 2 =)",true,0);
-        mqtt_sn_pub_send("/topic_3/device","Ola mundo 3 =)",true,0);
-      }
+      //mqtt_sn_check_queue();
+      mqtt_sn_pub("/retentivo","Hello World!",true,0);
+      mqtt_sn_pub("/nao_retentivo","Hello World!",false,0);
+      mqtt_sn_pub("/nao_retentivo_mesmo","Hello World!",false,0);
 
       debug_os("Estado do MQTT:%s",mqtt_sn_check_status_string());
       if (etimer_expired(&time_poll))
