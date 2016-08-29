@@ -31,7 +31,7 @@ static uint16_t keep_alive = 2;
 static uint16_t broker_address[] = {0xaaaa, 0, 0, 0, 0, 0, 0, 0x1};
 static struct   etimer time_poll;
 static uint16_t tick_process = 0;
-
+static char     pub_test[20];
 //Estes tópicos pré-registrados serão mais rápidos de publicar/receber publicações
 static char *topics_mqtt[] = {"/retentivo",
                               "/nao_retentivo",
@@ -58,17 +58,23 @@ PROCESS_THREAD(init_system_process, ev, data)
   mqtt_sn_init();   // Inicializa alocação de eventos e a principal PROCESS_THREAD do MQTT-SN
   mqtt_sn_create_sck(mqtt_sn_connection, topics_mqtt, ss(topics_mqtt));
 
-  etimer_set(&time_poll, CLOCK_SECOND/10);
+  etimer_set(&time_poll, CLOCK_SECOND);
 
   while(1) {
       PROCESS_WAIT_EVENT();
       debug_os("Execucao[%d]",tick_process++);
 
-      //mqtt_sn_check_queue();
-      mqtt_sn_pub("/retentivo","Hello World!",true,0);
-      mqtt_sn_pub("/nao_retentivo","Hello World!",false,0);
-      mqtt_sn_pub("/nao_retentivo_mesmo","Hello World!",false,0);
+      sprintf(pub_test,"Execucao %d",tick_process);
+      mqtt_sn_check_queue();
+      //mqtt_sn_pub("/retentivo",pub_test,true,0);
+      //mqtt_sn_pub("/SUBS/teste","foda-se",true,0);
 
+      mqtt_sn_sub("/retentivo",0);
+      mqtt_sn_sub("/nao_retentivo",0);
+      mqtt_sn_sub("/topic_3/device",0);
+      mqtt_sn_sub("/SUBS/4",0);
+
+      //print_g_topics();
       debug_os("Estado do MQTT:%s",mqtt_sn_check_status_string());
       if (etimer_expired(&time_poll))
         etimer_reset(&time_poll);

@@ -119,15 +119,15 @@
 #define MQTT_SN_TIMEOUT_CONNECT   9*CLOCK_SECOND     /// \brief Tempo base para comunicação MQTT-SN broker <-> nó
 #define MQTT_SN_TIMEOUT           CLOCK_SECOND       /// \brief Tempo base para comunicação MQTT-SN broker <-> nó
 #define MQTT_SN_RETRY             5                  /// \brief Número de tentativas de enviar qualquer pacote ao broker antes de desconectar
-#define MAX_QUEUE_MQTT_SN         10                 /// \briefNúmero máximo de tarefas a serem inseridas alocadas dinamicamente MQTT-SN
-#define MAX_TOPIC_USED            10                 /// \brief Número máximo de tópicos que o usuário pode registrar, a API cria um conjunto de
-                                            /// estruturas para o bind de topic e short topic id
+#define MAX_QUEUE_MQTT_SN         100                /// \briefNúmero máximo de tarefas a serem inseridas alocadas dinamicamente MQTT-SN
+#define MAX_TOPIC_USED            100                /// \brief Número máximo de tópicos que o usuário pode registrar, a API cria um conjunto de
+                                                     /// estruturas para o bind de topic e short topic id
 /******************************************************************************/
 
 typedef struct {
   uint8_t length;
   uint8_t  msg_type;
-  char *  client_id;
+  char client_id[23];
 } ping_req_t;
 
 /** @struct mqtt_sn_task_t
@@ -179,6 +179,23 @@ typedef struct __attribute__((packed)){
   char data[MQTT_SN_MAX_PACKET_LENGTH-7];
 } publish_packet_t;
 
+
+typedef struct __attribute__((packed)) {
+  uint8_t length;
+  uint8_t type;
+  uint8_t flags;
+  uint16_t message_id;
+  char topic_name[MQTT_SN_MAX_TOPIC_LENGTH];
+} subscribe_wildcard_packet_t;
+
+typedef struct __attribute__((packed)) {
+  uint8_t length;
+  uint8_t type;
+  uint8_t flags;
+  uint16_t message_id;
+  uint16_t topic_id;
+} subscribe_packet_t;
+
 /** @struct connect_packet_t
  *  @brief Estrutura de pacotes MQTT-SN do tipo CONNECT
  *  @var connect_packet_t::length
@@ -193,7 +210,7 @@ typedef struct __attribute__((packed)){
  *  @var connect_packet_t::duration
  *    Indica a duração de um período em segundos podendo ser de até 18 Horas
  */
-typedef struct {
+typedef struct __attribute__((packed)) {
   uint8_t length;
   uint8_t type;
   uint8_t flags;
@@ -215,13 +232,22 @@ typedef struct {
  *  @var register_packet_t::topic_name
  *    Nome do tópico a ser registrado
  */
-typedef struct {
+typedef struct __attribute__((packed)){
   uint8_t length;
   uint8_t type;
   uint16_t topic_id;
   uint16_t message_id;
   char topic_name[MQTT_SN_MAX_TOPIC_LENGTH];
 } register_packet_t;
+
+
+typedef struct __attribute__((packed)){
+  uint8_t length;
+  uint8_t type;
+  uint16_t topic_id;
+  uint16_t message_id;
+  uint8_t return_code;
+} regack_packet_t;
 
 /*---------------------------------------------------------------------------*/
 
@@ -244,6 +270,7 @@ typedef enum resp_con{
 typedef struct {
    char *topic_name;
    uint8_t short_topic_id;
+   bool subscribed;
 } short_topics_t;
 
 /** @typedef mqtt_sn_status_t
@@ -256,6 +283,7 @@ typedef enum {
   MQTTSN_WAITING_REGACK,
   MQTTSN_CONNECTED,
   MQTTSN_TOPIC_REGISTERED,
+  MQTTSN_TOPIC_SUBSCRIBING,
   MQTTSN_WAITING_PUBACK,
   MQTTSN_WAITING_SUBACK,
   MQTTSN_PUB_REQ,
@@ -417,6 +445,10 @@ char* mqtt_sn_check_status_string(void);
 
 uint8_t mqtt_sn_get_qos_flag(int8_t qos);
 
+resp_con_t mqtt_sn_regack_send(uint16_t msg_id, uint16_t topic_id);
+
+void print_g_topics(void);
+
 resp_con_t mqtt_sn_pub(char *topic,char *message, bool retain_flag, uint8_t qos);
 
 void timeout_con(void *ptr);
@@ -426,6 +458,12 @@ void timeout_ping_mqtt(void *ptr);
 void mqtt_sn_ping_send(void);
 
 bool unlock_tasks(void);
+
+resp_con_t mqtt_sn_sub(char *topic, uint8_t qos);
+
+resp_con_t mqtt_sn_sub_send(char *topic, uint8_t qos);
+
+resp_con_t mqtt_sn_sub_send_wildcard(char *topic, uint8_t qos);
 /** @brief Realiza o registro de uma publicação
  *
  * 		Cria uma tarefa de publicação que envia ao broker a mensagem
