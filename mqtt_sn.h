@@ -84,6 +84,8 @@
 #define MQTT_SN_TYPE_WILLTOPICRESP (0x1B)
 #define MQTT_SN_TYPE_WILLMSGUPD    (0x1C)
 #define MQTT_SN_TYPE_WILLMSGRESP   (0x1D)
+#define MQTT_SN_TYPE_SUB_WILDCARD  (0x1E)
+
 
 #define MQTT_SN_TOPIC_TYPE_NORMAL     (0x00)
 #define MQTT_SN_TOPIC_TYPE_PREDEFINED (0x01)
@@ -129,6 +131,11 @@ typedef struct {
   uint8_t  msg_type;
   char client_id[23];
 } ping_req_t;
+
+typedef struct {
+  char *topic;
+  uint8_t id;
+} mqtt_sub_hist_t;
 
 /** @struct mqtt_sn_task_t
  *  @brief Estrutura de tarefa de fila MQTT-SN
@@ -464,6 +471,8 @@ resp_con_t mqtt_sn_sub(char *topic, uint8_t qos);
 resp_con_t mqtt_sn_sub_send(char *topic, uint8_t qos);
 
 resp_con_t mqtt_sn_sub_send_wildcard(char *topic, uint8_t qos);
+
+resp_con_t verf_hist_sub(char *topic);
 /** @brief Realiza o registro de uma publicação
  *
  * 		Cria uma tarefa de publicação que envia ao broker a mensagem

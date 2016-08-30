@@ -46,24 +46,25 @@ static process_event_t            mqtt_event_ping_timeout;     // Evento de req.
 
 static bool                       g_ping_flag_resp = true;           // Identificador de resposta ao PING REQUEST
 static char                       *g_message_bind;                   // Buffer temporário para o envio de mensagens do tipo publicação no caso de tarefas
-static char                       *topic_temp;                       // Buffer temporário para o armazenamento do buffer de inscrição
+static char                       *topic_temp_wildcard;              // Buffer temporário para o armazenamento do buffer de inscrição wildcard
 static uint8_t                    g_tries_send = 0;                  // Identificador de tentativas de envio
 static uint8_t                    g_tries_ping = 0;                  // Identificador de tentativas de envio de PING REQUEST
 static uint16_t                   g_task_id = 0;                     // Identificador unitário de tarefa incremental
 static short_topics_t             g_topic_bind[MAX_TOPIC_USED];      // Vetor que armazena a relação nome do tópico com short topic id
 static mqtt_sn_con_t              g_mqtt_sn_con;                     // Estrutura principal da conexão MQTT
 static mqtt_sn_status_t           mqtt_status = MQTTSN_DISCONNECTED; // ASM principal do MQTT-SN
+static short_topics_t             g_topic_wildcard[MAX_TOPIC_USED];  // Vetor que armazena a relação nome do tópico e topic id de tópicos WILDCARD
 
-static char                       *topic_name_reg[MAX_TOPIC_USED];   // Vetor global que aponta para os tópicos cadastrados após o registro inicial
 static char                       *topics_reconnect[MAX_TOPIC_USED]; // Vetor de tópicos [reconexão]
 static uint16_t                   topics_len;                        // Comprimento total de tópicos fornecidos pelo usuário [reconexão]
+
+static mqtt_sub_hist_t            topics_subscribed[MAX_TOPIC_USED];
 
 PROCESS(mqtt_sn_main, "[MQTT-SN] Processo inicial");
 
 /*********************** FUNÇÕES AUXILIARES MQTT-SN ***************************/
 bool unlock_tasks(void) {
-  if (mqtt_status == MQTTSN_TOPIC_REGISTERED &&
-      mqtt_status !=  MQTTSN_DISCONNECTED)
+  if (mqtt_status == MQTTSN_TOPIC_REGISTERED)
     return true;
   return false;
 }
@@ -177,92 +178,67 @@ resp_con_t mqtt_sn_pub(char *topic,char *message, bool retain_flag, uint8_t qos)
       break;
   }
 
-  if (registered_topic) //Tópico existe
-    mqtt_sn_pub_send(topic,message, retain_flag, qos);
-  else{ //Tópico não existe, precisamos REGISTRA-LO antes
-    // Preparamos as tasks para registrar já que o tópico não existe
-    // Criamos na sequência duas tarefas: 1-REGISTRAR 2-PUBLICAR O TÓPICO REGISTRADO
-    // 1 - REGISTER
-    debug_mqtt("Topico novo a REGISTRAR");
-    mqtt_sn_task_t topic_reg;
-    g_topic_bind[i].topic_name = topic;
-    topic_reg.msg_type_q = MQTT_SN_TYPE_REGISTER;
-    if (!mqtt_sn_insert_queue(topic_reg))
-      debug_task("ERRO AO ADICIONAR NA FILA");
-
-    // 2 - PUBLISH
-    mqtt_sn_task_t publish_task;
-    g_message_bind                     = message;
-    publish_task.msg_type_q            = MQTT_SN_TYPE_PUBLISH;
-    publish_task.qos_level             = qos;
-    publish_task.retain                = retain_flag;
-    if (!mqtt_sn_insert_queue(publish_task))
-      debug_task("ERRO AO ADICIONAR NA FILA");
-
-    process_post(&mqtt_sn_main, mqtt_event_run_task, NULL);
+  if (registered_topic)
+    mqtt_sn_pub_send(topic,message,retain_flag,qos);
+  else{
+    debug_mqtt("Topico nao registrado!");
+    return FAIL_CON;
   }
   return SUCCESS_CON;
 }
 
-resp_con_t mqtt_sn_sub(char *topic, uint8_t qos){
-  bool registered_topic = false;
+resp_con_t verf_hist_sub(char *topic){
+  size_t i;
+  for (i=0; i < MAX_TOPIC_USED; i++)
+    if(strcmp(topics_subscribed[i].topic,topic) == 0)
+      return FAIL_CON;
 
-  // Testa para ver se estaremos registrando alguma wildcard
-  if (strstr(topic,"#") || strstr(topic,"+")) {
-    debug_mqtt("Topico de inscricao com WILDCARD");
-    mqtt_sn_sub_send_wildcard(topic,qos);
-    return SUCCESS_CON;
-  }
+  for (i=0; i < MAX_TOPIC_USED; i++)
+    if(topics_subscribed[i].id == 0xFF)
+      break;
+
+  topics_subscribed[i].id = i;
+  topics_subscribed[i].topic = topic;
+  debug_mqtt("Topico inscrito no historico");
+  return SUCCESS_CON;
+}
+
+resp_con_t mqtt_sn_sub(char *topic, uint8_t qos){
 
   // Caso haja tópicos para registrar, não habilita a inscrição
   // evitando que prejudique alguma transação, ou seja, tasks
-  // tem prioridade sobre publicações diretas
-  if (!unlock_tasks())
+  // tem prioridade sobre inscrições diretas
+  if (!unlock_tasks() || !mqtt_sn_check_empty())
     return FAIL_CON;
 
-  // Analisamos o buffer de tópicos registrados para ver se já foi registrado o tópico
-  size_t i = 0;
-  for (i=0; i < MAX_TOPIC_USED; i++){
-    if (strcmp(g_topic_bind[i].topic_name,topic) == 0){
-      registered_topic = true;
-      break;
-    }
-    if (g_topic_bind[i].short_topic_id == 0xFF)
-      break;
-  }
+  if(verf_hist_sub(topic)){
+    debug_mqtt("Inscrevendo topico...");
 
-  if (registered_topic){ //Tópico existe
-    if (g_topic_bind[i].subscribed) {
-      debug_mqtt("Topico ja inscrito!");
-      return FAIL_CON;
-    }
-    mqtt_sn_sub_send(topic,qos);
-  }
-  else{ //Tópico não existe, precisamos REGISTRA-LO antes
-    // Preparamos as tasks para registrar já que o tópico não existe
-    // Criamos na sequência duas tarefas: 1-REGISTRAR 2-PUBLICAR O TÓPICO REGISTRADO
-    // 1 - REGISTER
-    debug_mqtt("Topico novo a REGISTRAR");
-    mqtt_sn_task_t topic_reg;
-    g_topic_bind[i].topic_name = topic;
-    g_topic_bind[i].subscribed = false;
+    size_t i;
+    for (i=0; i < MAX_TOPIC_USED; i++)
+      if(g_topic_bind[i].short_topic_id == 0xFF)
+        break;
 
-    topic_reg.msg_type_q = MQTT_SN_TYPE_REGISTER;
-
-    // 2 - SUBSCRIBE
     mqtt_sn_task_t subscribe_task;
-    subscribe_task.msg_type_q          = MQTT_SN_TYPE_SUBSCRIBE;
-    subscribe_task.qos_level           = qos;
-    topic_temp                         = topic;
+    subscribe_task.msg_type_q      = MQTT_SN_TYPE_SUBSCRIBE;
+    subscribe_task.qos_level       = qos;
+    subscribe_task.short_topic     = i;
 
-    if (!mqtt_sn_insert_queue(topic_reg))
-      debug_task("ERRO AO ADICIONAR NA FILA");
+    g_topic_bind[i].topic_name     = topic;
+    g_topic_bind[i].short_topic_id = i;
+    g_topic_bind[i].subscribed     = false;
+
     if (!mqtt_sn_insert_queue(subscribe_task))
-      debug_task("ERRO AO ADICIONAR NA FILA");
+     debug_task("ERRO AO ADICIONAR NA FILA");
 
-    process_post(&mqtt_sn_main, mqtt_event_run_task, NULL);
+    if (mqtt_sn_check_empty())
+      process_post(&mqtt_sn_main,mqtt_event_run_task,NULL);
+    return SUCCESS_CON;
   }
-  return SUCCESS_CON;
+  else{
+    debug_mqtt("Topico ja inscrito ou em andamento!");
+    return FAIL_CON;
+  }
 }
 
 void print_g_topics(void){
@@ -554,7 +530,7 @@ void mqtt_sn_check_queue(void){
   debug_task("FILA:");
   while (temp) {
       parse_mqtt_type_string(temp->data.msg_type_q,&task_type);
-      debug_task("[%2.0d][%s]",(int)temp->data.id_task, task_type);
+      debug_task("[%2.0d][%s][%d]",(int)temp->data.id_task, task_type,temp->data.short_topic);
       temp = temp->link;
       cnt++;
   }
@@ -623,13 +599,15 @@ void mqtt_sn_recv_parser(const uint8_t *data){
       case MQTT_SN_TYPE_SUBACK:
         return_code = data[7]; //No caso do SUBACK - RC[7]
         short_topic = data[4];
-        debug_mqtt("Reconhecimento de inscricao");
         // Na verdade os bytes de short topic são o [2] e [3], porém
         // só estamos usa-se o [3] porque não consideramos mais do que
         // 15 tópicos
-        /// @todo Rever o short topic para adequar bytes [2][3] juntos..
-        if (mqtt_sn_check_rc(return_code)){
+        /// @todo Rever o short topic para adequar bytes [2][3] juntos...
+        debug_mqtt("Recebido SUBACK");
+
+        if (mqtt_sn_check_rc(return_code))
           if (short_topic != 0x00) {
+            debug_mqtt("Reconhecimento de inscricao:[%s]",g_topic_bind[short_topic].topic_name);
             g_topic_bind[short_topic].subscribed = true;
             if (mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_SUBSCRIBE &&
                 mqtt_status == MQTTSN_WAITING_SUBACK)
@@ -639,7 +617,8 @@ void mqtt_sn_recv_parser(const uint8_t *data){
           }
           else
             debug_mqtt("Recebido SUBACK de WILDCARD");
-        }
+        else
+          debug_mqtt("Erro: Codigo de retorno invalido");
       break;
       case MQTT_SN_TYPE_PINGRESP:
         g_ping_flag_resp = true;
@@ -667,24 +646,31 @@ void mqtt_sn_recv_parser(const uint8_t *data){
       case MQTT_SN_TYPE_REGISTER:
         debug_mqtt("Recebido registro de topico novo:");
         uint8_t msg_id_reg = data[5];
-        short_topic = data[3];
-        uint8_t message_length_reg = data[0]-6;
-        char aux_topic[MQTT_SN_MAX_TOPIC_LENGTH];
-        // Primeiro capturamos o nome do tópico a ser registrado
-        size_t t,j;
-        for (t = 0; t < (message_length_reg); t++)
-         aux_topic[t] = data[t+6];
-        aux_topic[t] = '\0';
+        uint8_t message_length_buf = data[0]-6;
+        size_t j,t;
+        char buff[MQTT_SN_MAX_TOPIC_LENGTH];
 
-        // Após descobrimos um endereço vazio no vetor e alocamos neste
+        short_topic = data[3];
+
+        for (t = 0; t < message_length_buf; t++)
+          buff[t] = data[t+6];
+        buff[t] = '\0';
+
         for (j = 0; j < MAX_TOPIC_USED; j++)
           if (g_topic_bind[j].short_topic_id == 0xFF)
             break;
-        topic_name_reg[j] = aux_topic;
-        g_topic_bind[j].short_topic_id = short_topic;
-        g_topic_bind[j].topic_name = topic_name_reg[j];
 
-        debug_mqtt("Topico registrado!");
+        // Apesar de a variável ser local (buff) precisamos alocar dinamicamente
+        // memória para o ponteiro s para que consigamos fornecer um novo endereço
+        // de memória para a estrutura g_topic_bind...
+        char *s;
+        s = (char *)malloc(strlen(buff)+1);
+        strcpy(s,buff);
+        g_topic_bind[j].short_topic_id = short_topic;
+        g_topic_bind[j].subscribed = true;
+        g_topic_bind[j].topic_name = s;
+
+        debug_mqtt("Topico registrado![%s]",g_topic_bind[j].topic_name);
         mqtt_sn_regack_send((uint16_t)msg_id_reg,(uint16_t)short_topic);
       break;
       default:
@@ -800,6 +786,13 @@ void mqtt_sn_init(void){
     g_topic_bind[i].subscribed = false;
     g_topic_bind[i].short_topic_id = 0xFF;
   }
+
+  size_t a;
+  for (a = 1; a < MAX_TOPIC_USED; a++){
+    g_topic_wildcard[a].subscribed = false;
+    g_topic_wildcard[a].short_topic_id = 0xFF;
+    topics_subscribed[a].id = 0xFF;
+  }
 }
 
 void timeout_con(void *ptr){
@@ -845,7 +838,11 @@ void timeout_con(void *ptr){
       }
       else{
         debug_mqtt("Expirou tempo de SUBSCRIBE");
-        mqtt_sn_sub_send(topic_temp,mqtt_queue_first->data.qos_level);
+        size_t i;
+        for (i=0; i < MAX_TOPIC_USED; i++)
+          if (g_topic_bind[i].short_topic_id == 0xFF)
+            break;
+        mqtt_sn_sub_send(g_topic_bind[i-1].topic_name, mqtt_queue_first->data.qos_level);
         mqtt_status = MQTTSN_WAITING_SUBACK;
         ctimer_reset(&mqtt_time_subscribe);
         g_tries_send++;
@@ -922,11 +919,11 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
         mqtt_sn_delete_queue(); // Deleta requisição de REGISTER
         ctimer_stop(&mqtt_time_register);
         debug_mqtt("Topico registrado no broker");
-        mqtt_status = MQTTSN_TOPIC_REGISTERED;
 
-        if (!mqtt_sn_check_empty()) {
+        if (!mqtt_sn_check_empty())
           process_post(&mqtt_sn_main, mqtt_event_run_task, NULL); // Gera evento de processo de tasks
-        }
+        //else
+          //mqtt_status = MQTTSN_TOPIC_REGISTERED;
       }
 
       /*************************** RUN TASKS MQTT-SN **************************/
@@ -945,6 +942,9 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
           break;
           case MQTT_SN_TYPE_REGISTER:
             process_post(&mqtt_sn_main, mqtt_event_register, NULL);
+          break;
+          case MQTT_SN_TYPE_SUB_WILDCARD:
+            mqtt_sn_sub_send_wildcard(topic_temp_wildcard, mqtt_queue_first->data.qos_level);
           break;
           default:
             debug_task("Nenhuma tarefa a ser processada!");
@@ -979,9 +979,13 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
       /*************************** SUBSCRiBE MQTT-SN **************************/
       else if(ev == mqtt_event_subscribe &&
               mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_SUBSCRIBE){
-        mqtt_sn_sub_send(topic_temp, mqtt_queue_first->data.qos_level);
+        size_t i;
+        for (i=0; i < MAX_TOPIC_USED; i++)
+          if (g_topic_bind[i].short_topic_id == 0xFF)
+            break;
+        mqtt_sn_sub_send(g_topic_bind[i-1].topic_name, mqtt_queue_first->data.qos_level);
         mqtt_status = MQTTSN_WAITING_SUBACK;
-        ctimer_set(&mqtt_time_subscribe, MQTT_SN_TIMEOUT, timeout_con, NULL);
+        ctimer_set(&mqtt_time_subscribe, 3*MQTT_SN_TIMEOUT, timeout_con, NULL);
         g_tries_send = 0;
       }
       else if(ev == mqtt_event_suback &&
@@ -989,17 +993,23 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
         mqtt_sn_delete_queue(); // Deleta requisição de SUBSCRIBE
         ctimer_stop(&mqtt_time_subscribe);
         debug_mqtt("Topico inscrito no broker");
-        mqtt_status = MQTTSN_TOPIC_REGISTERED;
-
-        if (!mqtt_sn_check_empty()) {
+        if (!mqtt_sn_check_empty())
           process_post(&mqtt_sn_main, mqtt_event_run_task, NULL); // Gera evento de processo de tasks
-        }
+
+        else
+          mqtt_status = MQTTSN_TOPIC_REGISTERED; // Libera publicações e outra operações, caso não haja mais tasks para fazer
       }
 
       /********************** PING REQUEST - MQTT-SN **************************/
       else if(ev == mqtt_event_ping_timeout){
         debug_mqtt("Desconectado broker");
         #ifdef MQTT_SN_AUTO_RECONNECT
+          size_t a;
+          for (a = 1; a < MAX_TOPIC_USED; a++){
+            g_topic_wildcard[a].subscribed = false;
+            g_topic_wildcard[a].short_topic_id = 0xFF;
+            topics_subscribed[a].id = 0xFF;
+          }
           size_t i;
           for (i = 1; i < MAX_TOPIC_USED; i++){
             g_topic_bind[i].short_topic_id = 0xFF;

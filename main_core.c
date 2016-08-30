@@ -33,9 +33,12 @@ static struct   etimer time_poll;
 static uint16_t tick_process = 0;
 static char     pub_test[20];
 //Estes tópicos pré-registrados serão mais rápidos de publicar/receber publicações
-static char *topics_mqtt[] = {"/retentivo",
-                              "/nao_retentivo",
-                              "/topic_3/device"};
+static char *topics_mqtt[] = {"/topic_1",
+                              "/topic_2",
+                              "/topic_3",
+                              "/topic_4",
+                              "/topic_5",
+                              "/topic_6"};
 
 mqtt_sn_con_t mqtt_sn_connection;
 
@@ -63,19 +66,26 @@ PROCESS_THREAD(init_system_process, ev, data)
   while(1) {
       PROCESS_WAIT_EVENT();
       debug_os("Execucao[%d]",tick_process++);
-
+      tick_process++;
       sprintf(pub_test,"Execucao %d",tick_process);
+      //mqtt_sn_pub("/teste",pub_test,true,0);
+
+      // mqtt_sn_pub("/topic_1","TOPICO 1",true,0);
+      // mqtt_sn_pub("/topic_2","TOPICO 2",true,0);
+      // mqtt_sn_pub("/topic_3","TOPICO 3",true,0);
+      // mqtt_sn_pub("/topic_4","TOPICO 4",true,0);
+      // mqtt_sn_pub("/topic_5","TOPICO 5",true,0);
+      // mqtt_sn_pub("/topic_6","TOPICO 6",true,0);
+
+      // mqtt_sn_sub("/topic_2",0);
+      // mqtt_sn_sub("/topic_4",0);
+      // mqtt_sn_sub("/topic_6",0);
+
+      //mqtt_sn_sub("/topico_wild/#",0);
+
+      // print_g_topics();
       mqtt_sn_check_queue();
-      //mqtt_sn_pub("/retentivo",pub_test,true,0);
-      //mqtt_sn_pub("/SUBS/teste","foda-se",true,0);
-
-      mqtt_sn_sub("/retentivo",0);
-      mqtt_sn_sub("/nao_retentivo",0);
-      mqtt_sn_sub("/topic_3/device",0);
-      mqtt_sn_sub("/SUBS/4",0);
-
-      //print_g_topics();
-      debug_os("Estado do MQTT:%s",mqtt_sn_check_status_string());
+      //debug_os("Estado do MQTT:%s",mqtt_sn_check_status_string());
       if (etimer_expired(&time_poll))
         etimer_reset(&time_poll);
   }
