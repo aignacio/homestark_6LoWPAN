@@ -132,11 +132,6 @@ typedef struct {
   char client_id[23];
 } ping_req_t;
 
-typedef struct {
-  char *topic;
-  uint8_t id;
-} mqtt_sub_hist_t;
-
 /** @struct mqtt_sn_task_t
  *  @brief Estrutura de tarefa de fila MQTT-SN
  *  @var mqtt_sn_task_t::msg_type_q
@@ -277,7 +272,7 @@ typedef enum resp_con{
 typedef struct {
    char *topic_name;
    uint8_t short_topic_id;
-   bool subscribed;
+   uint8_t subscribed;
 } short_topics_t;
 
 /** @typedef mqtt_sn_status_t
@@ -473,6 +468,10 @@ resp_con_t mqtt_sn_sub_send(char *topic, uint8_t qos);
 resp_con_t mqtt_sn_sub_send_wildcard(char *topic, uint8_t qos);
 
 resp_con_t verf_hist_sub(char *topic);
+
+void init_vectors(void);
+
+void init_sub(void *ptr);
 /** @brief Realiza o registro de uma publicação
  *
  * 		Cria uma tarefa de publicação que envia ao broker a mensagem

@@ -70,21 +70,26 @@ PROCESS_THREAD(init_system_process, ev, data)
       sprintf(pub_test,"Execucao %d",tick_process);
       //mqtt_sn_pub("/teste",pub_test,true,0);
 
-      // mqtt_sn_pub("/topic_1","TOPICO 1",true,0);
-      // mqtt_sn_pub("/topic_2","TOPICO 2",true,0);
-      // mqtt_sn_pub("/topic_3","TOPICO 3",true,0);
-      // mqtt_sn_pub("/topic_4","TOPICO 4",true,0);
+      mqtt_sn_pub("/topic_1","TOPICO 1",true,0);
+      mqtt_sn_pub("/topic_2","TOPICO 2",true,0);
+      mqtt_sn_pub("/topic_3","TOPICO 3",true,0);
+      mqtt_sn_pub("/topic_4","TOPICO 4",true,0);
       // mqtt_sn_pub("/topic_5","TOPICO 5",true,0);
       // mqtt_sn_pub("/topic_6","TOPICO 6",true,0);
 
-      // mqtt_sn_sub("/topic_2",0);
-      // mqtt_sn_sub("/topic_4",0);
+      //if (tick_process == 20) {
+      mqtt_sn_sub("/topic_1",0);
+      mqtt_sn_sub("/topic_2",0);
+      mqtt_sn_sub("/topic_3",0);
+      mqtt_sn_sub("/topic_4",0);
+      // mqtt_sn_sub("/topic_5",0);
       // mqtt_sn_sub("/topic_6",0);
+      // //}
 
       //mqtt_sn_sub("/topico_wild/#",0);
 
-      // print_g_topics();
       mqtt_sn_check_queue();
+      // print_g_topics();
       //debug_os("Estado do MQTT:%s",mqtt_sn_check_status_string());
       if (etimer_expired(&time_poll))
         etimer_reset(&time_poll);
