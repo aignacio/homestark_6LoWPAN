@@ -126,6 +126,12 @@
                                                      /// estruturas para o bind de topic e short topic id
 /******************************************************************************/
 
+typedef struct __attribute__((packed)){
+  uint8_t length;
+  uint8_t  msg_type;
+  uint16_t duration;
+} disconnect_packet_t;
+
 typedef struct {
   uint8_t length;
   uint8_t  msg_type;
@@ -475,6 +481,7 @@ void init_sub(void *ptr);
 
 resp_con_t verf_register(char *topic);
 
+resp_con_t mqtt_sn_disconnect(uint16_t duration);
 /** @brief Realiza o registro de uma publicação
  *
  * 		Cria uma tarefa de publicação que envia ao broker a mensagem

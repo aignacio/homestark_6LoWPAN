@@ -289,19 +289,6 @@ void print_g_topics(void){
   }
 }
 
-/******************** FUNÇÕES DE ENVIO DE PACOTES MQTT-SN *********************/
-void mqtt_sn_ping_send(void){
-  ping_req_t ping_request;
-
-  ping_request.msg_type = MQTT_SN_TYPE_PINGREQ;
-  strncpy(ping_request.client_id, g_mqtt_sn_con.client_id, strlen(g_mqtt_sn_con.client_id));
-  ping_request.client_id[strlen(g_mqtt_sn_con.client_id)] = '\0';
-  //debug_mqtt("Client ID PING:%s",ping_request.client_id);
-  ping_request.length = 0x02 + strlen(ping_request.client_id);
-  //debug_mqtt("Enviando @PINGREQ");
-  simple_udp_send(&g_mqtt_sn_con.udp_con,&ping_request, ping_request.length);
-}
-
 void init_vectors(void){
   size_t a;
   for (a = 1; a < MAX_TOPIC_USED; a++){
@@ -318,6 +305,19 @@ void init_vectors(void){
   while (!mqtt_sn_check_empty())
       mqtt_sn_delete_queue();
   g_task_id = 0;
+}
+
+/******************** FUNÇÕES DE ENVIO DE PACOTES MQTT-SN *********************/
+void mqtt_sn_ping_send(void){
+  ping_req_t ping_request;
+
+  ping_request.msg_type = MQTT_SN_TYPE_PINGREQ;
+  strncpy(ping_request.client_id, g_mqtt_sn_con.client_id, strlen(g_mqtt_sn_con.client_id));
+  ping_request.client_id[strlen(g_mqtt_sn_con.client_id)] = '\0';
+  //debug_mqtt("Client ID PING:%s",ping_request.client_id);
+  ping_request.length = 0x02 + strlen(ping_request.client_id);
+  //debug_mqtt("Enviando @PINGREQ");
+  simple_udp_send(&g_mqtt_sn_con.udp_con,&ping_request, ping_request.length);
 }
 
 resp_con_t mqtt_sn_con_send(void){
@@ -509,6 +509,18 @@ resp_con_t mqtt_sn_sub_send_wildcard(char *topic, uint8_t qos){
   // |_________________|______________________|___________|_______________|______________________________________|
   //
   debug_mqtt("Enviando o pacote @SUBSCRIBE(Wildcard)");
+  simple_udp_send(&g_mqtt_sn_con.udp_con,&packet, packet.length);
+  return SUCCESS_CON;
+}
+
+resp_con_t mqtt_sn_disconnect(uint16_t duration){
+  disconnect_packet_t packet;
+
+  packet.msg_type = MQTT_SN_TYPE_DISCONNECT;
+  packet.duration = uip_htons(duration);
+  packet.length = 0x04;
+  debug_mqtt("Desconectando do broker...");
+
   simple_udp_send(&g_mqtt_sn_con.udp_con,&packet, packet.length);
   return SUCCESS_CON;
 }
@@ -757,7 +769,7 @@ resp_con_t mqtt_sn_create_sck(mqtt_sn_con_t mqtt_sn_connection, char *topics[], 
   size_t t = 0;
   for (t=0; t < topic_len; t++){
     topics_reconnect[t] = topics[t];
-    debug_mqtt("TOPICO: %s",(char *)topics_reconnect[t]);
+    //debug_mqtt("TOPICO: %s",(char *)topics_reconnect[t]);
   }
   /************************************ RECONEXÃO******************************/
 
