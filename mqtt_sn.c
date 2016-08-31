@@ -51,7 +51,7 @@ static char                       *g_message_bind;                   // Buffer t
 static char                       *topic_temp_wildcard;              // Buffer temporário para o armazenamento do buffer de inscrição wildcard
 static uint8_t                    g_tries_send = 0;                  // Identificador de tentativas de envio
 static uint8_t                    g_tries_ping = 0;                  // Identificador de tentativas de envio de PING REQUEST
-static uint16_t                   g_task_id = 0;                     // Identificador unitário de tarefa incremental
+static uint8_t                    g_task_id = 0;                     // Identificador unitário de tarefa incremental
 static short_topics_t             g_topic_bind[MAX_TOPIC_USED];      // Vetor que armazena a relação nome do tópico com short topic id
 static mqtt_sn_con_t              g_mqtt_sn_con;                     // Estrutura principal da conexão MQTT
 static mqtt_sn_status_t           mqtt_status = MQTTSN_DISCONNECTED; // ASM principal do MQTT-SN
@@ -80,6 +80,9 @@ void parse_mqtt_type_string(uint8_t type, char **type_string){
     break;
     case MQTT_SN_TYPE_REGISTER:
       *type_string = "REGISTER";
+    break;
+    case MQTT_SN_TYPE_SUB_WILDCARD:
+      *type_string = "SUBSCRIBE_WILDCARD";
     break;
     case MQTT_SN_TYPE_PUBLISH:
       *type_string = "PUBLISH";
@@ -164,9 +167,60 @@ uint8_t mqtt_sn_get_qos_flag(int8_t qos){
     }
 }
 
-resp_con_t mqtt_sn_pub(char *topic,char *message, bool retain_flag, uint8_t qos){
-  bool registered_topic = false;
+resp_con_t mqtt_sn_sub_wildcard(char *topic, uint8_t qos){
+  mqtt_sn_task_t subscribe_task;
 
+  subscribe_task.msg_type_q      = MQTT_SN_TYPE_SUB_WILDCARD;
+  subscribe_task.qos_level       = qos;
+  topic_temp_wildcard            = topic;
+  if (!mqtt_sn_insert_queue(subscribe_task))
+   debug_task("ERRO AO ADICIONAR NA FILA");
+
+  return SUCCESS_CON;
+}
+
+resp_con_t mqtt_sn_sub(char *topic, uint8_t qos){
+  // Caso haja tópicos para registrar, não habilita a inscrição
+  // evitando que prejudique alguma transação, ou seja, tasks
+  // tem prioridade sobre inscrições diretas
+  // if (!unlock_tasks())
+  // return FAIL_CON;
+
+  if(strstr(topic,"#") || strstr(topic,"+")){
+    mqtt_sn_sub_wildcard(topic,qos);
+    return SUCCESS_CON;
+  }
+
+  if (!verf_register(topic))
+  return FAIL_CON;
+
+  if(verf_hist_sub(topic)){
+    mqtt_sn_task_t subscribe_task;
+    size_t i;
+    for (i=0; i < MAX_TOPIC_USED; i++)
+      if(strcmp(g_topic_bind[i].topic_name,topic) == 0) // Tópico novo ou existe?
+        break;
+
+    subscribe_task.msg_type_q      = MQTT_SN_TYPE_SUBSCRIBE;
+    subscribe_task.qos_level       = qos;
+    subscribe_task.short_topic     = i;
+
+    // Comentadas as duas linhas abaixo porque consideraremos que o usuário irá registrar os
+    // topicos no começo do programa não sendo necessário gerar o evento de run_task
+    //if (mqtt_sn_check_empty())
+    //  ctimer_set(&mqtt_time_subscribe, 3*MQTT_SN_TIMEOUT, init_sub, NULL);
+
+    if (!mqtt_sn_insert_queue(subscribe_task))
+     debug_task("ERRO AO ADICIONAR NA FILA");
+
+    return SUCCESS_CON;
+  }
+  else
+    return FAIL_CON;
+
+}
+
+resp_con_t mqtt_sn_pub(char *topic,char *message, bool retain_flag, uint8_t qos){
   // Caso haja tópicos para registrar, não habilita a publicação
   // evitando que prejudique alguma transação, ou seja, tasks
   // tem prioridade sobre publicações diretas
@@ -174,20 +228,10 @@ resp_con_t mqtt_sn_pub(char *topic,char *message, bool retain_flag, uint8_t qos)
     return FAIL_CON;
 
   // Analisamos o buffer de tópicos registrados para ver se já foi registrado o tópico
-  size_t i = 0;
-  for (i=0; i < MAX_TOPIC_USED; i++){
-    if (strcmp(g_topic_bind[i].topic_name,topic) == 0)
-      registered_topic = true;
-    if (g_topic_bind[i].short_topic_id == 0xFF)
-      break;
-  }
-
-  if (registered_topic)
-    mqtt_sn_pub_send(topic,message,retain_flag,qos);
-  else{
-    debug_mqtt("Topico nao registrado!");
+  if (!verf_register(topic))
     return FAIL_CON;
-  }
+
+  mqtt_sn_pub_send(topic,message,retain_flag,qos);
   return SUCCESS_CON;
 }
 
@@ -227,38 +271,14 @@ resp_con_t verf_hist_sub(char *topic){
 
 }
 
-resp_con_t mqtt_sn_sub(char *topic, uint8_t qos){
-  // Caso haja tópicos para registrar, não habilita a inscrição
-  // evitando que prejudique alguma transação, ou seja, tasks
-  // tem prioridade sobre inscrições diretas
-  if (!unlock_tasks())
-    return FAIL_CON;
+resp_con_t verf_register(char *topic){
+  size_t i;
+  for (i=0; i < MAX_TOPIC_USED; i++)
+    if(strcmp(g_topic_bind[i].topic_name,topic) == 0)  // Tópico novo ou existe?
+      return SUCCESS_CON;
 
-  // if (!verf_register())
-  //   return FAIL_CON;
-
-  if(verf_hist_sub(topic)){
-    mqtt_sn_task_t subscribe_task;
-    size_t i;
-    for (i=0; i < MAX_TOPIC_USED; i++)
-      if(strcmp(g_topic_bind[i].topic_name,topic) == 0) // Tópico novo ou existe?
-        break;
-
-    subscribe_task.msg_type_q      = MQTT_SN_TYPE_SUBSCRIBE;
-    subscribe_task.qos_level       = qos;
-    subscribe_task.short_topic     = i;
-
-    if (mqtt_sn_check_empty())
-      ctimer_set(&mqtt_time_subscribe, 3*MQTT_SN_TIMEOUT, init_sub, NULL);
-
-    if (!mqtt_sn_insert_queue(subscribe_task))
-     debug_task("ERRO AO ADICIONAR NA FILA");
-
-    return SUCCESS_CON;
-  }
-  else
-    return FAIL_CON;
-
+  debug_mqtt("Topico nao registrado!");
+  return FAIL_CON;
 }
 
 void print_g_topics(void){
@@ -514,10 +534,7 @@ resp_con_t mqtt_sn_insert_queue(mqtt_sn_task_t new){
   temp->data.retain      = new.retain;
   temp->data.qos_level   = new.qos_level;
   temp->data.id_task     = g_task_id;
-
-  //if (temp->data.msg_type_q == MQTT_SN_TYPE_REGISTER)
   g_task_id++;
-
 
   temp->link = NULL;
   if (mqtt_queue_last  ==  NULL) {
@@ -531,7 +548,6 @@ resp_con_t mqtt_sn_insert_queue(mqtt_sn_task_t new){
   char *task_type;
   //parse_mqtt_type_string(mqtt_queue_first->data.msg_type_q,&task_type_2);
   //debug_task("Task principal:[%2.0d][%s]",(int)mqtt_queue_first->data.id_task,task_type_2);
-
   parse_mqtt_type_string(temp->data.msg_type_q,&task_type);
   debug_task("Task adicionada:[%2.0d][%s]",(int)temp->data.id_task, task_type);
   return SUCCESS_CON;
@@ -564,6 +580,8 @@ void mqtt_sn_check_queue(void){
   char *task_type;
 
   temp = mqtt_queue_first;
+
+  debug_task("VALOR DO GLOBAL ID g_task_id:%d",g_task_id);
 
   debug_task("FILA:");
   while (temp) {
@@ -653,8 +671,13 @@ void mqtt_sn_recv_parser(const uint8_t *data){
             else
               debug_mqtt("Recebido SUBACK sem requisicao!");
           }
-          else
+          else{
             debug_mqtt("Recebido SUBACK de WILDCARD");
+            if (mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_SUB_WILDCARD){
+              mqtt_status = MQTTSN_TOPIC_REGISTERED;
+              mqtt_sn_delete_queue();
+            }
+          }
         else
           debug_mqtt("Erro: Codigo de retorno invalido");
       break;
@@ -973,6 +996,7 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
             mqtt_sn_sub_send_wildcard(topic_temp_wildcard, mqtt_queue_first->data.qos_level);
           break;
           default:
+            mqtt_status = MQTTSN_TOPIC_REGISTERED;
             debug_task("Nenhuma tarefa a ser processada!");
           break;
         }

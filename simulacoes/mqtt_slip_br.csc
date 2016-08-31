@@ -97,22 +97,10 @@
   <plugin>
     org.contikios.cooja.plugins.SimControl
     <width>303</width>
-    <z>0</z>
+    <z>2</z>
     <height>163</height>
     <location_x>399</location_x>
     <location_y>0</location_y>
-  </plugin>
-  <plugin>
-    org.contikios.cooja.plugins.Notes
-    <plugin_config>
-      <notes>CONNECT ao broker em 9 segundos</notes>
-      <decorations>true</decorations>
-    </plugin_config>
-    <width>443</width>
-    <z>4</z>
-    <height>157</height>
-    <location_x>701</location_x>
-    <location_y>2</location_y>
   </plugin>
   <plugin>
     org.contikios.cooja.plugins.Visualizer
@@ -129,7 +117,7 @@
       <viewport>24.691131309144556 0.0 0.0 24.691131309144556 -1525.145013744369 128.43388724259734</viewport>
     </plugin_config>
     <width>400</width>
-    <z>6</z>
+    <z>5</z>
     <height>424</height>
     <location_x>1</location_x>
     <location_y>1</location_y>
@@ -141,11 +129,11 @@
       <formatted_time />
       <coloring />
     </plugin_config>
-    <width>746</width>
-    <z>3</z>
-    <height>530</height>
-    <location_x>399</location_x>
-    <location_y>160</location_y>
+    <width>681</width>
+    <z>0</z>
+    <height>539</height>
+    <location_x>402</location_x>
+    <location_y>164</location_y>
   </plugin>
   <plugin>
     org.contikios.cooja.plugins.TimeLine
@@ -158,7 +146,7 @@
       <zoomfactor>500.0</zoomfactor>
     </plugin_config>
     <width>396</width>
-    <z>2</z>
+    <z>4</z>
     <height>145</height>
     <location_x>2</location_x>
     <location_y>427</location_y>
@@ -173,8 +161,8 @@
     <width>362</width>
     <z>1</z>
     <height>116</height>
-    <location_x>5</location_x>
-    <location_y>573</location_y>
+    <location_x>22</location_x>
+    <location_y>571</location_y>
   </plugin>
   <plugin>
     org.contikios.cooja.plugins.VariableWatcher
@@ -184,12 +172,11 @@
       <vartype>0</vartype>
       <varformat>2</varformat>
     </plugin_config>
-    <width>445</width>
-    <z>-1</z>
-    <height>239</height>
-    <location_x>0</location_x>
-    <location_y>355</location_y>
-    <minimized>true</minimized>
+    <width>380</width>
+    <z>3</z>
+    <height>162</height>
+    <location_x>703</location_x>
+    <location_y>1</location_y>
   </plugin>
 </simconf>
 

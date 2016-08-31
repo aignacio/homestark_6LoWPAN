@@ -61,6 +61,11 @@ PROCESS_THREAD(init_system_process, ev, data)
   mqtt_sn_init();   // Inicializa alocação de eventos e a principal PROCESS_THREAD do MQTT-SN
   mqtt_sn_create_sck(mqtt_sn_connection, topics_mqtt, ss(topics_mqtt));
 
+  mqtt_sn_sub("/topic_1",0);
+  mqtt_sn_sub("/topic_2",0);
+  mqtt_sn_sub("/topic_3",0);
+  mqtt_sn_sub("/anderson/#",0);
+
   etimer_set(&time_poll, CLOCK_SECOND);
 
   while(1) {
@@ -78,10 +83,6 @@ PROCESS_THREAD(init_system_process, ev, data)
       // mqtt_sn_pub("/topic_6","TOPICO 6",true,0);
 
       //if (tick_process == 20) {
-      mqtt_sn_sub("/topic_1",0);
-      mqtt_sn_sub("/topic_2",0);
-      mqtt_sn_sub("/topic_3",0);
-      mqtt_sn_sub("/topic_4",0);
       // mqtt_sn_sub("/topic_5",0);
       // mqtt_sn_sub("/topic_6",0);
       // //}

@@ -472,6 +472,9 @@ resp_con_t verf_hist_sub(char *topic);
 void init_vectors(void);
 
 void init_sub(void *ptr);
+
+resp_con_t verf_register(char *topic);
+
 /** @brief Realiza o registro de uma publicação
  *
  * 		Cria uma tarefa de publicação que envia ao broker a mensagem
