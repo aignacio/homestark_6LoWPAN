@@ -85,7 +85,7 @@ PROCESS_THREAD(init_system_process, ev, data)
 
   init_broker();
 
-  etimer_set(&time_poll, CLOCK_SECOND/100);
+  etimer_set(&time_poll, CLOCK_SECOND);
 
   while(1) {
       PROCESS_WAIT_EVENT();
