@@ -24,6 +24,8 @@
 #include "simple-udp.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include "syscalls.c"
 
 static uint16_t udp_port = 1884;
 static uint16_t keep_alive = 2;
@@ -83,7 +85,7 @@ PROCESS_THREAD(init_system_process, ev, data)
 
   init_broker();
 
-  etimer_set(&time_poll, CLOCK_SECOND);
+  etimer_set(&time_poll, CLOCK_SECOND/100);
 
   while(1) {
       PROCESS_WAIT_EVENT();

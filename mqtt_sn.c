@@ -1,4 +1,5 @@
 /*
+  [Apontamento n-1]:
   Descoberta uma característica do contiki, o que ocorre é que se você utiliza
   algum  temporizador de evento (etimer) e ele expira, ele gera um evento o que
   e esperado, porém se você tiver testando diversas condições de forma sequencial
@@ -8,6 +9,20 @@
   MESMO após ter gerado o evento de "expiração", caso a condição 1) esteja antes
   da 2), e a 2) que gerou um evento, a 1) será executada anteriormente porque
   compreendesse que o "timer continua expirado".
+
+  [Apontamento n-2]:
+  Como nesta API utiliza-se malloc necessitamos da função do tipo POSIX chamadas
+  "sbrk" a qual utiliza de chamadas de sistema para realizar a operação de aloca
+  ção de memória.Logo, devemos incluir no arquivo principal o arquivo syscalls.c
+  (arquivo disponibilizado pelo contiki - lib/newlib/syscalls.c) e também  deve-
+  mos incluir as variáveis _heap e _eheap no linker script (cc26xx.ld) para a
+  função sbrk saber onde começa e termina a zona heap de memória do mcu.
+
+  Incluir no linker:
+  ...
+    _heap = .;
+    _eheap = ORIGIN(SRAM) + LENGTH(SRAM);
+  }
 
 */
 

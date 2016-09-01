@@ -47,10 +47,9 @@ obj_z1/contiki-z1-main.o: \
  /projects/contiki/core/./net/ip/uipopt.h \
  /projects/contiki/core/./net/ip/tcpip.h \
  /projects/contiki/core/./net/mac/framer.h \
- /projects/contiki/core/./dev/button-sensor.h \
- /projects/contiki/core/./lib/sensors.h \
  /projects/contiki/platform/z1/./dev/adxl345.h \
  /projects/contiki/platform/z1/./dev/i2cmaster.h \
+ /projects/contiki/core/./lib/sensors.h \
  /projects/contiki/core/./net/ipv6/uip-ds6.h \
  /projects/contiki/core/./sys/stimer.h \
  /projects/contiki/core/./net/ipv6/uip-nd6.h \
@@ -95,9 +94,7 @@ obj_z1/contiki-z1-main.o: \
  /projects/contiki/platform/z1/./contiki-conf.h \
  /projects/contiki/core/./cfs/cfs-coffee.h \
  /projects/contiki/core/./cfs/cfs.h \
- /projects/contiki/core/./sys/autostart.h \
- /projects/contiki/core/./dev/battery-sensor.h \
- /projects/contiki/dev/sht11/sht11-sensor.h
+ /projects/contiki/core/./sys/autostart.h
  /projects/contiki/platform/z1/./contiki-z1-main.c :
  /projects/contiki/core/./contiki.h :
  /projects/contiki/core/./contiki-version.h :
@@ -146,10 +143,9 @@ obj_z1/contiki-z1-main.o: \
  /projects/contiki/core/./net/ip/uipopt.h :
  /projects/contiki/core/./net/ip/tcpip.h :
  /projects/contiki/core/./net/mac/framer.h :
- /projects/contiki/core/./dev/button-sensor.h :
- /projects/contiki/core/./lib/sensors.h :
  /projects/contiki/platform/z1/./dev/adxl345.h :
  /projects/contiki/platform/z1/./dev/i2cmaster.h :
+ /projects/contiki/core/./lib/sensors.h :
  /projects/contiki/core/./net/ipv6/uip-ds6.h :
  /projects/contiki/core/./sys/stimer.h :
  /projects/contiki/core/./net/ipv6/uip-nd6.h :
@@ -195,5 +191,3 @@ obj_z1/contiki-z1-main.o: \
  /projects/contiki/core/./cfs/cfs-coffee.h :
  /projects/contiki/core/./cfs/cfs.h :
  /projects/contiki/core/./sys/autostart.h :
- /projects/contiki/core/./dev/battery-sensor.h :
- /projects/contiki/dev/sht11/sht11-sensor.h :
