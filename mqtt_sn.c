@@ -1,4 +1,5 @@
 /*
+
   [Apontamento n-1]:
   Descoberta uma característica do contiki, o que ocorre é que se você utiliza
   algum  temporizador de evento (etimer) e ele expira, ele gera um evento o que
@@ -60,10 +61,13 @@ static process_event_t            mqtt_event_suback;           // Evento de req 
 static process_event_t            mqtt_event_run_task;         // Evento de req qualquer, seja PUBLISH ou SUBSCRIBE [nó --> broker]
 static process_event_t            mqtt_event_ping_timeout;     // Evento de req. PING REQUEST em excesso de não resposta do broker [broker <-> nó]
 static process_event_t            mqtt_event_connected;        // Evento de req. PING REQUEST em excesso de não resposta do broker [broker <-> nó]
+static process_event_t            mqtt_event_will_topicreq;    // Evento de req. WILL TOPIC REQUEST [broker <-> nó]
+static process_event_t            mqtt_event_will_messagereq;  // Evento de req. WILL MESSAGE REQUEST [broker <-> nó]
 
 // Comentado por enquanto já que QoS - 0 não envia PUBACK
 // static process_event_t            mqtt_event_puback;     // Evento de req PUBACK   [broker --> nó]
-static bool                       g_recon = false;
+static bool                       g_recon = false;                   // Identificador de reconexão evitando dupla conexão UDP aberta
+static bool                       g_will = false;                    // Identificador de utilização de LWT
 static bool                       g_ping_flag_resp = true;           // Identificador de resposta ao PING REQUEST
 static char                       *g_message_bind;                   // Buffer temporário para o envio de mensagens do tipo publicação no caso de tarefas
 static char                       *topic_temp_wildcard;              // Buffer temporário para o armazenamento do buffer de inscrição wildcard
@@ -73,7 +77,6 @@ static uint8_t                    g_task_id = 0;                     // Identifi
 static short_topics_t             g_topic_bind[MAX_TOPIC_USED];      // Vetor que armazena a relação nome do tópico com short topic id
 static mqtt_sn_con_t              g_mqtt_sn_con;                     // Estrutura principal da conexão MQTT
 static mqtt_sn_status_t           mqtt_status = MQTTSN_DISCONNECTED; // ASM principal do MQTT-SN
-static short_topics_t             g_topic_wildcard[MAX_TOPIC_USED];  // Vetor que armazena a relação nome do tópico e topic id de tópicos WILDCARD
 static char                       *topics_reconnect[MAX_TOPIC_USED]; // Vetor de tópicos [reconexão]
 static uint16_t                   topics_len;                        // Comprimento total de tópicos fornecidos pelo usuário [reconexão]
 
@@ -117,6 +120,12 @@ void parse_mqtt_type_string(uint8_t type, char **type_string){
     case MQTT_SN_TYPE_DISCONNECT:
       *type_string = "DISCONNECT";
     break;
+    case MQTT_SN_TYPE_WILLTOPIC:
+      *type_string = "WILL_TOPIC";
+    break;
+    case MQTT_SN_TYPE_WILLMSG:
+      *type_string = "WILL_MESSAGE";
+    break;
     default:
       *type_string = "Estado nao definido nas opcoes";
     break;
@@ -139,6 +148,12 @@ char* mqtt_sn_check_status_string(void){
     break;
     case MQTTSN_TOPIC_REGISTERED:
       return "TOPICOS REGISTRADOS";
+    break;
+    case MQTTSN_WAITING_WILLTOPICREQ:
+      return "AGUARDANDO WILL TOPIC";
+    break;
+    case MQTTSN_WAITING_WILLMSGREQ:
+      return "AGUARDANDO WILL MESSAGE";
     break;
     default:
       return "ESTADO NAO DESCRITO";
@@ -309,25 +324,65 @@ void print_g_topics(void){
 
 void init_vectors(void){
   debug_mqtt("Inicializando vetores...");
-
-  size_t a;
-  for (a = 1; a < MAX_TOPIC_USED; a++){
-    g_topic_wildcard[a].subscribed = false;
-    g_topic_wildcard[a].short_topic_id = 0xFF;
-  }
-
   size_t i;
   for (i = 1; i < MAX_TOPIC_USED; i++){
     g_topic_bind[i].short_topic_id = 0xFF;
     g_topic_bind[i].topic_name = 0;
     g_topic_bind[i].subscribed = 0x00;
   }
+
   while (!mqtt_sn_check_empty())
       mqtt_sn_delete_queue();
   g_task_id = 0;
 }
 
 /******************** FUNÇÕES DE ENVIO DE PACOTES MQTT-SN *********************/
+resp_con_t mqtt_sn_will_topic_send(void){
+  willtopic_packet_t packet;
+
+  size_t topic_name_len = strlen(g_mqtt_sn_con.will_topic);
+
+  if (topic_name_len > MQTT_SN_MAX_TOPIC_LENGTH) {
+    debug_mqtt("Erro: Nome do topico WILL excede o limite maximo");
+    return FAIL_CON;
+  }
+
+  packet.flags = MQTT_SN_FLAG_RETAIN;
+
+  packet.type = MQTT_SN_TYPE_WILLTOPIC;
+
+  strncpy(packet.will_topic, g_mqtt_sn_con.will_topic, topic_name_len);
+  packet.length = 0x03 + topic_name_len;
+  packet.will_topic[topic_name_len] = '\0';
+
+  debug_mqtt("Enviando o pacote @WILL TOPIC");
+  simple_udp_send(&g_mqtt_sn_con.udp_con,&packet, packet.length);
+
+  return SUCCESS_CON;
+}
+
+resp_con_t mqtt_sn_will_message_send(void){
+  willmessage_packet_t packet;
+
+  size_t message_name_len = strlen(g_mqtt_sn_con.will_message);
+
+  if (message_name_len > MQTT_SN_MAX_TOPIC_LENGTH) {
+    debug_mqtt("Erro: Nome da mensagem WILL excede o limite maximo");
+    return FAIL_CON;
+  }
+
+  packet.type = MQTT_SN_TYPE_WILLMSG;
+
+  strncpy(packet.will_message, g_mqtt_sn_con.will_message, message_name_len);
+  packet.length = 0x02 + message_name_len;
+  packet.will_message[message_name_len] = '\0';
+
+  debug_mqtt("Enviando o pacote @WILL MESSAGE");
+  simple_udp_send(&g_mqtt_sn_con.udp_con,&packet, packet.length);
+
+  return SUCCESS_CON;
+}
+
 void mqtt_sn_ping_send(void){
   ping_req_t ping_request;
 
@@ -346,6 +401,8 @@ resp_con_t mqtt_sn_con_send(void){
   // Criação do pacote CONNECT
   packet.type = MQTT_SN_TYPE_CONNECT;
   packet.flags = MQTT_SN_FLAG_CLEAN;
+  if (g_will)
+    packet.flags += MQTT_SN_FLAG_WILL;
   packet.protocol_id = MQTT_SN_PROTOCOL_ID;
   packet.duration = uip_htons(g_mqtt_sn_con.keep_alive); //Realiza a conversão para network byte order
 
@@ -396,7 +453,7 @@ resp_con_t mqtt_sn_reg_send(void){
   packet.length = 0x06 + topic_name_len;
   packet.topic_name[topic_name_len] = '\0';
 
-  // debug_mqtt("Topico a registrar:%s [%d][MSG_ID:%d]",packet.topic_name,strlen(packet.topic_name),(int)mqtt_queue_first->data.id_task);
+  debug_mqtt("Topico a registrar:%s [%d][MSG_ID:%d]",packet.topic_name,strlen(packet.topic_name),(int)mqtt_queue_first->data.id_task);
   debug_mqtt("Enviando o pacote @REGISTER");
   simple_udp_send(&g_mqtt_sn_con.udp_con,&packet, packet.length);
 
@@ -644,8 +701,7 @@ void mqtt_sn_recv_parser(const uint8_t *data){
       case MQTT_SN_TYPE_CONNACK:
         return_code = data[2]; //No caso do CONNACK - RC[2]
         if (mqtt_sn_check_rc(return_code)){
-          if (mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_CONNECT &&
-              mqtt_status == MQTTSN_WAITING_CONNACK)
+          if (mqtt_status == MQTTSN_WAITING_CONNACK)
             process_post(&mqtt_sn_main, mqtt_event_connack, NULL);
           else
             debug_mqtt("Recebido CONNAC sem requisicao!");
@@ -766,6 +822,15 @@ void mqtt_sn_recv_parser(const uint8_t *data){
         debug_mqtt("Topico registrado![%s]",g_topic_bind[j].topic_name);
         mqtt_sn_regack_send((uint16_t)msg_id_reg,(uint16_t)short_topic);
       break;
+      case MQTT_SN_TYPE_WILLTOPICREQ:
+        // debug_mqtt("Recebido um pacote WILL TOPIC REQ");
+        if (mqtt_status == MQTTSN_WAITING_WILLTOPICREQ)
+          process_post(&mqtt_sn_main,mqtt_event_will_topicreq,NULL);
+      break;
+      case MQTT_SN_TYPE_WILLMSGREQ:
+        if (mqtt_status == MQTTSN_WAITING_WILLMSGREQ)
+          process_post(&mqtt_sn_main,mqtt_event_will_messagereq,NULL);
+      break;
       default:
         debug_mqtt("Recebida mensagem porem nao identificada!");
       break;
@@ -779,7 +844,7 @@ void mqtt_sn_udp_rec_cb(struct simple_udp_connection *c,
                             uint16_t receiver_port,
                             const uint8_t *data,
                             uint16_t datalen) {
-  debug_mqtt("###########RECEBIDO ALGO VIA UDP!##########");
+  debug_udp("##########RECEBIDO ALGO VIA UDP!##########");
   mqtt_sn_recv_parser(data);
 }
 
@@ -808,7 +873,7 @@ resp_con_t mqtt_sn_create_sck(mqtt_sn_con_t mqtt_sn_connection, char *topics[], 
                             *(g_mqtt_sn_con.ipv6_broker+7));
 
   if (strlen(g_mqtt_sn_con.client_id) > 23){
-    debug_logic("Cli. ID SIZE:%d > 23!",strlen(g_mqtt_sn_con.client_id));
+    debug_mqtt("Cli. ID SIZE:%d > 23!",strlen(g_mqtt_sn_con.client_id));
     return FAIL_CON;
   }
 
@@ -828,6 +893,9 @@ resp_con_t mqtt_sn_create_sck(mqtt_sn_con_t mqtt_sn_connection, char *topics[], 
       return FAIL_CON;
   }
 
+  if (g_mqtt_sn_con.will_topic && g_mqtt_sn_con.will_message)
+    g_will = true;
+
   /****************************************************************************/
   // Criando tarefa de [CONNECT]
   //
@@ -839,6 +907,19 @@ resp_con_t mqtt_sn_create_sck(mqtt_sn_con_t mqtt_sn_connection, char *topics[], 
   connect_task.msg_type_q = MQTT_SN_TYPE_CONNECT;
   mqtt_sn_insert_queue(connect_task);
   /****************************************************************************/
+
+  /****************************************************************************/
+  // Implementação do recurso de [LWT]
+  // Verificando se o usuário quer utilizar will topic e will message
+  if (g_mqtt_sn_con.will_topic && g_mqtt_sn_con.will_message){
+    mqtt_sn_task_t will_topic_task;
+    will_topic_task.msg_type_q = MQTT_SN_TYPE_WILLTOPIC;
+    mqtt_sn_insert_queue(will_topic_task);
+
+    mqtt_sn_task_t will_message_task;
+    will_message_task.msg_type_q = MQTT_SN_TYPE_WILLMSG;
+    mqtt_sn_insert_queue(will_message_task);
+  }
 
   /****************************************************************************/
   // Criando tarefas de [REGISTER]
@@ -853,13 +934,16 @@ resp_con_t mqtt_sn_create_sck(mqtt_sn_con_t mqtt_sn_connection, char *topics[], 
   // debug_mqtt("Criando tarefa de REGISTER");
   size_t i;
   for(i = 0; i < topic_len; i++){
-    g_topic_bind[g_task_id].topic_name = topics_reconnect[i];
+    if (g_mqtt_sn_con.will_topic && g_mqtt_sn_con.will_message)
+      g_topic_bind[g_task_id-2].topic_name = topics_reconnect[i]; // Antecipa-se 2 no indíce em função das 2 tasks já alocadas para WILL do LWT
+    else
+      g_topic_bind[g_task_id].topic_name = topics_reconnect[i];
     topic_reg.msg_type_q = MQTT_SN_TYPE_REGISTER;
     if (!mqtt_sn_insert_queue(topic_reg)) break;
   }
   /****************************************************************************/
 
-  process_post(&mqtt_sn_main, mqtt_event_connect, NULL);
+  process_post(&mqtt_sn_main, mqtt_event_run_task, NULL);
 
   return SUCCESS_CON;
 }
@@ -868,17 +952,18 @@ void mqtt_sn_init(void){
   process_start(&mqtt_sn_main, NULL);
 
   // Alocação de número de evento disponível para os eventos do MQTT-SN
-  mqtt_event_connect        = process_alloc_event();
-  mqtt_event_connack        = process_alloc_event();
-  mqtt_event_register       = process_alloc_event();
-  mqtt_event_regack         = process_alloc_event();
-  mqtt_event_run_task       = process_alloc_event();
-  mqtt_event_pub_qos_0      = process_alloc_event();
-  mqtt_event_ping_timeout   = process_alloc_event();
-  mqtt_event_suback         = process_alloc_event();
-  mqtt_event_subscribe      = process_alloc_event();
-  mqtt_event_connected      = process_alloc_event();
-  // mqtt_event_puback   = process_alloc_event();
+  mqtt_event_connect         = process_alloc_event();
+  mqtt_event_connack         = process_alloc_event();
+  mqtt_event_register        = process_alloc_event();
+  mqtt_event_regack          = process_alloc_event();
+  mqtt_event_run_task        = process_alloc_event();
+  mqtt_event_pub_qos_0       = process_alloc_event();
+  mqtt_event_ping_timeout    = process_alloc_event();
+  mqtt_event_suback          = process_alloc_event();
+  mqtt_event_subscribe       = process_alloc_event();
+  mqtt_event_connected       = process_alloc_event();
+  mqtt_event_will_topicreq   = process_alloc_event();
+  mqtt_event_will_messagereq = process_alloc_event();
 
   init_vectors();
 }
@@ -927,6 +1012,23 @@ void timeout_con(void *ptr){
         g_tries_send++;
       }
     break;
+    case MQTTSN_WAITING_WILLTOPICREQ:
+      if (g_tries_send >= MQTT_SN_RETRY) {
+        g_tries_send = 0;
+        process_post(&mqtt_sn_main,mqtt_event_ping_timeout,NULL);
+        debug_mqtt("Limite maximo de pacotes CONNECT para WILL TOPIC");
+      }
+      else{
+        debug_mqtt("Expirou tempo de CONNECT para WILL TOPIC");
+        mqtt_sn_con_send();
+        mqtt_status = MQTTSN_WAITING_WILLTOPICREQ;
+        ctimer_reset(&mqtt_time_connect);
+        g_tries_send++;
+      }
+    break;
+    case MQTTSN_CONNECTED:
+      //process_post(&mqtt_sn_main, mqtt_event_run_task, NULL);
+    break;
     default:
       debug_mqtt("Expirou tempo de estado desconhecido");
     break;
@@ -965,24 +1067,39 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
 
   while(1) {
       PROCESS_WAIT_EVENT();
-
       /*************************** CONNECT MQTT-SN ****************************/
       if (ev == mqtt_event_connect &&
           mqtt_status == MQTTSN_DISCONNECTED){
         mqtt_sn_con_send();
-        mqtt_status = MQTTSN_WAITING_CONNACK;
+        if (g_mqtt_sn_con.will_topic && g_mqtt_sn_con.will_message)
+          mqtt_status = MQTTSN_WAITING_WILLTOPICREQ;
+        else
+          mqtt_status = MQTTSN_WAITING_CONNACK;
         ctimer_set(&mqtt_time_connect, MQTT_SN_TIMEOUT_CONNECT, timeout_con, NULL);
         g_tries_send = 0;
       }
-      else if(ev == mqtt_event_connack &&
-              mqtt_queue_first->data.msg_type_q == MQTT_SN_TYPE_CONNECT){
+      else if(ev == mqtt_event_connack){
         mqtt_status = MQTTSN_CONNECTED;
         debug_mqtt("Conectado ao broker MQTT-SN");
         ctimer_stop(&mqtt_time_connect);
         mqtt_sn_delete_queue(); // Deleta requisição de CONNECT já que estamos conectados;
         // Iniciamos o PING Request a partir deste momento
         ctimer_set(&mqtt_time_ping, g_mqtt_sn_con.keep_alive*CLOCK_SECOND , timeout_ping_mqtt, NULL);
-        process_post(&mqtt_sn_main, mqtt_event_register, NULL);
+        process_post(&mqtt_sn_main, mqtt_event_run_task, NULL);
+      }
+
+      /************************** WILL TOPIC MQTT-SN **************************/
+      if(ev == mqtt_event_will_topicreq){
+        mqtt_status = MQTTSN_WAITING_WILLMSGREQ;
+        mqtt_sn_will_topic_send();
+        mqtt_sn_delete_queue();
+      }
+
+      /************************** WILL MESSAGE MQTT-SN ************************/
+      else if(ev == mqtt_event_will_messagereq){
+        mqtt_sn_delete_queue();
+        mqtt_sn_will_message_send();
+        mqtt_status = MQTTSN_WAITING_CONNACK;
       }
 
       /*************************** REGISTER MQTT-SN ***************************/
@@ -1014,6 +1131,7 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
         debug_task("Task a executar:%s",teste);
         switch (mqtt_queue_first->data.msg_type_q) {
           case MQTT_SN_TYPE_CONNECT:
+            process_post(&mqtt_sn_main, mqtt_event_connect, NULL);
           break;
           case MQTT_SN_TYPE_PUBLISH:
             process_post(&mqtt_sn_main, mqtt_event_pub_qos_0, NULL);
@@ -1026,6 +1144,10 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
           break;
           case MQTT_SN_TYPE_SUB_WILDCARD:
             mqtt_sn_sub_send_wildcard(topic_temp_wildcard, mqtt_queue_first->data.qos_level);
+          break;
+          case MQTT_SN_TYPE_WILLTOPIC:
+          break;
+          case MQTT_SN_TYPE_WILLMSG:
           break;
           default:
             mqtt_status = MQTTSN_TOPIC_REGISTERED;

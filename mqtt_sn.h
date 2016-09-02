@@ -22,19 +22,12 @@
 #define DEBUG_OS
 #define DEBUG_TASK
 //#define DEBUG_UDP
-//#define DEBUG_LOGIC
+
 
 #ifdef DEBUG_TASK
 #define debug_task(fmt, args...) printf("\n[Tarefa] "fmt, ##args)
 #else
 #define debug_task(fmt, ...)
-#endif
-
-
-#ifdef DEBUG_LOGIC
-#define debug_logic(fmt, args...) printf("\n[Logic] "fmt, ##args)
-#else
-#define debug_logic(fmt, ...)
 #endif
 
 #ifdef DEBUG_OS
@@ -253,6 +246,19 @@ typedef struct __attribute__((packed)){
 typedef struct __attribute__((packed)){
   uint8_t length;
   uint8_t type;
+  uint8_t flags;
+  char will_topic[MQTT_SN_MAX_TOPIC_LENGTH];
+} willtopic_packet_t;
+
+typedef struct __attribute__((packed)){
+  uint8_t length;
+  uint8_t type;
+  char will_message[MQTT_SN_MAX_PACKET_LENGTH];
+} willmessage_packet_t;
+
+typedef struct __attribute__((packed)){
+  uint8_t length;
+  uint8_t type;
   uint16_t topic_id;
   uint16_t message_id;
   uint8_t return_code;
@@ -289,6 +295,8 @@ typedef enum {
   MQTTSN_CONNECTION_FAILED,
   MQTTSN_DISCONNECTED,
   MQTTSN_WAITING_CONNACK,
+  MQTTSN_WAITING_WILLTOPICREQ,
+  MQTTSN_WAITING_WILLMSGREQ,
   MQTTSN_WAITING_REGACK,
   MQTTSN_CONNECTED,
   MQTTSN_TOPIC_REGISTERED,
@@ -319,6 +327,8 @@ typedef struct {
   uint16_t *ipv6_broker;
   uint8_t  keep_alive;
   const char* client_id;
+  char *will_topic;
+  char *will_message;
 } mqtt_sn_con_t;
 
 /** @brief Insere uma tarefa na fila
@@ -483,6 +493,11 @@ void init_sub(void *ptr);
 resp_con_t verf_register(char *topic);
 
 resp_con_t mqtt_sn_disconnect(uint16_t duration);
+
+resp_con_t mqtt_sn_will_message_send(void);
+
+resp_con_t mqtt_sn_will_topic_send(void);
+
 /** @brief Realiza o registro de uma publicação
  *
  * 		Cria uma tarefa de publicação que envia ao broker a mensagem
