@@ -41,6 +41,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "net/ipv6/uip-ds6.h"
+#if CONTIKI_TARGET_SRF06_CC26XX
+#include "syscalls.c" //Utilizado quando se usa malloc
+#endif
 
 static struct ctimer              mqtt_time_connect;       // Estrutura de temporização para envio de CONNECT
 static struct ctimer              mqtt_time_register;      // Estrutura de temporização para envio de REGISTER
@@ -60,7 +63,7 @@ static process_event_t            mqtt_event_connected;        // Evento de req.
 
 // Comentado por enquanto já que QoS - 0 não envia PUBACK
 // static process_event_t            mqtt_event_puback;     // Evento de req PUBACK   [broker --> nó]
-
+static bool                       g_recon = false;
 static bool                       g_ping_flag_resp = true;           // Identificador de resposta ao PING REQUEST
 static char                       *g_message_bind;                   // Buffer temporário para o envio de mensagens do tipo publicação no caso de tarefas
 static char                       *topic_temp_wildcard;              // Buffer temporário para o armazenamento do buffer de inscrição wildcard
@@ -305,6 +308,8 @@ void print_g_topics(void){
 }
 
 void init_vectors(void){
+  debug_mqtt("Inicializando vetores...");
+
   size_t a;
   for (a = 1; a < MAX_TOPIC_USED; a++){
     g_topic_wildcard[a].subscribed = false;
@@ -774,6 +779,7 @@ void mqtt_sn_udp_rec_cb(struct simple_udp_connection *c,
                             uint16_t receiver_port,
                             const uint8_t *data,
                             uint16_t datalen) {
+  debug_mqtt("###########RECEBIDO ALGO VIA UDP!##########");
   mqtt_sn_recv_parser(data);
 }
 
@@ -784,7 +790,7 @@ resp_con_t mqtt_sn_create_sck(mqtt_sn_con_t mqtt_sn_connection, char *topics[], 
   size_t t = 0;
   for (t=0; t < topic_len; t++){
     topics_reconnect[t] = topics[t];
-    //debug_mqtt("TOPICO: %s",(char *)topics_reconnect[t]);
+    // debug_mqtt("Armazenando topico: %s",(char *)topics_reconnect[t]);
   }
   /************************************ RECONEXÃO******************************/
 
@@ -812,13 +818,15 @@ resp_con_t mqtt_sn_create_sck(mqtt_sn_con_t mqtt_sn_connection, char *topics[], 
   debug_mqtt("Client ID:%s/%d",g_mqtt_sn_con.client_id,strlen(g_mqtt_sn_con.client_id));
 
 
-  con_udp_status = simple_udp_register(&g_mqtt_sn_con.udp_con,
-                                        g_mqtt_sn_con.udp_port,
-                                        &broker_addr,
-                                        g_mqtt_sn_con.udp_port,
-                                        mqtt_sn_udp_rec_cb);
-  if(!con_udp_status)
-    return FAIL_CON;
+  if(!g_recon){
+    con_udp_status = simple_udp_register(&g_mqtt_sn_con.udp_con,
+                                          g_mqtt_sn_con.udp_port,
+                                          &broker_addr,
+                                          g_mqtt_sn_con.udp_port,
+                                          mqtt_sn_udp_rec_cb);
+    if(!con_udp_status)
+      return FAIL_CON;
+  }
 
   /****************************************************************************/
   // Criando tarefa de [CONNECT]
@@ -827,6 +835,7 @@ resp_con_t mqtt_sn_create_sck(mqtt_sn_con_t mqtt_sn_connection, char *topics[], 
   // ra que seja possível qualquer outra operação.
   mqtt_sn_task_t connect_task;
 
+  // debug_mqtt("Criando tarefa de CONNECT");
   connect_task.msg_type_q = MQTT_SN_TYPE_CONNECT;
   mqtt_sn_insert_queue(connect_task);
   /****************************************************************************/
@@ -841,6 +850,7 @@ resp_con_t mqtt_sn_create_sck(mqtt_sn_con_t mqtt_sn_connection, char *topics[], 
   // broker irá então responder com os respectivos SHORT TOPIC para utilizarmos.
   mqtt_sn_task_t topic_reg;
 
+  // debug_mqtt("Criando tarefa de REGISTER");
   size_t i;
   for(i = 0; i < topic_len; i++){
     g_topic_bind[g_task_id].topic_name = topics_reconnect[i];
@@ -877,10 +887,7 @@ void timeout_con(void *ptr){
   switch (mqtt_status) {
     case MQTTSN_WAITING_CONNACK:
       if (g_tries_send >= MQTT_SN_RETRY) {
-        if (etimer_pending())
-          ctimer_stop(&mqtt_time_connect);
         g_tries_send = 0;
-        mqtt_status = MQTTSN_DISCONNECTED;
         process_post(&mqtt_sn_main,mqtt_event_ping_timeout,NULL);
         debug_mqtt("Limite maximo de pacotes CONNECT");
       }
@@ -894,8 +901,7 @@ void timeout_con(void *ptr){
     break;
     case MQTTSN_WAITING_REGACK:
       if (g_tries_send >= MQTT_SN_RETRY) {
-        ctimer_stop(&mqtt_time_register);
-        mqtt_status = MQTTSN_DISCONNECTED;
+        g_tries_send = 0;
         process_post(&mqtt_sn_main,mqtt_event_ping_timeout,NULL);
         debug_mqtt("Limite maximo de pacotes REGISTER");
       }
@@ -909,8 +915,7 @@ void timeout_con(void *ptr){
     break;
     case MQTTSN_WAITING_SUBACK:
       if (g_tries_send >= MQTT_SN_RETRY) {
-        ctimer_stop(&mqtt_time_subscribe);
-        mqtt_status = MQTTSN_DISCONNECTED;
+        g_tries_send = 0;
         process_post(&mqtt_sn_main,mqtt_event_ping_timeout,NULL);
         debug_mqtt("Limite maximo de pacotes SUBSCRIBE");
       }
@@ -938,14 +943,14 @@ void timeout_ping_mqtt(void *ptr){
   }
   else{
     if (g_tries_ping >= MQTT_SN_RETRY_PING) {
-      mqtt_status = MQTTSN_DISCONNECTED;
       g_tries_ping = 0;
       ctimer_stop(&mqtt_time_ping);
+      if (mqtt_status != MQTTSN_DISCONNECTED)
+        process_post(&mqtt_sn_main,mqtt_event_ping_timeout,NULL);
       debug_mqtt("Limite tentativas de PING RESPONSE");
-      process_post(&mqtt_sn_main,mqtt_event_ping_timeout,NULL);
     }
     else{
-      // debug_mqtt("INCREMENTANDO PING");
+      debug_mqtt("INCREMENTANDO PING");
       mqtt_sn_ping_send();
       g_tries_ping++;
     }
@@ -1074,8 +1079,15 @@ PROCESS_THREAD(mqtt_sn_main, ev, data){
 
       /********************** PING REQUEST - MQTT-SN **************************/
       else if(ev == mqtt_event_ping_timeout){
+        ctimer_stop(&mqtt_time_connect);
+        ctimer_stop(&mqtt_time_register);
+        ctimer_stop(&mqtt_time_ping);
+        ctimer_stop(&mqtt_time_subscribe);
+
+        mqtt_status = MQTTSN_DISCONNECTED;
         debug_mqtt("Desconectado broker");
         #ifdef MQTT_SN_AUTO_RECONNECT
+          g_recon = true;
           init_vectors();
           mqtt_sn_create_sck(g_mqtt_sn_con, topics_reconnect, topics_len);
         #endif

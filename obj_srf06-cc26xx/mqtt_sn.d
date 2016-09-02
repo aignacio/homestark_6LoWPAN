@@ -61,7 +61,7 @@ obj_srf06-cc26xx/mqtt_sn.o: mqtt_sn.c /projects/contiki/core/./contiki.h \
  /projects/contiki/core/sys/ctimer.h /projects/contiki/core/lib/list.h \
  /projects/contiki/core/./net/ip/uip-debug.h \
  /projects/contiki/core/./net/net-debug.h \
- /projects/contiki/core/./sys/ctimer.h
+ /projects/contiki/core/./sys/ctimer.h syscalls.c
 mqtt_sn.c /projects/contiki/core/./contiki.h :
  /projects/contiki/core/./contiki-version.h :
  /projects/contiki/platform/srf06-cc26xx/./contiki-conf.h project-conf.h :
@@ -125,4 +125,4 @@ mqtt_sn.c /projects/contiki/core/./contiki.h :
  /projects/contiki/core/sys/ctimer.h /projects/contiki/core/lib/list.h :
  /projects/contiki/core/./net/ip/uip-debug.h :
  /projects/contiki/core/./net/net-debug.h :
- /projects/contiki/core/./sys/ctimer.h :
+ /projects/contiki/core/./sys/ctimer.h syscalls.c :

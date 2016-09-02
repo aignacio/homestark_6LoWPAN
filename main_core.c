@@ -25,7 +25,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "syscalls.c"
 
 static uint16_t udp_port = 1884;
 static uint16_t keep_alive = 2;
@@ -94,8 +93,8 @@ PROCESS_THREAD(init_system_process, ev, data)
       mqtt_sn_pub(topic_hw,pub_test,true,0);
 
       //mqtt_sn_check_queue();
-      // print_g_topics();
-      //debug_os("Estado do MQTT:%s",mqtt_sn_check_status_string());
+      //print_g_topics();
+      debug_os("Estado do MQTT:%s",mqtt_sn_check_status_string());
       if (etimer_expired(&time_poll))
         etimer_reset(&time_poll);
   }
