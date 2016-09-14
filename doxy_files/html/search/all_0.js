@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['client_5fid',['client_id',['../structmqtt__sn__t.html#a3880622ca383fee22fbbac18442bae32',1,'mqtt_sn_t']]],
-  ['connect_5fpacket_5ft',['connect_packet_t',['../structconnect__packet__t.html',1,'']]]
+  ['_5fsbrk',['_sbrk',['../group__newlib.html#gaae54d7b9578ba1fc171ce6f30f4c68a3',1,'syscalls.c']]]
 ];

@@ -1,62 +1,113 @@
+/*
+ * Copyright (c) 2013, Institute for Pervasive Computing, ETH Zurich
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the Institute nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ *
+ * This file is part of the Contiki operating system.
+ */
 
-#ifndef PROJECT_CONF_H_
-#define PROJECT_CONF_H_
+/**
+ * \file
+ *      Erbium (Er) example project configuration.
+ * \author
+ *      Matthias Kovatsch <kovatsch@inf.ethz.ch>
+ */
 
-////when streaming, the number of frames that will be sent per second
-//#define STREAM_FRAMES_PER_SECOND 2
-////the number of 16 bit samples in each frame
-//#define ECG_FRAME_CAPACITY 100
-//#define PPG_FRAME_CAPACITY 15
-//#define RESP_FRAME_CAPACITY 15
-////Note: the desire frames per second should be the product of frame capacity and frames per second
-//
-//#define  VP_LIST_SIZE 20
-//#define  VP_MSG_RCD_CNT 9
+#ifndef __PROJECT_ERBIUM_CONF_H__
+#define __PROJECT_ERBIUM_CONF_H__
 
-//turn off TCP in order to reduce ROM/RAM
-#define UIP_CONF_TCP 0
+/* Custom channel and PAN ID configuration for your project. */
+/*
+   #undef RF_CHANNEL
+   #define RF_CHANNEL                     26
 
-////Ports for UDP
-//#define UDP_PORT 5688
-//#define UDP_PORT2 5689
-////Channels if using Rime
-//#define VITALUCAST_CHANNEL 225
-//#define VITALUCAST_CHANNEL2 226
-//
-////ripplecomm messages are identified by a dispatch byte value and a version in the header
-//#define RIPPLECOMM_DISPATCH 0xD2
-//
-//#define RIPPLECOMM_VERSION 0
-//#define RIPPLECOMM_VERSION_COMPATIBLE(x) (RIPPLECOMM_VERSION == x)
-//
-//#ifdef UIP_CONF_BUFFER_SIZE
-//#undef UIP_CONF_BUFFER_SIZE
-//#endif
-//#define UIP_CONF_BUFFER_SIZE    350
-//
-//#ifndef UIP_CONF_RECEIVE_WINDOW
-//#define UIP_CONF_RECEIVE_WINDOW  200
-//#endif
+   #undef IEEE802154_CONF_PANID
+   #define IEEE802154_CONF_PANID          0xABCD
+ */
 
-#ifdef NETSTACK_CONF_RDC
+/* IP buffer size must match all other hops, in particular the border router. */
+/*
+   #undef UIP_CONF_BUFFER_SIZE
+   #define UIP_CONF_BUFFER_SIZE           256
+ */
+
+/* Disabling RDC and CSMA for demo purposes. Core updates often
+   require more memory. */
+/* For projects, optimize memory and enable RDC and CSMA again. */
 #undef NETSTACK_CONF_RDC
-#endif
-#ifdef NETSTACK_CONF_MAC
+#define NETSTACK_CONF_RDC              contikimac_driver
+
+#undef RPL_CONF_MAX_DAG_PER_INSTANCE
+#define RPL_CONF_MAX_DAG_PER_INSTANCE     1
+
+/* Disabling TCP on CoAP nodes. */
+#undef UIP_CONF_TCP
+#define UIP_CONF_TCP                   0
+
+#if CONTIKI_TARGET_SRF06_CC26XX
 #undef NETSTACK_CONF_MAC
+#define NETSTACK_CONF_MAC     csma_driver
+#else
+#undef NETSTACK_CONF_MAC
+#define NETSTACK_CONF_MAC     nullmac_driver
 #endif
 
-#define NETSTACK_CONF_MAC nullmac_driver
-#define NETSTACK_CONF_RDC nullrdc_driver
+/* Increase rpl-border-router IP-buffer when using more than 64. */
+#undef REST_MAX_CHUNK_SIZE
+#define REST_MAX_CHUNK_SIZE            48
 
+/* Estimate your header size, especially when using Proxy-Uri. */
+/*
+   #undef COAP_MAX_HEADER_SIZE
+   #define COAP_MAX_HEADER_SIZE           70
+ */
 
-//#define NODE_TYPE_COLLECTOR 1
+/* Multiplies with chunk size, be aware of memory constraints. */
+#undef COAP_MAX_OPEN_TRANSACTIONS
+#define COAP_MAX_OPEN_TRANSACTIONS     4
 
-//#define NETSTACK_CONF_NETWORK rime_driver
-//#define NETSTACK_CONF_MAC     csma_driver
-//#define NETSTACK_CONF_MAC     nullmac_driver
-//#define NETSTACK_CONF_RDC     sicslowmac_driver
-//#define NETSTACK_CONF_RDC     nullrdc_driver
-//#define NETSTACK_CONF_RADIO   contiki_maca_driver
-//#define NETSTACK_CONF_RADIO   cc2420_driver
-//#define NETSTACK_CONF_FRAMER  framer_nullmac
-#endif /* PROJECT_CONF_H_ */
+/* Must be <= open transactions, default is COAP_MAX_OPEN_TRANSACTIONS-1. */
+/*
+   #undef COAP_MAX_OBSERVERS
+   #define COAP_MAX_OBSERVERS             2
+ */
+
+/* Filtering .well-known/core per query can be disabled to save space. */
+#undef COAP_LINK_FORMAT_FILTERING
+#define COAP_LINK_FORMAT_FILTERING     0
+#undef COAP_PROXY_OPTION_PROCESSING
+#define COAP_PROXY_OPTION_PROCESSING   0
+
+/* Turn of DAO ACK to make code smaller */
+#undef RPL_CONF_WITH_DAO_ACK
+#define RPL_CONF_WITH_DAO_ACK          0
+
+#undef RPL_CONF_OF
+#define RPL_CONF_OF                    rpl_of0
+
+/* Enable client-side support for COAP observe */
+#define COAP_OBSERVE_CLIENT 1
+#endif /* __PROJECT_ERBIUM_CONF_H__ */

@@ -1,44 +1,22 @@
-.TH "publish_packet_t" 3 "Sexta, 26 de Agosto de 2016" "Version 1.0" "HomeStark" \" -*- nroff -*-
+.TH "publish_packet_t" 3 "Sábado, 3 de Setembro de 2016" "Version 1.0" "MQTT-SNContiki" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
 publish_packet_t \- 
 .PP
-estruturas para o bind de topic e short topic id  
+Estrutura de pacote do tipo PUBLISH Identificador da tarefa\&.  
 
 .SH SYNOPSIS
 .br
 .PP
 .PP
-\fC#include <mqtt_sn\&.h>\fP
-.SS "Campos de Dados"
-
-.in +1c
-.ti -1c
-.RI "uint8_t \fBlength\fP"
-.br
-.ti -1c
-.RI "uint8_t \fBtype\fP"
-.br
-.ti -1c
-.RI "uint8_t \fBflags\fP"
-.br
-.ti -1c
-.RI "uint16_t \fBtopic_id\fP"
-.br
-.ti -1c
-.RI "uint16_t \fBmessage_id\fP"
-.br
-.ti -1c
-.RI "char \fBdata\fP [MQTT_SN_MAX_PACKET_LENGTH-7]"
-.br
-.in -1c
+\fC#include <sabado_list_old\&.h>\fP
 .SH "Descrição detalhada"
 .PP 
-estruturas para o bind de topic e short topic id 
+Estrutura de pacote do tipo PUBLISH Identificador da tarefa\&. 
 
-Estrutura de pacote do tipo PUBLISH Identificador da tarefa 
+Estrutura de pacote de publicação MQTT-SN\&. 
 
 .SH "Autor"
 .PP 
-Gerado automaticamente por Doxygen para HomeStark a partir do código fonte\&.
+Gerado automaticamente por Doxygen para MQTT-SNContiki a partir do código fonte\&.

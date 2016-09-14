@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['udp_5fport',['udp_port',['../structmqtt__sn__t.html#ae3c6408a5f3fb41bcddcf7e8266f41a6',1,'mqtt_sn_t']]]
+  ['short_5ftopic',['short_topic',['../structmqtt__sn__task__t.html#a3d9e943523a4987c87d38c91a8284f6a',1,'mqtt_sn_task_t']]]
 ];

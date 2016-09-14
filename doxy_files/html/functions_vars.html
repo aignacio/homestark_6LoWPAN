@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.8"/>
-<title>HomeStark: Campos de dados - Variáveis</title>
+<title>MQTT-SNContiki: Campos de dados - Variáveis</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -23,10 +23,10 @@
  <tr style="height: 56px;">
   <td id="projectlogo"><img alt="Logo" src="logo_symbol.png"/></td>
   <td style="padding-left: 0.5em;">
-   <div id="projectname">HomeStark
+   <div id="projectname">MQTT-SNContiki
    &#160;<span id="projectnumber">1.0</span>
    </div>
-   <div id="projectbrief">Projeto de rede mesh 6LoWPAN para dispositivos embarcados</div>
+   <div id="projectbrief">Port do MQTT-SN para o sistema operacional Contiki-OS</div>
   </td>
  </tr>
  </tbody>
@@ -41,6 +41,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
     <ul class="tablist">
       <li><a href="index.html"><span>Página&#160;principal</span></a></li>
       <li><a href="pages.html"><span>Páginas&#160;relacionadas</span></a></li>
+      <li><a href="modules.html"><span>Módulos</span></a></li>
       <li class="current"><a href="annotated.html"><span>Estruturas&#160;de&#160;dados</span></a></li>
       <li><a href="files.html"><span>Ficheiros</span></a></li>
       <li>
@@ -80,7 +81,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Estruturas de dados</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Funções</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Definições de tipos</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerações</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Valores da enumeração</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Páginas</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Estruturas de dados</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Funções</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Definições de tipos</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerações</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Valores da enumeração</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Grupos</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Páginas</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -92,48 +93,66 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
 <div class="contents">
 &#160;<ul>
 <li>client_id
-: <a class="el" href="structmqtt__sn__t.html#a3880622ca383fee22fbbac18442bae32">mqtt_sn_t</a>
+: <a class="el" href="structmqtt__sn__con__t.html#af4ab62a1766a87b4cd8acf2448552909">mqtt_sn_con_t</a>
 </li>
 <li>duration
-: <a class="el" href="structconnect__packet__t.html#a71f530f1f32dbca56a6af8a5fbbfbe49">connect_packet_t</a>
+: <a class="el" href="group__Pacotes.html#ga71f530f1f32dbca56a6af8a5fbbfbe49">connect_packet_t</a>
 </li>
 <li>flags
-: <a class="el" href="structconnect__packet__t.html#ab6b306ef981f5e21bb41ea2c2dbe8cd9">connect_packet_t</a>
+: <a class="el" href="group__Pacotes.html#gab6b306ef981f5e21bb41ea2c2dbe8cd9">connect_packet_t</a>
+</li>
+<li>id_task
+: <a class="el" href="structmqtt__sn__task__t.html#a1dba79ab8685a56d3ae57d84aca21ce8">mqtt_sn_task_t</a>
 </li>
 <li>ipv6_broker
-: <a class="el" href="structmqtt__sn__t.html#a058796ada31936dced646e5da3eb329a">mqtt_sn_t</a>
+: <a class="el" href="structmqtt__sn__con__t.html#aedc2daa18c79a13bef1abb9f6a2a24f8">mqtt_sn_con_t</a>
 </li>
 <li>keep_alive
-: <a class="el" href="structmqtt__sn__t.html#a276b967ec5d6e3305ee4695488e4472b">mqtt_sn_t</a>
+: <a class="el" href="structmqtt__sn__con__t.html#a3750af18bf5708bce3c563c0c160e712">mqtt_sn_con_t</a>
 </li>
 <li>length
-: <a class="el" href="structconnect__packet__t.html#af9d495c1655d813d553030485d00fea7">connect_packet_t</a>
-, <a class="el" href="structregister__packet__t.html#af9d495c1655d813d553030485d00fea7">register_packet_t</a>
+: <a class="el" href="group__Pacotes.html#gaf9d495c1655d813d553030485d00fea7">connect_packet_t</a>
+, <a class="el" href="group__Pacotes.html#gaf9d495c1655d813d553030485d00fea7">register_packet_t</a>
+</li>
+<li>long_topic
+: <a class="el" href="structmqtt__sn__task__t.html#a64393dc28e568ae455af9bcd28eaeeac">mqtt_sn_task_t</a>
+</li>
+<li>message
+: <a class="el" href="structmqtt__sn__task__t.html#ab8140947611504abcb64a4c277effcf5">mqtt_sn_task_t</a>
 </li>
 <li>message_id
-: <a class="el" href="structregister__packet__t.html#a5f2be45182f0cc39afb7cc3a8d55a1f1">register_packet_t</a>
+: <a class="el" href="group__Pacotes.html#ga5f2be45182f0cc39afb7cc3a8d55a1f1">register_packet_t</a>
+</li>
+<li>msg_type_q
+: <a class="el" href="structmqtt__sn__task__t.html#a6b9a925f3adb717097ee92e90a19a5c8">mqtt_sn_task_t</a>
 </li>
 <li>protocol_id
-: <a class="el" href="structconnect__packet__t.html#ac600161f386567cf3ab274f4afbd5981">connect_packet_t</a>
+: <a class="el" href="group__Pacotes.html#gac600161f386567cf3ab274f4afbd5981">connect_packet_t</a>
+</li>
+<li>qos_level
+: <a class="el" href="structmqtt__sn__task__t.html#a9d819901d7d0f5139ca4d3100af5ef11">mqtt_sn_task_t</a>
+</li>
+<li>short_topic
+: <a class="el" href="structmqtt__sn__task__t.html#a3d9e943523a4987c87d38c91a8284f6a">mqtt_sn_task_t</a>
 </li>
 <li>topic_id
-: <a class="el" href="structregister__packet__t.html#ab0380a82be366f48263095460986c3c7">register_packet_t</a>
+: <a class="el" href="group__Pacotes.html#gab0380a82be366f48263095460986c3c7">register_packet_t</a>
 </li>
 <li>topic_name
-: <a class="el" href="structregister__packet__t.html#a4928dc5635290abe481ce340f6d47865">register_packet_t</a>
+: <a class="el" href="group__Pacotes.html#ga4928dc5635290abe481ce340f6d47865">register_packet_t</a>
 </li>
 <li>type
-: <a class="el" href="structconnect__packet__t.html#a7aead736a07eaf25623ad7bfa1f0ee2d">connect_packet_t</a>
-, <a class="el" href="structregister__packet__t.html#a7aead736a07eaf25623ad7bfa1f0ee2d">register_packet_t</a>
+: <a class="el" href="group__Pacotes.html#ga7aead736a07eaf25623ad7bfa1f0ee2d">connect_packet_t</a>
+, <a class="el" href="group__Pacotes.html#ga7aead736a07eaf25623ad7bfa1f0ee2d">register_packet_t</a>
 </li>
 <li>udp_port
-: <a class="el" href="structmqtt__sn__t.html#ae3c6408a5f3fb41bcddcf7e8266f41a6">mqtt_sn_t</a>
+: <a class="el" href="structmqtt__sn__con__t.html#a8d93540b1ceafa3f9425c72763b256d0">mqtt_sn_con_t</a>
 </li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Gerado em Sexta, 26 de Agosto de 2016 09:41:45 para HomeStark por &#160;<a href="http://www.doxygen.org/index.html">
+Gerado em Sábado, 3 de Setembro de 2016 01:44:42 para MQTT-SNContiki por &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.8
 </small></address>

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.8"/>
-<title>HomeStark: Referência à estrutura disconnect_packet_t</title>
+<title>MQTT-SNContiki: Referência à estrutura disconnect_packet_t</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -23,10 +23,10 @@
  <tr style="height: 56px;">
   <td id="projectlogo"><img alt="Logo" src="logo_symbol.png"/></td>
   <td style="padding-left: 0.5em;">
-   <div id="projectname">HomeStark
+   <div id="projectname">MQTT-SNContiki
    &#160;<span id="projectnumber">1.0</span>
    </div>
-   <div id="projectbrief">Projeto de rede mesh 6LoWPAN para dispositivos embarcados</div>
+   <div id="projectbrief">Port do MQTT-SN para o sistema operacional Contiki-OS</div>
   </td>
  </tr>
  </tbody>
@@ -40,6 +40,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Página&#160;principal</span></a></li>
+      <li><a href="pages.html"><span>Páginas&#160;relacionadas</span></a></li>
+      <li><a href="modules.html"><span>Módulos</span></a></li>
       <li class="current"><a href="annotated.html"><span>Estruturas&#160;de&#160;dados</span></a></li>
       <li><a href="files.html"><span>Ficheiros</span></a></li>
       <li>
@@ -72,7 +74,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Estruturas de dados</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Macros</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Estruturas de dados</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Funções</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Definições de tipos</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerações</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Valores da enumeração</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Grupos</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Páginas</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -83,32 +85,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
 
 </div><!-- top -->
 <div class="header">
-  <div class="summary">
-<a href="#pub-attribs">Campos de Dados</a>  </div>
   <div class="headertitle">
-<div class="title">Referência à estrutura disconnect_packet_t</div>  </div>
+<div class="title">Referência à estrutura disconnect_packet_t<div class="ingroups"><a class="el" href="group__Pacotes.html">Pacotes</a></div></div>  </div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Campos de Dados</h2></td></tr>
-<tr class="memitem:ab2b3adeb2a67e656ff030b56727fd0ac"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab2b3adeb2a67e656ff030b56727fd0ac"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>length</b></td></tr>
-<tr class="separator:ab2b3adeb2a67e656ff030b56727fd0ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d127017fb298b889f4ba24752d08b8e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1d127017fb298b889f4ba24752d08b8e"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr>
-<tr class="separator:a1d127017fb298b889f4ba24752d08b8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b14ef3e3e30242faa9bbef961493044"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5b14ef3e3e30242faa9bbef961493044"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>duration</b></td></tr>
-<tr class="separator:a5b14ef3e3e30242faa9bbef961493044"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
-<hr/>A documentação para esta estrutura foi gerada a partir do seguinte ficheiro:<ul>
-<li><a class="el" href="mqtt-sn_8h_source.html">mqtt-sn.h</a></li>
+
+<p>Estrutura de pacote de desconexão do broker MQTT-SN.  
+ <a href="structdisconnect__packet__t.html#details">Mais...</a></p>
+
+<p><code>#include &lt;<a class="el" href="mqtt__sn_8h_source.html">mqtt_sn.h</a>&gt;</code></p>
+<a name="details" id="details"></a><h2 class="groupheader">Descrição detalhada</h2>
+<div class="textblock"><p>Estrutura de pacote de desconexão do broker MQTT-SN. </p>
+</div><hr/>A documentação para esta estrutura foi gerada a partir do seguinte ficheiro:<ul>
+<li><a class="el" href="mqtt__sn_8h_source.html">mqtt_sn.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Gerado em Sábado, 20 de Agosto de 2016 01:40:49 para HomeStark por &#160;<a href="http://www.doxygen.org/index.html">
+Gerado em Sábado, 3 de Setembro de 2016 01:44:42 para MQTT-SNContiki por &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.8
 </small></address>

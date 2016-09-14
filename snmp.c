@@ -1,0 +1,141 @@
+/**
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+
+ *******************************************************************************
+ * @license This project is delivered under Apache 2.0 license.
+ * @file snmp.c
+ * @brief Main functions of SNMP port
+ * @author Ânderson Ignácio da Silva
+ * @date 12 Sept 2016
+ * @see http://www.aignacio.com
+ */
+
+ #include "contiki.h"
+ #include "net/ip/uip.h"
+ #include "net/ipv6/uip-ds6.h"
+ #include "simple-udp.h"
+ #include <stdio.h>
+ #include <string.h>
+ #include <snmp.h>
+ #include "sys/timer.h"
+ #include "list.h"
+ #include "sys/ctimer.h"
+ #include "sys/etimer.h"
+ #include "stdint.h"
+ #include <stdlib.h>
+ #include <stdbool.h>
+ #include "net/ipv6/uip-ds6.h"
+ #include "net/rpl/rpl.h"
+
+ #if CONTIKI_TARGET_SRF06_CC26XX
+ #include "lib/newlib/syscalls.c" //Utilizado quando se usa malloc
+ #endif
+
+// #define PRINTF("[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]", ((uint8_t *)addr)[0], ((uint8_t *)addr)[1], ((uint8_t *)addr)[2], ((uint8_t *)addr)[3], ((uint8_t *)addr)[4], ((uint8_t *)addr)[5], ((uint8_t *)addr)[6], ((uint8_t *)addr)[7], ((uint8_t *)addr)[8], ((uint8_t *)addr)[9], ((uint8_t *)addr)[10], ((uint8_t *)addr)[11], ((uint8_t *)addr)[12], ((uint8_t *)addr)[13], ((uint8_t *)addr)[14], ((uint8_t *)addr)[15])
+static snmp_con_t nms_con;
+static struct etimer time_poll;
+
+PROCESS(snmp_main, "[SNMP] Iniciando conexao com NMS");
+
+void snmp_cb_data(struct simple_udp_connection *c,
+                  const uip_ipaddr_t *sender_addr,
+                  uint16_t sender_port,
+                  const uip_ipaddr_t *receiver_addr,
+                  uint16_t receiver_port,
+                  const uint8_t *data,
+                  uint16_t datalen){
+  debug_snmp("Recebido dado:");
+  debug_snmp("%s",data);
+  if (*data == 'G')
+    send_ping();
+}
+
+resp_con_t snmp_init(snmp_con_t snmp_struct){
+  static uip_ipaddr_t nms_addr;
+
+  nms_con = snmp_struct;
+  uip_ip6addr(&nms_addr, *nms_con.ipv6_nms,
+                          *(nms_con.ipv6_nms+1),
+                          *(nms_con.ipv6_nms+2),
+                          *(nms_con.ipv6_nms+3),
+                          *(nms_con.ipv6_nms+4),
+                          *(nms_con.ipv6_nms+5),
+                          *(nms_con.ipv6_nms+6),
+                          *(nms_con.ipv6_nms+7));
+
+  if (nms_con.keep_alive >= 200){
+    debug_snmp("Erro, execido tempo maximo de keep alive");
+    return FAIL_CON;
+  }
+
+  debug_snmp("Endereco NMS: ");
+  uip_debug_ipaddr_print(&nms_addr);
+  debug_snmp("Endereco da porta: %d ",nms_con.udp_port);
+
+  if(!simple_udp_register(&nms_con.udp_con,
+                          nms_con.udp_port,
+                          &nms_addr,
+                          nms_con.udp_port,
+                          snmp_cb_data))
+    return FAIL_CON;
+  else{
+    process_start(&snmp_main, NULL);
+    return SUCCESS_CON;
+  }
+}
+
+resp_con_t send_ping(void){
+    debug_snmp("Enviando pacote de @PING");
+    ping_req_t packet;
+
+    // uip_ipaddr_t *node_address;
+    // node_address = rpl_get_parent_ipaddr(dag->preferred_parent);
+    rpl_dag_t *dag;
+    dag = rpl_get_any_dag();
+    rpl_parent_t *p = nbr_table_head(rpl_parents);
+    rpl_instance_t *default_instance;
+    default_instance = rpl_get_default_instance();
+    while(p != NULL)
+      if (p == default_instance->current_dag->preferred_parent) {
+        sprintf(packet.message,"No:[%3u]",rpl_get_parent_ipaddr(p)->u8[15]);
+        debug_snmp("Endereco do NO:%3u",rpl_get_parent_ipaddr(p)->u8[15]);
+        break;
+      }
+      else
+        p = nbr_table_next(rpl_parents, p);
+
+    debug_snmp("RETORNO PARENTE:%d\n",rpl_parent_is_fresh(dag->preferred_parent));
+    rpl_print_neighbor_list();
+    packet.length = strlen(packet.message);
+    simple_udp_send(&nms_con.udp_con,&packet.message, packet.length);
+    return SUCCESS_CON;
+}
+
+PROCESS_THREAD(snmp_main, ev, data){
+  PROCESS_BEGIN();
+  debug_snmp("Iniciando conexao com NMS");
+
+  // etimer_set(&time_poll, 5*CLOCK_SECOND);
+
+  while(1){
+    PROCESS_WAIT_EVENT();
+    // etimer_reset(&time_poll);
+    // send_ping();
+  }
+  PROCESS_END();
+}

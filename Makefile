@@ -1,10 +1,21 @@
-all: main_core
-PROJECT_SOURCEFILES += mqtt_sn.c
+DEFINES+=PROJECT_CONF_H=\"project-conf.h\"
 
-WITH_UIP6=1
-UIP_CONF_IPV6=1
-CFLAGS+= -DUIP_CONF_IPV6_RPL
-CFLAGS += -DPROJECT_CONF_H=\"project-conf.h\"
+all: main_core
+
+PROJECT_SOURCEFILES += snmp.c
+
+CONTIKI_WITH_IPV6 = 1
+REST_RESOURCES_DIR = ./resources
+REST_RESOURCES_FILES += res-hello.c
+
+PROJECTDIRS += $(REST_RESOURCES_DIR)
+PROJECT_SOURCEFILES += $(REST_RESOURCES_FILES)
+
+PROJECT_SOURCEFILES += coap-server.c
+
+# REST Engine shall use Erbium CoAP implementation
+APPS += er-coap
+APPS += rest-engine
 
 # Adicionada estas duas linhas de flags para reduzir tamanho do firmware que não cabe no espaço de rom do msp430 que é utilizado na simulação
 CFLAGS += -ffunction-sections

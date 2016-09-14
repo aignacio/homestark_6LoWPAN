@@ -1,8 +1,9 @@
-.TH "main_core.c" 3 "Sexta, 26 de Agosto de 2016" "Version 1.0" "HomeStark" \" -*- nroff -*-
+.TH "main_core.c" 3 "Sábado, 3 de Setembro de 2016" "Version 1.0" "MQTT-SNContiki" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
 main_core.c \- 
+.PP
 Arquivo principal do código fonte da rede mesh 6LoWPAN 
 .br
  Para compilar este código, execute o makefile com o target desejado, por exemplo: 
@@ -42,10 +43,18 @@ Arquivo principal do código fonte da rede mesh 6LoWPAN
 .br
 \fC#include <string\&.h>\fP
 .br
+\fC#include <stdlib\&.h>\fP
+.br
 
 .SS "Funções"
 
 .in +1c
+.ti -1c
+.RI "void \fBmqtt_sn_callback\fP (char *topic, char *message)"
+.br
+.ti -1c
+.RI "void \fBinit_broker\fP (void)"
+.br
 .ti -1c
 .RI "\fBPROCESS\fP (init_system_process,'[Contiki-OS] Iniciando sistema operacional')"
 .br
@@ -57,7 +66,7 @@ Arquivo principal do código fonte da rede mesh 6LoWPAN
 
 .in +1c
 .ti -1c
-.RI "\fBmqtt_sn_t\fP \fBmqtt_sn_connection\fP"
+.RI "\fBmqtt_sn_con_t\fP \fBmqtt_sn_connection\fP"
 .br
 .ti -1c
 .RI "AUTOSTART_PROCESSES & \fBinit_system_process\fP"
@@ -97,4 +106,4 @@ http://www.aignacio.com
 
 .SH "Autor"
 .PP 
-Gerado automaticamente por Doxygen para HomeStark a partir do código fonte\&.
+Gerado automaticamente por Doxygen para MQTT-SNContiki a partir do código fonte\&.

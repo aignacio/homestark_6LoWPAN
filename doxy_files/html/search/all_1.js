@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['duration',['duration',['../structconnect__packet__t.html#a71f530f1f32dbca56a6af8a5fbbfbe49',1,'connect_packet_t']]]
+  ['client_5fid',['client_id',['../structmqtt__sn__con__t.html#af4ab62a1766a87b4cd8acf2448552909',1,'mqtt_sn_con_t']]],
+  ['connect_5fpacket_5ft',['connect_packet_t',['../structconnect__packet__t.html',1,'']]]
 ];
