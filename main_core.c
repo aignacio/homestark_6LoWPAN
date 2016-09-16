@@ -1,33 +1,29 @@
 /**
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+
+ *******************************************************************************
+ * @license This project is delivered under APACHE 2.0.
  * @file main_core.c
  * @author Ânderson Ignácio da Silva
  * @date 19 Ago 2016
- * @brief Arquivo principal do código fonte da rede mesh 6LoWPAN
- * \n Para compilar este código, execute o makefile com o target desejado,
- * por exemplo:
- * \n \b "make TARGET=srf06-cc26xx"
- * \n Caso não reconheça qual o TARGET correto, utiliza o comando
- * \n \b "make targets"
- * \n para listar os tags disponíveis
+ * @brief Main file for HomeStark devices - 6LoWPAN
  * @see http://www.aignacio.com
  */
-
-// #include "contiki.h"
-// #include "lib/random.h"
-// #include "clock.h"
-// #include "sys/ctimer.h"
-// #include "dev/leds.h"
-// #include "net/rime/rime.h"
-// #include "simple-udp.h"
-// #include <stdio.h>
-// #include <string.h>
-// #include <stdlib.h>
-// #include "net/ipv6/uip-ds6.h"
-// #include "net/ip/uip-udp-packet.h"
-// #include "net/ip/uip.h"
-// #include "net/rpl/rpl.h"
-// #include "dev/serial-line.h"
-// #include "coap-server.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,9 +61,14 @@ PROCESS_THREAD(init_system_process, ev, data)
   snmp_con.ipv6_nms = nms_ip;
   snmp_con.keep_alive = keep_alive;
 
-  //snmp_init(snmp_con);
+  if (snmp_init(snmp_con))
+    debug_os("Sucesso ao iniciar Agente SNMP");
+  else
+    debug_os("Erro ao iniciar Agente SNMP");
 
-  process_start(&coap_server_process, NULL);
+  debug_os(" ");
+
+  //process_start(&coap_server_process, NULL);
 
   while(1) {
       PROCESS_WAIT_EVENT();

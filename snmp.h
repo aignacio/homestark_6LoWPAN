@@ -25,8 +25,8 @@
  * @see http://www.aignacio.com
  */
 
-#ifndef SNMP_H
-#define SNMP_H
+#ifndef __SNMP_H__
+#define __SNMP_H__
 
 #include "simple-udp.h"
 #include "clock.h"
@@ -91,6 +91,46 @@ typedef struct __attribute__((packed)){
   char message[50];
 } ping_req_t;
 
+/** @struct snmp_t
+ *  @brief Struct for the SNMP PDU
+ *  @var snmp_t:request_type
+ *    Type of the request
+ *  @var snmp_t:response_type
+ *    Type of the request response
+ *  @var snmp_t:request_id
+ *    ID to identify the transaction
+ *  @var snmp_t:error_status
+ *    Error of status request
+ *  @var snmp_t:error_index
+ *    Error of index of request
+ *  @var snmp_t:var_name
+ *    Name of var of request
+ *  @var snmp_t:var_value
+ *    Value of var of request
+ *  @TODO Expand the number of variables in the request
+ */
+typedef struct {
+    uint8_t         request_type;
+    uint8_t         response_type;
+    uint32_t        request_id;
+    uint8_t         error_status;
+    uint8_t         error_index;
+    uint16_t        var_name;
+    uint16_t        var_value;
+} snmp_t;
+
+/** @struct request
+ *  @brief Struct for request of SNMP Packets
+ *  @var snmp_t::pdu_request
+ *    Request to be processed
+ *  @var request::link
+ *    Link to the next request
+ */
+struct request {
+    snmp_t pdu_request;
+    struct request *link;
+}*request_first, *request_last;
+
 /** @brief SNMP Callback receive
  *
  * 		Receive in callback mode, any data from NSM of SNMP protocol.
@@ -118,5 +158,5 @@ void snmp_cb_data(struct simple_udp_connection *c,
  **/
 resp_con_t snmp_init(snmp_con_t snmp_struct);
 
-resp_con_t send_ping(void);
+// resp_con_t send_ping(void);
 #endif

@@ -41,16 +41,16 @@
  #include <stdbool.h>
  #include "net/ipv6/uip-ds6.h"
  #include "net/rpl/rpl.h"
+ #include "ber.h"
 
  #if CONTIKI_TARGET_SRF06_CC26XX
  #include "lib/newlib/syscalls.c" //Utilizado quando se usa malloc
  #endif
 
-// #define PRINTF("[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]", ((uint8_t *)addr)[0], ((uint8_t *)addr)[1], ((uint8_t *)addr)[2], ((uint8_t *)addr)[3], ((uint8_t *)addr)[4], ((uint8_t *)addr)[5], ((uint8_t *)addr)[6], ((uint8_t *)addr)[7], ((uint8_t *)addr)[8], ((uint8_t *)addr)[9], ((uint8_t *)addr)[10], ((uint8_t *)addr)[11], ((uint8_t *)addr)[12], ((uint8_t *)addr)[13], ((uint8_t *)addr)[14], ((uint8_t *)addr)[15])
 static snmp_con_t nms_con;
-static struct etimer time_poll;
+static process_event_t            request_event;          // Evento de processo de requisições SNMP
 
-PROCESS(snmp_main, "[SNMP] Iniciando conexao com NMS");
+PROCESS(snmp_main, "[SNMP] SNMPD - Agente V1");
 
 void snmp_cb_data(struct simple_udp_connection *c,
                   const uip_ipaddr_t *sender_addr,
@@ -59,10 +59,13 @@ void snmp_cb_data(struct simple_udp_connection *c,
                   uint16_t receiver_port,
                   const uint8_t *data,
                   uint16_t datalen){
-  debug_snmp("Recebido dado:");
-  debug_snmp("%s",data);
-  if (*data == 'G')
-    send_ping();
+  debug_snmp("Recebida requisicao:");
+
+  process_post(&snmp_main,request_event,NULL);
+
+  // debug_snmp("%s",data);
+  // if (*data == 'G')
+  // send_ping();
 }
 
 resp_con_t snmp_init(snmp_con_t snmp_struct){
@@ -83,7 +86,7 @@ resp_con_t snmp_init(snmp_con_t snmp_struct){
     return FAIL_CON;
   }
 
-  debug_snmp("Endereco NMS: ");
+  debug_snmp("Endereco broker: ");
   uip_debug_ipaddr_print(&nms_addr);
   debug_snmp("Endereco da porta: %d ",nms_con.udp_port);
 
@@ -94,48 +97,50 @@ resp_con_t snmp_init(snmp_con_t snmp_struct){
                           snmp_cb_data))
     return FAIL_CON;
   else{
+    request_event = process_alloc_event();
     process_start(&snmp_main, NULL);
     return SUCCESS_CON;
   }
 }
 
-resp_con_t send_ping(void){
-    debug_snmp("Enviando pacote de @PING");
-    ping_req_t packet;
-
-    // uip_ipaddr_t *node_address;
-    // node_address = rpl_get_parent_ipaddr(dag->preferred_parent);
-    rpl_dag_t *dag;
-    dag = rpl_get_any_dag();
-    rpl_parent_t *p = nbr_table_head(rpl_parents);
-    rpl_instance_t *default_instance;
-    default_instance = rpl_get_default_instance();
-    while(p != NULL)
-      if (p == default_instance->current_dag->preferred_parent) {
-        sprintf(packet.message,"No:[%3u]",rpl_get_parent_ipaddr(p)->u8[15]);
-        debug_snmp("Endereco do NO:%3u",rpl_get_parent_ipaddr(p)->u8[15]);
-        break;
-      }
-      else
-        p = nbr_table_next(rpl_parents, p);
-
-    debug_snmp("RETORNO PARENTE:%d\n",rpl_parent_is_fresh(dag->preferred_parent));
-    rpl_print_neighbor_list();
-    packet.length = strlen(packet.message);
-    simple_udp_send(&nms_con.udp_con,&packet.message, packet.length);
-    return SUCCESS_CON;
-}
+// resp_con_t send_ping(void){
+//     debug_snmp("Enviando pacote de @PING");
+//     ping_req_t packet;
+//
+//     // uip_ipaddr_t *node_address;
+//     // node_address = rpl_get_parent_ipaddr(dag->preferred_parent);
+//     rpl_dag_t *dag;
+//     dag = rpl_get_any_dag();
+//     rpl_parent_t *p = nbr_table_head(rpl_parents);
+//     rpl_instance_t *default_instance;
+//     default_instance = rpl_get_default_instance();
+//     while(p != NULL)
+//       if (p == default_instance->current_dag->preferred_parent) {
+//         sprintf(packet.message,"No:[%3u]",rpl_get_parent_ipaddr(p)->u8[15]);
+//         debug_snmp("Endereco do NO:%3u",rpl_get_parent_ipaddr(p)->u8[15]);
+//         break;
+//       }
+//       else
+//         p = nbr_table_next(rpl_parents, p);
+//
+//     debug_snmp("RETORNO PARENTE:%d\n",rpl_parent_is_fresh(dag->preferred_parent));
+//     rpl_print_neighbor_list();
+//     packet.length = strlen(packet.message);
+//     simple_udp_send(&nms_con.udp_con,&packet.message, packet.length);
+//     return SUCCESS_CON;
+// }
 
 PROCESS_THREAD(snmp_main, ev, data){
   PROCESS_BEGIN();
-  debug_snmp("Iniciando conexao com NMS");
 
-  // etimer_set(&time_poll, 5*CLOCK_SECOND);
+  debug_snmp("Agente SNMPv1 ativo");
 
   while(1){
     PROCESS_WAIT_EVENT();
-    // etimer_reset(&time_poll);
-    // send_ping();
+    /*************************** CONNECT MQTT-SN ****************************/
+    if (ev == request_event){
+      debug_snmp("Requisicao a ser processada!");
+    }
   }
   PROCESS_END();
 }
