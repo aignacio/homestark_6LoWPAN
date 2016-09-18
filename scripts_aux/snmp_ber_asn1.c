@@ -25,7 +25,6 @@ uint8_t *encode_asn1_integer(uint32_t *integer_data){
           aux_encoding[100];
   uint8_t index = 2; // First and second, type and length, we start frame from three
 
-  printf("Valor a converter:%d",*integer_data);
   // First number to alloc is the type - BER encoding
   encoded_value[0] = ASN1_PRIM_INTEGER;
   while (*integer_data != 0){
@@ -41,46 +40,55 @@ uint8_t *encode_asn1_integer(uint32_t *integer_data){
   return &encoded_value;
 }
 
-uint8_t *decode_asn1_integer(unsigned char *snmp_int[], uint32_t *integer_data){
+uint32_t decode_asn1_integer(unsigned char *data_encoded[]){
+  uint8_t length = *(data_encoded+1);
+  uint32_t integer_value;
   size_t i = 0;
-  uint8_t length = *(snmp_int+1);
   uint32_t aux;
 
   // Test if it's an integer value to be decoded
-  if (*snmp_int != ASN1_PRIM_INTEGER){
-    debug_snmp("The converted value is not integer!");
+  if (*data_encoded != ASN1_PRIM_INTEGER){
+    debug_snmp("The value is not integer!");
     return 0;
   }
 
-  for (i=1, *integer_data = 0; i <= length; i++){
-    aux = *(snmp_int+1+i);
-    *integer_data += aux*(pow(256,(length-i)));
-    // debug_snmp("%x * 256^%d = %d",aux,(length-i),*integer_data);
+  for (i=1, integer_value = 0; i <= length; i++){
+    aux = *(data_encoded+1+i);
+    integer_value += aux*(pow(256,(length-i)));
+    // debug_snmp("%x * 256^%d = %d",aux,(length-i),integer_value);
   }
-
-  return (snmp_int+length+2);
+  return integer_value;
 }
 
 void main(void){
   snmp_t test;
-  //
+
   unsigned char *pkt[] = {
     0x02, 0x03, 0x7f, 0xff, 0xff, 0xbb
   };
-  uint32_t *valor_convertido;
-  unsigned char *ponteiro;
-  ponteiro = decode_asn1_integer(pkt,&valor_convertido);
-  printf("\nO valor convertido foi: %d\n",valor_convertido);
-  printf("O conteudo do ponteiro de continuacao e:%x\n",*(ponteiro));
 
-  uint8_t *codificado;
-  codificado = encode_asn1_integer(&valor_convertido);
+  uint32_t  valor = 1501147993;
+
+  uint32_t decodificado;
+  uint8_t  *codificado = malloc(10*sizeof(uint8_t));
+
+  decodificado = decode_asn1_integer(pkt);
+  codificado = encode_asn1_integer(&valor);
+
   size_t i;
-  debug_snmp("Valor codificado: ");
+  // debug_snmp("Codificado:%d",codificado);
+  // for (i =0; i < *(codificado+1)+2; i++)
+  //   printf("[%x]",*(codificado+i));
+  // debug_snmp("Codificado:%d",codificado);
+  // for (i =0; i < *(codificado+1)+2; i++)
+  //   printf("[%x]",*(codificado+i));
+
+  debug_snmp("Decodificado:%d",decodificado);
+  debug_snmp("Codificado:");
   for (i =0; i < *(codificado+1)+2; i++)
     printf("[%x]",*(codificado+i));
-  printf("\n");
 
+  printf("\n");
   // decode_snmp(pkt) ? debug_snmp("\nDecodificacao bem sucedida") : debug_snmp("\nErro decodificacao");
   // printf("\nTipo de requisicao:%d \
   //         \nTipo de resposta:%d \

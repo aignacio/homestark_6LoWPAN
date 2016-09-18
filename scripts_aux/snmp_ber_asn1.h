@@ -65,6 +65,8 @@ typedef struct {
 // uint16_t decode_asn1_integer(unsigned char *snmp_int[], uint8_t length);
 // void decode_req_id(unsigned char *pdu_snmp[], char *req_id);
 
+int pow(int base, int exp);
+
 /** @brief Encode integer into ASN.1
  *
  * 		Encode an integer value into ASN.1 format acordding to BER rules
@@ -80,10 +82,9 @@ uint8_t *encode_asn1_integer(uint32_t *integer_data);
  *
  * 		Decode an integer value into ASN.1 format acordding to BER rules
  *
- *  @param [in]  snmp_int Pointer to the data to be decoded
- *  @param [in]  integer_data Pointer to the value that will receive the data decoded
+ *  @param [in]  data_encoded Pointer to the data to be decoded
  *
- *  @retval pointer_to_finish Pointer to the address of the next value in SNMP PDU
+ *  @retval integer_data Pointer to the address of the value converted
  *
  **/
-uint8_t *decode_asn1_integer(unsigned char *snmp_int[], uint32_t *integer_data);
+uint32_t decode_asn1_integer(unsigned char *data_encoded[]);
