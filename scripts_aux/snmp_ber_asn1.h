@@ -25,9 +25,9 @@
  * @brief Max data types in each kind of variable
  *
  */
-#define MAX_COMMUNITY_STRING 0x80 // 128 bytes
-#define MAX_OCTECT_STRING    0xFA // 250 bytes
-#define MAX_OID_STRING       0x14 // 20 bytes - 20 levels in tree
+// #define MAX_COMMUNITY_STRING 0x80 // 128 bytes
+#define MAX_OCTET_STRING     0xFA // 250 bytes
+#define MAX_OID_STRING       20 // 20 bytes - 20 levels in tree
 
 /**
  * @brief Complex data types of ANS.1 encoding
@@ -48,6 +48,8 @@
 /** @brief Decode the initial sequence type */
 #define check_seq(x) (x == ASN1_CPX_SEQUENCE ? 1 : 0)
 
+// #define DEBUG_SNMP_DECODING /** @brief If defined, show decode SNMP messages*/
+
 /************************************************************************************************************/
 
 #define DEBUG_SNMP
@@ -65,12 +67,18 @@ typedef enum resp_con{
 typedef struct {
     uint8_t         request_type;
     uint8_t         response_type;
-    uint8_t         request_id[5];
-    uint8_t         error_status;
-    uint8_t         error_index;
-    uint16_t        var_name;
-    uint16_t        var_value;
+    uint32_t        request_id;
+    uint8_t         oid_encoded[MAX_OID_STRING];
 } snmp_t;
+
+typedef struct __attribute__((packed)){
+  // uint8_t length;
+  // uint8_t type;
+  // uint8_t flags;
+  // uint16_t topic_id;
+  // uint16_t message_id;
+  // char data[MQTT_SN_MAX_PACKET_LENGTH-7];
+} snmp_pcket_t;
 
 #endif
 
