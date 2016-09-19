@@ -1,6 +1,33 @@
+/**
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+
+ *******************************************************************************
+ * @license This project is under APACHE 2.0 license.
+ * @file snmp_asn1.h
+ * @brief Headers and macros about SNMP ASN.1 encoding, decoding rules
+ * @author Ânderson Ignácio da Silva
+ * @date 19 Sept 2016
+ * @see http://www.aignacio.com
+ */
 #ifndef __SNMP_BER_ASN1_H__
 #define __SNMP_BER_ASN1_H__
 
+#include <stdbool.h>
 /**
  * @brief Types of errors in SNMP PDU
  *
@@ -28,7 +55,7 @@
 // #define MAX_COMMUNITY_STRING 0x80 // 128 bytes
 #define MAX_OCTET_STRING     0xFA // 250 bytes
 #define MAX_OID_STRING       20 // 20 bytes - 20 levels in tree
-
+#define MAX_UDP_SNMP         300
 /**
  * @brief Complex data types of ANS.1 encoding
  *
@@ -48,7 +75,7 @@
 /** @brief Decode the initial sequence type */
 #define check_seq(x) (x == ASN1_CPX_SEQUENCE ? 1 : 0)
 
-// #define DEBUG_SNMP_DECODING /** @brief If defined, show decode SNMP messages*/
+#define DEBUG_SNMP_DECODING /** @brief If defined, show decode SNMP messages*/
 
 /************************************************************************************************************/
 
@@ -65,20 +92,29 @@ typedef enum resp_con{
 } resp_con_t;
 
 typedef struct {
+    uint32_t        snmp_version;
     uint8_t         request_type;
     uint8_t         response_type;
     uint32_t        request_id;
+    uint8_t         community[MAX_OCTET_STRING];
     uint8_t         oid_encoded[MAX_OID_STRING];
+    bool            error;
 } snmp_t;
 
-typedef struct __attribute__((packed)){
-  // uint8_t length;
-  // uint8_t type;
-  // uint8_t flags;
-  // uint16_t topic_id;
-  // uint16_t message_id;
-  // char data[MQTT_SN_MAX_PACKET_LENGTH-7];
-} snmp_pcket_t;
+// typedef struct __attribute__((packed)){
+//   uint8_t master_seq;
+//   uint8_t master_length;
+//   uint8_t snmp_version[3];
+//   uint8_t *snmp_community_string;
+//   uint8_t snmp_pdu_type[2];
+//   uint8_t *request_id;
+//   uint8_t error_status[3];
+//   uint8_t error_index[3];
+//   uint8_t var_bind_list[2];
+//   uint8_t var_bind_type[2];
+//   uint8_t *oid_vaue;
+//   uint8_t *value;
+// } snmp_pck_t;
 
 #endif
 

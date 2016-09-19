@@ -1,7 +1,34 @@
+/**
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+
+ *******************************************************************************
+ * @license This project is under APACHE 2.0 license.
+ * @file snmp_asn1.c
+ * @brief Encoding and decoding functions to SNMP agent
+ * @author Ânderson Ignácio da Silva
+ * @date 19 Sept 2016
+ * @see http://www.aignacio.com
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "snmp_ber_asn1.h"
+#include "snmp_asn1.h"
+#include "mibii.h"
 
 int pow(int base, int exp){
   if(exp < 0)
@@ -136,13 +163,15 @@ resp_con_t encode_asn1_integer(uint32_t *integer_data, uint8_t *encoded_value){
     data_for_enc = data_for_enc / 256;
     index++;
   }
-  if ((index-2)<= 0)
+  if (index == 2){
     *(encoded_value+1) = 0x01;
-  else
+    *(encoded_value+2) = 0x00;
+  }
+  else{
     *(encoded_value+1) = index-2;
-
-  for (i = 0; i < *(encoded_value+1); i++)
-    *(encoded_value+2+i) = aux_encoding[index-1-i];
+    for (i = 0; i < *(encoded_value+1); i++)
+      *(encoded_value+2+i) = aux_encoding[index-1-i];
+  }
 
   // Then we need to put the length in the char*
   return SUCCESS_CON;
@@ -185,6 +214,7 @@ resp_con_t error_check_snmp(unsigned char *error_data[]){
 }
 
 resp_con_t snmp_decode_message(unsigned char *data[], snmp_t *snmp_handle){
+  size_t i = 0;
   // First let's check the sequence first byte
   if (!check_seq(*data)){
     debug_snmp("Sequence initial of SNMP message error");
@@ -198,12 +228,17 @@ resp_con_t snmp_decode_message(unsigned char *data[], snmp_t *snmp_handle){
     return FAIL_CON;
   }
 
+  snmp_handle->snmp_version = SNMPv;
   // Get the community string
   uint8_t community_string[MAX_OCTET_STRING];
   if (!decode_asn1_oct_str((data+5),&community_string)) return FAIL_CON;
   #ifdef DEBUG_SNMP_DECODING
   debug_snmp("Community String: %s",community_string);
   #endif
+  for (i=0; i < MAX_OCTET_STRING; i++)
+    snmp_handle->community[i] = community_string[i];
+
+
   // Get the PDU type
   uint8_t com_string_len = *(data+6)+7;
   uint8_t pdu_type = *(data+com_string_len);
@@ -221,8 +256,6 @@ resp_con_t snmp_decode_message(unsigned char *data[], snmp_t *snmp_handle){
 
   uint16_t oid_start = req_id_len+10;
   uint8_t oid_encoded[MAX_OID_STRING];
-  size_t i;
-
   uint8_t oid_len = *(data+oid_start+1);
   uint16_t oct_start = oid_start+oid_len+2;
   uint8_t oct_encoded[MAX_OCTET_STRING];
@@ -287,7 +320,103 @@ resp_con_t snmp_decode_message(unsigned char *data[], snmp_t *snmp_handle){
   return SUCCESS_CON;
 }
 
-resp_con_t snmp_encode_message(snmp_t *snmp_handle, unsigned char *data_encoded[]){
+uint8_t *snmp_encode_message(snmp_t *snmp_handle){
+  size_t i;
+  uint8_t udp_pkt[MAX_UDP_SNMP],
+          aux_1 = 0,
+          aux_2 = 0,
+          aux_3 = 0;
+  uint16_t len = 0;
+
+  uint8_t string_value[MAX_OCTET_STRING];
+  uint8_t status_mib2 = mib_ii_get_oid(&snmp_handle->oid_encoded,&string_value);
+
+  udp_pkt[0] = ASN1_CPX_SEQUENCE;
+
+  // SNMP Version
+  if (!encode_asn1_integer(&snmp_handle->snmp_version,&udp_pkt[2])) return FAIL_CON;
+  len = 5;
+  // Community string
+  if (!encode_asn1_oct_str(&snmp_handle->community,&udp_pkt[len])) return FAIL_CON;
+  len = len+udp_pkt[len+1]+2;
+  // PDU Type
+  udp_pkt[len++] = ASN1_CPX_GET_RESP;
+  uint8_t len_pdu_type = len++;
+  udp_pkt[len_pdu_type] = 0x00;
+
+  uint8_t encoded_req[MAX_OID_STRING];
+  // Request ID
+  if (!encode_asn1_integer(&snmp_handle->request_id,&encoded_req)) return FAIL_CON;
+  aux_2 = *(encoded_req+1)+2;
+  aux_3 = len;
+  for (i = 0; i < *(encoded_req+1)+2; i++)
+    udp_pkt[len++] = *(encoded_req+i);
+
+  if (status_mib2) {
+    // Error status
+    if (!encode_asn1_integer(&snmp_handle->snmp_version,&udp_pkt[len])) return FAIL_CON;
+    len = len+udp_pkt[len+1]+2;
+
+    // Error index
+    if (!encode_asn1_integer(&snmp_handle->snmp_version,&udp_pkt[len])) return FAIL_CON;
+    len = len+udp_pkt[len+1]+2;
+  }
+  else{
+    // If we dont find MIB2 value, generate errors
+    udp_pkt[len++] = ASN1_PRIM_INTEGER;
+    udp_pkt[len++] = 0x01;
+    udp_pkt[len++] = ERROR_REQ_OID_NOT_FOUND;
+
+    udp_pkt[len++] = ASN1_PRIM_INTEGER;
+    udp_pkt[len++] = 0x01;
+    udp_pkt[len++] = ERROR_RESP_TOO_LARGE;
+  }
+
+  // Var bind list
+  udp_pkt[len++] = ASN1_CPX_SEQUENCE;
+  uint8_t len_seq_1 = len++;
+  udp_pkt[len_seq_1] = 0x00;
+  // Var bind type
+  udp_pkt[len++] = ASN1_CPX_SEQUENCE;
+  uint8_t len_seq_2 = len++;
+  udp_pkt[len_seq_2] = 0x00;
+
+  // OID String
+  if (!encode_asn1_oid(&snmp_handle->oid_encoded,&encoded_req)) return FAIL_CON;
+  aux_1 = *(encoded_req+1) + 2;
+
+  for (i = 0; i < *(encoded_req+1)+2; i++)
+    udp_pkt[len++] = *(encoded_req+i);
+
+  uint8_t error_string = 0x05;
+  // String of octet
+  if (status_mib2) {
+    if (!encode_asn1_oct_str(&string_value,&encoded_req)) return FAIL_CON;
+    aux_1 = aux_1 + *(encoded_req+1) + 2;
+    for (i = 0; i < *(encoded_req+1)+2; i++)
+      udp_pkt[len++] = *(encoded_req+i);
+  }
+  else{
+    udp_pkt[len++] = 0x05;
+    udp_pkt[len++] = 0x00;
+  }
+
+  udp_pkt[len_seq_2]    = aux_1;
+  udp_pkt[len_seq_1]    = aux_1+2;
+  udp_pkt[len_pdu_type] = len-aux_3;
+
+  udp_pkt[1] = len-2;
+  #ifdef DEBUG_SNMP_DECODING
+  debug_snmp(" Pacote codificado:\n\t");
+  size_t j = 0;
+  for (i = 0; i < udp_pkt[1]+2; j++, i++){
+    if (j > 7){
+      j = 0;
+      printf("\n\t");
+    }
+    printf("[%02x] ",*(udp_pkt+i));
+  }
+  #endif
   return SUCCESS_CON;
 }
 
@@ -399,6 +528,13 @@ void test_ber_func(void){
   snmp_decode_message(pkt_get_next+42,&test) ? debug_snmp("Decodificacao bem sucedida") : debug_snmp("Erro decodificacao");
   snmp_decode_message(pkt_get+42,&test2) ? debug_snmp("Decodificacao bem sucedida") : debug_snmp("Erro decodificacao");
   snmp_decode_message(pkt_resp+42,&test3) ? debug_snmp("Decodificacao bem sucedida") : debug_snmp("Erro decodificacao");
+
+  snmp_encode_message(&test2) ? debug_snmp("Codificacao bem sucedida") : debug_snmp("Erro codificacao");
+  // uint8_t *udp_pkt;
+  // debug_snmp("Pacote SNMP codificado: ");
+  // for (i = 0; i < *(udp_pkt+1); i++)
+  //   printf("[%x] ",*(udp_pkt+i));
+  // printf("\n");
 
   // printf("\nTipo de requisicao:%x \
   //         \nTipo de resposta:%x \
