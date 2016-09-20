@@ -1,4 +1,4 @@
-obj_z1/snmp.o: snmp.c /projects/contiki/core/./contiki.h \
+obj_z1/snmp.o: snmpd/snmp.c /projects/contiki/core/./contiki.h \
  /projects/contiki/core/./contiki-version.h \
  /projects/contiki/platform/z1/./contiki-conf.h \
  /projects/contiki/platform/z1/./platform-conf.h \
@@ -23,9 +23,25 @@ obj_z1/snmp.o: snmp.c /projects/contiki/core/./contiki.h \
  /projects/contiki/core/./sys/loader.h \
  /projects/contiki/core/./sys/clock.h \
  /projects/contiki/core/./sys/energest.h \
+ /projects/contiki/core/./contiki-lib.h \
+ /projects/contiki/core/./contiki.h /projects/contiki/core/./lib/list.h \
+ /projects/contiki/core/./lib/memb.h /projects/contiki/core/./lib/mmem.h \
+ /projects/contiki/core/./lib/random.h \
+ /projects/contiki/core/./contiki-net.h \
+ /projects/contiki/core/./net/ip/tcpip.h \
  /projects/contiki/core/./net/ip/uip.h \
  /projects/contiki/core/./net/ip/uipopt.h \
  /projects/contiki/core/./net/ip/tcpip.h \
+ /projects/contiki/core/./net/ip/uip.h \
+ /projects/contiki/core/./net/ipv4/uip-fw.h \
+ /projects/contiki/core/./net/ipv4/uip-fw-drv.h \
+ /projects/contiki/core/./net/ipv4/uip-fw.h \
+ /projects/contiki/core/./net/ipv4/uip_arp.h \
+ /projects/contiki/core/./net/ip/uiplib.h \
+ /projects/contiki/core/./net/ip/uip-udp-packet.h \
+ /projects/contiki/core/./net/ip/simple-udp.h \
+ /projects/contiki/core/./net/ip/uip-nameserver.h \
+ /projects/contiki/core/./net/ipv6/uip-icmp6.h \
  /projects/contiki/core/./net/ipv6/uip-ds6.h \
  /projects/contiki/core/./sys/stimer.h \
  /projects/contiki/core/./net/ipv6/uip-nd6.h \
@@ -42,15 +58,53 @@ obj_z1/snmp.o: snmp.c /projects/contiki/core/./contiki.h \
  /projects/contiki/core/./net/mac/framer.h \
  /projects/contiki/core/./lib/list.h \
  /projects/contiki/core/./net/ipv6/uip-ds6-nbr.h \
- /projects/contiki/core/net/ip/simple-udp.h snmp.h \
+ /projects/contiki/core/./net/ipv6/uip-ds6.h \
+ /projects/contiki/core/./net/ip/resolv.h \
+ /projects/contiki/core/./net/ip/uip.h \
+ /projects/contiki/core/./net/ip/psock.h \
+ /projects/contiki/core/./net/ip/udp-socket.h \
+ /projects/contiki/core/./net/ip/tcp-socket.h \
+ /projects/contiki/core/./net/rime/rime.h \
+ /projects/contiki/core/./net/rime/announcement.h \
+ /projects/contiki/core/./net/rime/collect.h \
+ /projects/contiki/core/./net/rime/runicast.h \
+ /projects/contiki/core/./net/rime/stunicast.h \
+ /projects/contiki/core/./sys/ctimer.h \
+ /projects/contiki/core/./net/rime/unicast.h \
+ /projects/contiki/core/./net/rime/broadcast.h \
+ /projects/contiki/core/./net/rime/abc.h \
+ /projects/contiki/core/./net/packetbuf.h \
+ /projects/contiki/core/./net/mac/tsch/tsch-conf.h \
+ /projects/contiki/core/./net/rime/channel.h \
+ /projects/contiki/core/./net/rime/chameleon.h \
+ /projects/contiki/core/./net/queuebuf.h \
+ /projects/contiki/core/./net/rime/neighbor-discovery.h \
+ /projects/contiki/core/./net/rime/collect-neighbor.h \
+ /projects/contiki/core/./net/rime/collect-link-estimate.h \
+ /projects/contiki/core/./net/rime/packetqueue.h \
+ /projects/contiki/core/./lib/memb.h \
+ /projects/contiki/core/./net/rime/ipolite.h \
+ /projects/contiki/core/./net/rime/mesh.h \
+ /projects/contiki/core/./net/rime/multihop.h \
+ /projects/contiki/core/./net/rime/route-discovery.h \
+ /projects/contiki/core/./net/rime/netflood.h \
+ /projects/contiki/core/./net/rime/polite-announcement.h \
+ /projects/contiki/core/./net/rime/polite.h \
+ /projects/contiki/core/./net/rime/rimestats.h \
+ /projects/contiki/core/./net/rime/rmh.h \
+ /projects/contiki/core/./net/rime/route.h \
+ /projects/contiki/core/./net/rime/rucb.h \
+ /projects/contiki/core/./net/rime/timesynch.h \
+ /projects/contiki/core/./net/rime/trickle.h \
+ /projects/contiki/core/./net/netstack.h snmpd/snmp.h \
+ /projects/contiki/core/net/ip/simple-udp.h \
  /projects/contiki/core/sys/clock.h /projects/contiki/core/sys/etimer.h \
  /projects/contiki/core/sys/ctimer.h /projects/contiki/core/lib/list.h \
  /projects/contiki/core/./net/ip/uip-debug.h \
- /projects/contiki/core/./net/net-debug.h \
- /projects/contiki/core/./sys/ctimer.h \
+ /projects/contiki/core/./net/net-debug.h homestark.h \
  /projects/contiki/core/./net/rpl/rpl.h \
  /projects/contiki/core/./net/rpl/rpl-conf.h
-snmp.c /projects/contiki/core/./contiki.h :
+snmpd/snmp.c /projects/contiki/core/./contiki.h :
  /projects/contiki/core/./contiki-version.h :
  /projects/contiki/platform/z1/./contiki-conf.h :
  /projects/contiki/platform/z1/./platform-conf.h :
@@ -75,9 +129,25 @@ snmp.c /projects/contiki/core/./contiki.h :
  /projects/contiki/core/./sys/loader.h :
  /projects/contiki/core/./sys/clock.h :
  /projects/contiki/core/./sys/energest.h :
+ /projects/contiki/core/./contiki-lib.h :
+ /projects/contiki/core/./contiki.h /projects/contiki/core/./lib/list.h :
+ /projects/contiki/core/./lib/memb.h /projects/contiki/core/./lib/mmem.h :
+ /projects/contiki/core/./lib/random.h :
+ /projects/contiki/core/./contiki-net.h :
+ /projects/contiki/core/./net/ip/tcpip.h :
  /projects/contiki/core/./net/ip/uip.h :
  /projects/contiki/core/./net/ip/uipopt.h :
  /projects/contiki/core/./net/ip/tcpip.h :
+ /projects/contiki/core/./net/ip/uip.h :
+ /projects/contiki/core/./net/ipv4/uip-fw.h :
+ /projects/contiki/core/./net/ipv4/uip-fw-drv.h :
+ /projects/contiki/core/./net/ipv4/uip-fw.h :
+ /projects/contiki/core/./net/ipv4/uip_arp.h :
+ /projects/contiki/core/./net/ip/uiplib.h :
+ /projects/contiki/core/./net/ip/uip-udp-packet.h :
+ /projects/contiki/core/./net/ip/simple-udp.h :
+ /projects/contiki/core/./net/ip/uip-nameserver.h :
+ /projects/contiki/core/./net/ipv6/uip-icmp6.h :
  /projects/contiki/core/./net/ipv6/uip-ds6.h :
  /projects/contiki/core/./sys/stimer.h :
  /projects/contiki/core/./net/ipv6/uip-nd6.h :
@@ -94,11 +164,49 @@ snmp.c /projects/contiki/core/./contiki.h :
  /projects/contiki/core/./net/mac/framer.h :
  /projects/contiki/core/./lib/list.h :
  /projects/contiki/core/./net/ipv6/uip-ds6-nbr.h :
- /projects/contiki/core/net/ip/simple-udp.h snmp.h :
+ /projects/contiki/core/./net/ipv6/uip-ds6.h :
+ /projects/contiki/core/./net/ip/resolv.h :
+ /projects/contiki/core/./net/ip/uip.h :
+ /projects/contiki/core/./net/ip/psock.h :
+ /projects/contiki/core/./net/ip/udp-socket.h :
+ /projects/contiki/core/./net/ip/tcp-socket.h :
+ /projects/contiki/core/./net/rime/rime.h :
+ /projects/contiki/core/./net/rime/announcement.h :
+ /projects/contiki/core/./net/rime/collect.h :
+ /projects/contiki/core/./net/rime/runicast.h :
+ /projects/contiki/core/./net/rime/stunicast.h :
+ /projects/contiki/core/./sys/ctimer.h :
+ /projects/contiki/core/./net/rime/unicast.h :
+ /projects/contiki/core/./net/rime/broadcast.h :
+ /projects/contiki/core/./net/rime/abc.h :
+ /projects/contiki/core/./net/packetbuf.h :
+ /projects/contiki/core/./net/mac/tsch/tsch-conf.h :
+ /projects/contiki/core/./net/rime/channel.h :
+ /projects/contiki/core/./net/rime/chameleon.h :
+ /projects/contiki/core/./net/queuebuf.h :
+ /projects/contiki/core/./net/rime/neighbor-discovery.h :
+ /projects/contiki/core/./net/rime/collect-neighbor.h :
+ /projects/contiki/core/./net/rime/collect-link-estimate.h :
+ /projects/contiki/core/./net/rime/packetqueue.h :
+ /projects/contiki/core/./lib/memb.h :
+ /projects/contiki/core/./net/rime/ipolite.h :
+ /projects/contiki/core/./net/rime/mesh.h :
+ /projects/contiki/core/./net/rime/multihop.h :
+ /projects/contiki/core/./net/rime/route-discovery.h :
+ /projects/contiki/core/./net/rime/netflood.h :
+ /projects/contiki/core/./net/rime/polite-announcement.h :
+ /projects/contiki/core/./net/rime/polite.h :
+ /projects/contiki/core/./net/rime/rimestats.h :
+ /projects/contiki/core/./net/rime/rmh.h :
+ /projects/contiki/core/./net/rime/route.h :
+ /projects/contiki/core/./net/rime/rucb.h :
+ /projects/contiki/core/./net/rime/timesynch.h :
+ /projects/contiki/core/./net/rime/trickle.h :
+ /projects/contiki/core/./net/netstack.h snmpd/snmp.h :
+ /projects/contiki/core/net/ip/simple-udp.h :
  /projects/contiki/core/sys/clock.h /projects/contiki/core/sys/etimer.h :
  /projects/contiki/core/sys/ctimer.h /projects/contiki/core/lib/list.h :
  /projects/contiki/core/./net/ip/uip-debug.h :
- /projects/contiki/core/./net/net-debug.h :
- /projects/contiki/core/./sys/ctimer.h :
+ /projects/contiki/core/./net/net-debug.h homestark.h :
  /projects/contiki/core/./net/rpl/rpl.h :
  /projects/contiki/core/./net/rpl/rpl-conf.h :

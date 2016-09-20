@@ -42,4 +42,5 @@
 #else
 #define debug_coap(fmt, ...)
 #endif
+
 #endif

@@ -36,13 +36,10 @@
 #include "net/ip/uip.h"
 #include "snmp.h"
 
-static uint16_t udp_port = 161;
-static uint16_t keep_alive = 5;
 static char     device_id[17];
-static uint16_t nms_ip[] = {0xaaaa, 0, 0, 0, 0, 0, 0, 0x1};
 
 /*---------------------------------------------------------------------------*/
-PROCESS(init_system_process, "[Contiki-OS] Iniciando sistema operacional");
+PROCESS(init_system_process, "[Contiki-OS] Starting the OS");
 AUTOSTART_PROCESSES(&init_system_process);
 /*---------------------------------------------------------------------------*/
 
@@ -56,19 +53,9 @@ PROCESS_THREAD(init_system_process, ev, data)
           linkaddr_node_addr.u8[4],linkaddr_node_addr.u8[5],
           linkaddr_node_addr.u8[6],linkaddr_node_addr.u8[7]);
 
-  snmp_con_t snmp_con;
-  snmp_con.udp_port = udp_port;
-  snmp_con.ipv6_nms = nms_ip;
-  snmp_con.keep_alive = keep_alive;
-
-  if (snmp_init(snmp_con))
-    debug_os("Sucesso ao iniciar Agente SNMP");
-  else
-    debug_os("Erro ao iniciar Agente SNMP");
-
-  debug_os(" ");
-
+  snmp_init();
   //process_start(&coap_server_process, NULL);
+  debug_os(" ");
 
   while(1) {
       PROCESS_WAIT_EVENT();
