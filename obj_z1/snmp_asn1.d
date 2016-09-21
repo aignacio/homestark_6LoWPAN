@@ -33,22 +33,7 @@ obj_z1/snmp_asn1.o: snmpd/snmp_asn1.c snmpd/snmp.h \
  /projects/contiki/core/./net/ip/uip-debug.h \
  /projects/contiki/core/./net/net-debug.h \
  /projects/contiki/core/./net/linkaddr.h \
- /projects/contiki/core/./sys/ctimer.h homestark.h snmpd/mibii.h \
- /projects/contiki/core/./net/ipv6/uip-ds6.h \
- /projects/contiki/core/./sys/stimer.h \
- /projects/contiki/core/./net/ipv6/uip-nd6.h \
- /projects/contiki/core/./net/ipv6/uip-ds6-route.h \
- /projects/contiki/core/./net/nbr-table.h \
- /projects/contiki/core/./net/netstack.h \
- /projects/contiki/core/./net/llsec/llsec.h \
- /projects/contiki/core/./net/mac/mac.h \
- /projects/contiki/core/./dev/radio.h \
- /projects/contiki/core/./net/mac/rdc.h \
- /projects/contiki/core/./net/llsec/llsec802154.h \
- /projects/contiki/core/./net/mac/frame802154.h \
- /projects/contiki/core/./net/mac/framer.h \
- /projects/contiki/core/./lib/list.h \
- /projects/contiki/core/./net/ipv6/uip-ds6-nbr.h
+ /projects/contiki/core/./sys/ctimer.h homestark.h snmpd/mibii.h
 snmpd/snmp_asn1.c snmpd/snmp.h :
  /projects/contiki/core/net/ip/simple-udp.h :
  /projects/contiki/core/./net/ip/uip.h :
@@ -85,18 +70,3 @@ snmpd/snmp_asn1.c snmpd/snmp.h :
  /projects/contiki/core/./net/net-debug.h :
  /projects/contiki/core/./net/linkaddr.h :
  /projects/contiki/core/./sys/ctimer.h homestark.h snmpd/mibii.h :
- /projects/contiki/core/./net/ipv6/uip-ds6.h :
- /projects/contiki/core/./sys/stimer.h :
- /projects/contiki/core/./net/ipv6/uip-nd6.h :
- /projects/contiki/core/./net/ipv6/uip-ds6-route.h :
- /projects/contiki/core/./net/nbr-table.h :
- /projects/contiki/core/./net/netstack.h :
- /projects/contiki/core/./net/llsec/llsec.h :
- /projects/contiki/core/./net/mac/mac.h :
- /projects/contiki/core/./dev/radio.h :
- /projects/contiki/core/./net/mac/rdc.h :
- /projects/contiki/core/./net/llsec/llsec802154.h :
- /projects/contiki/core/./net/mac/frame802154.h :
- /projects/contiki/core/./net/mac/framer.h :
- /projects/contiki/core/./lib/list.h :
- /projects/contiki/core/./net/ipv6/uip-ds6-nbr.h :

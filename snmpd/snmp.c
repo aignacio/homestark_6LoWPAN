@@ -70,21 +70,13 @@ void snmp_cb_data(void){
     printf("]:%u", UIP_HTONS(UIP_UDP_BUF->srcport));
     uip_ipaddr_copy(&server_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
     server_conn->rport = UIP_UDP_BUF->srcport;
-    // uip_udp_packet_send(server_conn, buf, len);
-    // uip_create_unspecified(&server_conn->ripaddr);
+    snmp_t snmp_handle;
+    snmp_decode_message(buf, &snmp_handle);
+    len = snmp_encode_message(&snmp_handle, buf);
+    uip_udp_packet_send(server_conn, buf, len);
+    uip_create_unspecified(&server_conn->ripaddr);
     server_conn->rport = 0;
   }
-  size_t i,j;
-  unsigned char *handle_data[MAX_UDP_SNMP];
-  for (i=0, j=0; i < len; i++, j++)
-    handle_data[i] = buf[i];
-
-  snmp_t snmp_handle;
-  decode_message(handle_data,&snmp_handle);
-  fast_snmp_encode_message(&snmp_handle,&buf);
-  len = buf[1];
-  uip_udp_packet_send(server_conn, buf, len);
-  uip_create_unspecified(&server_conn->ripaddr);
 }
 
 void snmp_init(void){

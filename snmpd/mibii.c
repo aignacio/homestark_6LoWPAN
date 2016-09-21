@@ -44,15 +44,19 @@ void *mibii_list[] = {"1.1-aignacio\0",
                       "1.3-aignacio\0",
                       "1.4-aignacio\0",
                       "1.5-aignacio\0",
-                      "1.6-aignacio\0",
+                      "No quarto homestark\0",
                       "1.7-aignacio\0"};
 
 resp_con_t mib_ii_check_oid(uint8_t *mib_oid, uint8_t *index){
   uint8_t i;
-  uint8_t oid_tree[4];
+  char  oid_tree[4];
+  int mib_1 = *(mib_oid);
+  int mib_2 = *(mib_oid+1);
 
-  sprintf(oid_tree,"%d.%d",*(mib_oid),*(mib_oid+1));
-  // debug_snmp("MIB to search:%s\n",oid_tree);
+  sprintf(oid_tree,"%d.%d",mib_1,mib_2);
+  #ifdef DEBUG_SNMP_DECODING
+  debug_snmp("MIB to search:%s",oid_tree);
+  #endif
   for (i = 0; i < sizeof(mibii_tree)/sizeof(*mibii_tree); i++){
     if (!strcmp(mibii_tree[i],oid_tree)){
       *index = i;
@@ -61,18 +65,17 @@ resp_con_t mib_ii_check_oid(uint8_t *mib_oid, uint8_t *index){
     // debug_snmp("%s",mibii_tree[i]);
   }
   #ifdef DEBUG_SNMP_DECODING
-  debug_snmp("There isn't OID mapped!");
+  // debug_snmp("MIB2 - There isn't OID mapped!");
   #endif
   return FAIL_CON;
 }
 
 resp_con_t mib_ii_get_oid(uint8_t *oid, uint8_t *oid_string){
-  size_t i;
   uint8_t index;
-  if (!mib_ii_check_oid(oid+6,&index)) return FAIL_CON;
+  if (!mib_ii_check_oid(oid+7,&index)) return FAIL_CON;
 
-  uint8_t data[MAX_OCTET_STRING];
-  sprintf(data,"%s",mibii_list[index]);
+  char data[MAX_OCTET_STRING];
+  sprintf(data,"%s",(char *)mibii_list[index]);
 
   uint8_t len = strlen(data),
           index2 = 0;
@@ -80,11 +83,9 @@ resp_con_t mib_ii_get_oid(uint8_t *oid, uint8_t *oid_string){
     *(oid_string+index2) = data[index2];
     index2++;
   }
+  *(oid_string+index2) = '\0';
   #ifdef DEBUG_SNMP_DECODING
-  debug_snmp("MIB2 Decode OID received:");
-  for (i = 0; *(oid+i) != 0xFF; i++)
-    printf("%x.",*(oid+i));
-  printf(" ---> %s",data);
+  // debug_snmp("MIB2 Decode OID received:%s",data);
   #endif
   return SUCCESS_CON;
 }

@@ -148,10 +148,10 @@ typedef struct {
    uint32_t        snmp_version;
    uint8_t         request_type;
    uint8_t         response_type;
-   uint32_t        request_id;
-   uint8_t         request_id_c[6];
+   uint8_t         request_id_c[10];
    uint8_t         community[MAX_OCTET_STRING];
    uint8_t         oid_encoded[MAX_OID_STRING];
+   uint8_t         value[MAX_OCTET_STRING];
 } snmp_t;
 
 /** @struct request
@@ -166,104 +166,13 @@ struct request {
     struct request *link;
 }*request_first, *request_last;
 
-// int pow(int base, int exp);
+resp_con_t decode_asn1_oct_str(uint8_t *data_encoded, uint8_t *oct_str);
 
-/** @brief Decode integer into ASN.1
- *
- * 		Decode an integer value into ASN.1 format acordding to BER rules
- *
- *  @param [in]  data_encoded Pointer to start the data to be decoded
- *  @param [in]  integer_value Pointer to variable that'll receive the integer decoded
- *
- *  @retval FAIL_CON Error on decoding the integer
- *  @retval SUCCESS_CON Sucess to decode the integer
- *
- **/
-resp_con_t decode_asn1_integer(uint8_t *data_encoded[], uint32_t *integer_value);
+resp_con_t decode_asn1_integer(uint8_t *data_encoded, uint32_t *integer_value);
 
-/** @brief Encode integer into ASN.1
- *
- * 		Encode an integer value into ASN.1 format acordding to BER rules
- *
- *  @param [in]  integer_data Integer 32-bit value to be encoded
- *  @param [in]  encoded_value Pointer to the value that'll receive the encoded data
- *
- *  @retval FAIL_CON Error on encoding the integer
- *  @retval SUCCESS_CON Sucess to encode the integer
- *
- **/
-resp_con_t encode_asn1_integer(uint32_t *integer_data, uint8_t *encoded_value);
+resp_con_t snmp_decode_message(char *snmp_packet, snmp_t *snmp_handle);
 
-/** @brief Decode OID into ASN.1
- *
- * 		Decode an OID value acoording to ASN.1 and BER rules. Limited to address values less than 255 (0xFF).
- *    Decode an OID and set the value to vector passed (oid_data) with 0xFF in the end.
- *
- *  @param [in]  oid_encoded Pointer to the start of data to be decoded
- *  @param [in]  oid_data Pointer to the data that'll receive the OID decoded
- *
- *  @retval FAIL_CON Error on decoding the OID, can be different errors
- *  @retval SUCCESS_CON Sucess to decode the OID passed
- *
- **/
-resp_con_t decode_asn1_oid(uint8_t *oid_encoded[], uint8_t *oid_data);
-
-/** @brief Encode OID into ASN.1
- *
- * 		Encode an Object Identifier value into ASN.1 format acordding to BER rules
- *
- *  @param [in]  data_to_encode Pointer to the start of the vector of OID to encode, must be 0xFF value in the end of vector
- *  @param [in]  oid_encoded Pointer to the value encoded
- *
- *  @retval FAIL_CON Error on encoding the OID
- *  @retval SUCCESS_CON Sucess to encode the OID
- *
- **/
-resp_con_t encode_asn1_oid(uint8_t *data_to_encode, uint8_t *oid_encoded);
-
-/** @brief Decode octet string into ASN.1
- *
- * 		Decode an octet string value acordding to BER rules
- *
- *  @param [in]  data_encoded Pointer to the start of data to be decoded
- *  @param [in]  oct_str Pointer to the data that'll receive the string decoded
- *
- *  @retval FAIL_CON Error on decoding the octet string
- *  @retval SUCCESS_CON Sucess to decode the octet string passed
- *
- **/
-resp_con_t decode_asn1_oct_str(uint8_t *data_encoded[], uint8_t *oct_str);
-
-/** @brief Encode octet string into ASN.1
- *
- * 		Encode a string into octet string acordding to BER rules
- *
- *  @param [in]  data_to_encode String to encode with 0xFF ou '\0' in the end
- *  @param [in]  encoded_str Pointer to the data that'll receive the octet string encoded
- *
- *  @retval FAIL_CON Error on encoding the string
- *  @retval SUCCESS_CON Sucess to encode the string passed
- *
- **/
-resp_con_t encode_asn1_oct_str(uint8_t data_to_encode[], uint8_t *encoded_str);
-
-/** @brief Check if there's some error in SNMP message
- *
- * 		Check error status and error index in SNMP PDU
- *
- *  @param [in]  error_data Pointer to the begin of error bytes to check [error_status][error_index]
- *
- *  @retval FAIL_CON Error on PDU
- *  @retval SUCCESS_CON None error in PDU
- *
- **/
-resp_con_t error_check_snmp(uint8_t *error_data[]);
-
-resp_con_t snmp_decode_message(unsigned char *data[], snmp_t *snmp_handle);
-
-resp_con_t snmp_encode_message(snmp_t *snmp_handle);
-
-resp_con_t fast_snmp_encode_message(snmp_t *snmp_handle, uint8_t *data_encoded);
+uint16_t snmp_encode_message(snmp_t *snmp_handle, char *data_encoded);
 
 /** @brief SNMP Callback receive
  *
