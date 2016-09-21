@@ -56,8 +56,6 @@ static struct uip_udp_conn        *server_conn;
 PROCESS(snmp_main, "[SNMP] SNMPD - Agent V1");
 
 void snmp_cb_data(void){
-  debug_snmp("New SNMP Request: ");
-
   static uint16_t len;
   static char buf[MAX_UDP_SNMP];
   memset(buf, 0, MAX_UDP_SNMP);
@@ -71,11 +69,15 @@ void snmp_cb_data(void){
     uip_ipaddr_copy(&server_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
     server_conn->rport = UIP_UDP_BUF->srcport;
     snmp_t snmp_handle;
-    snmp_decode_message(buf, &snmp_handle);
-    len = snmp_encode_message(&snmp_handle, buf);
-    uip_udp_packet_send(server_conn, buf, len);
-    uip_create_unspecified(&server_conn->ripaddr);
-    server_conn->rport = 0;
+    if (snmp_decode_message(buf, &snmp_handle)){
+      debug_snmp("New SNMP Request received!");
+      len = snmp_encode_message(&snmp_handle, buf);
+      uip_udp_packet_send(server_conn, buf, len);
+      uip_create_unspecified(&server_conn->ripaddr);
+      server_conn->rport = 0;
+    }
+    else
+      debug_snmp("Problem on SNMP Request received!");
   }
 }
 

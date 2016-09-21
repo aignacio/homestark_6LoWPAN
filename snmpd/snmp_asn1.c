@@ -18,13 +18,13 @@
 
  *******************************************************************************
  * @license This project is under APACHE 2.0 license.
- * @fil#if CONTIKI_TARGET_SRF06_CC26XX
-e snmp_asn1.c
+ * @file snmp_asn1.c
  * @brief Encoding and decoding functions to SNMP agent
  * @author Ânderson Ignácio da Silva
  * @date 19 Sept 2016
  * @see http://www.aignacio.com
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -190,10 +190,10 @@ resp_con_t snmp_decode_message(char *snmp_packet, snmp_t *snmp_handle){
   #ifdef DEBUG_SNMP_DECODING
   debug_snmp("OID: ");
   for (i=0; i < aux; i++){
-    if (i == 1)
+    if (i <= 1)
       printf("[%d]",snmp_handle->oid_encoded[i]);
     else if (i == 2)
-      printf("[%d][",snmp_handle->oid_encoded[i]);
+      printf("[%d.",snmp_handle->oid_encoded[i]);
     else
     printf("%d.",snmp_handle->oid_encoded[i]);
   }
@@ -212,6 +212,16 @@ resp_con_t snmp_decode_message(char *snmp_packet, snmp_t *snmp_handle){
     case ASN1_CPX_SEQUENCE:
     break;
     case ASN1_CPX_GET_REQ:
+      aux = snmp_handle->oid_encoded[1]+1;
+      if (snmp_handle->oid_encoded[aux] != 0   ||
+          snmp_handle->oid_encoded[aux-3] != 1 ||
+          snmp_handle->oid_encoded[aux-4] != 2 ||
+          snmp_handle->oid_encoded[aux-5] != 1 ||
+          snmp_handle->oid_encoded[aux-6] != 6 ||
+          snmp_handle->oid_encoded[aux-7] != 0x2b){
+        snmp_handle->oid_encoded[aux] = 1;
+        status_mib2 = mib_ii_get_oid(snmp_handle->oid_encoded,string_value);
+      }
       #ifdef DEBUG_SNMP_DECODING
       debug_snmp("GET Request PDU Type");
       #endif
@@ -244,6 +254,32 @@ resp_con_t snmp_decode_message(char *snmp_packet, snmp_t *snmp_handle){
       }
     break;
     case ASN1_CPX_NEXT_REQ:
+      // Let's check the last byte
+      aux = snmp_handle->oid_encoded[1]+1;
+      if (snmp_handle->oid_encoded[aux] == 0) {
+        // We need to increment the OID for the snmpwalk... requisition
+        if (snmp_handle->oid_encoded[aux-1] < 7) {
+          snmp_handle->oid_encoded[aux-1] = snmp_handle->oid_encoded[aux-1]+1;
+        }
+        else
+          snmp_handle->oid_encoded[aux] = 1; // Let's force not unknow value in the mib tree
+        status_mib2 = mib_ii_get_oid(snmp_handle->oid_encoded,string_value);
+      }
+      else{
+        if (snmp_handle->oid_encoded[aux-1] == 1 &&
+            snmp_handle->oid_encoded[aux-2] == 2 &&
+            snmp_handle->oid_encoded[aux-3] == 1 &&
+            snmp_handle->oid_encoded[aux-4] == 6 &&
+            snmp_handle->oid_encoded[aux-5] == 0x2b) {
+          snmp_handle->oid_encoded[1] += 2;
+          snmp_handle->oid_encoded[aux+1] = 1;
+          snmp_handle->oid_encoded[aux+2] = 0;
+          snmp_handle->oid_encoded[aux+3] = '\0';
+        }
+        // We need to set to the nearest OID for the snmpwalk... requisition, in this case .1.0
+        status_mib2 = mib_ii_get_oid(snmp_handle->oid_encoded,string_value);
+      }
+
       #ifdef DEBUG_SNMP_DECODING
       debug_snmp("GET NEXT Request PDU Type");
       #endif
@@ -256,7 +292,7 @@ resp_con_t snmp_decode_message(char *snmp_packet, snmp_t *snmp_handle){
       }
       else {
         aux = strlen((const char*)string_value);
-        snmp_handle->value[0] = ASN1_CPX_GET_RESP;
+        snmp_handle->value[0] = ASN1_PRIM_OCT_STR;
         snmp_handle->value[1] = aux;
 
         for (i = 0; i < aux; i++)
