@@ -36,6 +36,7 @@
 #include "contiki-lib.h"
 #include "contiki-net.h"
 #include "snmp.h"
+#include "mibii.h"
 #include "net/rpl/rpl.h"
 #include "net/ip/uip.h"
 #include "net/ipv6/uip-ds6.h"
@@ -45,13 +46,19 @@
 #include "sys/etimer.h"
 #include "net/ip/uip-debug.h"
 #if CONTIKI_TARGET_SRF06_CC26XX
+#include "core/net/ipv6/uip-ds6-route.h"
+#include "core/net/ipv6/sicslowpan.h"
 #include "lib/newlib/syscalls.c" // Used on heap function, like malloc, free, calloc..
 #endif
 
 #define UIP_IP_BUF   ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
 #define UIP_UDP_BUF  ((struct uip_udp_hdr *)&uip_buf[uip_l2_l3_hdr_len])
 
+#if CONTIKI_TARGET_SRF06_CC26XX
+static struct etimer              update_snmp;
+#endif
 static struct uip_udp_conn        *server_conn;
+uint16_t test = 0;
 
 PROCESS(snmp_main, "[SNMP] SNMPD - Agent V1");
 
@@ -85,6 +92,57 @@ void snmp_init(void){
   process_start(&snmp_main, NULL);
 }
 
+int ipaddr_sprintf(char *buf, uint8_t buf_len, const uip_ipaddr_t *addr) {
+  uint16_t a;
+  uint8_t len = 0;
+  int i, f;
+  for(i = 0, f = 0; i < sizeof(uip_ipaddr_t); i += 2) {
+    a = (addr->u8[i] << 8) + addr->u8[i + 1];
+    if(a == 0 && f >= 0) {
+      if(f++ == 0) {
+        len += snprintf(&buf[len], buf_len - len, "::");
+      }
+    } else {
+      if(f > 0) {
+        f = -1;
+      } else if(i > 0) {
+        len += snprintf(&buf[len], buf_len - len, ":");
+      }
+      len += snprintf(&buf[len], buf_len - len, "%x", a);
+    }
+  }
+
+  return len;
+}
+
+void update_snmp_mib(void){
+  test++;
+
+  uint8_t oid_tree;
+  char dado[MAX_STRINGS_LENGTH];
+
+  /******************************* Hearbeat ***********************************/
+  oid_tree = 11;
+  sprintf(dado,"heartbeat_%d",test);
+  debug_os("Dado de update: %s",dado);
+  mib_ii_update_list(oid_tree,dado);
+
+  /******************************** RSSI **************************************/
+  oid_tree = 12;
+  int  def_rt_rssi = sicslowpan_get_last_rssi();
+  sprintf(dado,"RSSI:%d",def_rt_rssi);
+  mib_ii_update_list(oid_tree,dado);
+
+  /*************************** Prefered IPv6 **********************************/
+  char def_rt_str[64];
+  oid_tree = 13;
+  memset(def_rt_str, 0, sizeof(def_rt_str));
+  ipaddr_sprintf(def_rt_str, sizeof(def_rt_str), uip_ds6_defrt_choose());
+  sprintf(dado,"Pref. route:%s",def_rt_str);
+  mib_ii_update_list(oid_tree,dado);
+
+}
+
 PROCESS_THREAD(snmp_main, ev, data){
   PROCESS_BEGIN();
 
@@ -93,10 +151,20 @@ PROCESS_THREAD(snmp_main, ev, data){
   debug_snmp("Listen port: %d, TTL=%u",DEFAULT_SNMP_PORT,server_conn->ttl);
   debug_snmp("Agent SNMPv1 active");
 
+  #if CONTIKI_TARGET_SRF06_CC26XX
+  etimer_set(&update_snmp, TIME_UPDATE_SNMP);
+  #endif
+
   while(1){
     PROCESS_YIELD();
     if(ev == tcpip_event)
       snmp_cb_data();
+    #if CONTIKI_TARGET_SRF06_CC26XX
+    if (etimer_expired(&update_snmp)){
+      etimer_reset(&update_snmp);
+      update_snmp_mib();
+    }
+    #endif
   }
   PROCESS_END();
 }

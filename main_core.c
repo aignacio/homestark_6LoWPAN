@@ -29,12 +29,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include "contiki.h"
+#include "contiki-lib.h"
 #include "contiki-net.h"
 #include "rest-engine.h"
 #include "coap-server.h"
 #include "net/ipv6/uip-ds6.h"
 #include "net/ip/uip.h"
 #include "snmp.h"
+#include "mibii.h"
 
 static char     device_id[17];
 
@@ -53,8 +55,23 @@ PROCESS_THREAD(init_system_process, ev, data)
           linkaddr_node_addr.u8[4],linkaddr_node_addr.u8[5],
           linkaddr_node_addr.u8[6],linkaddr_node_addr.u8[7]);
 
+
+  //#if RESOLV_CONF_SUPPORTS_MDNS
+  // resolv_set_hostname("anderson");
+  //#endif
+
   snmp_init();
   //process_start(&coap_server_process, NULL);
+
+  #if CONTIKI_TARGET_SRF06_CC26XX
+    uint8_t tree;
+    const char demo[] = "cc2650_snmp\0";
+    size_t i = 0;
+    for (i=0; i < MAX_OIDS; i++) {
+      tree = 11+i;
+      mib_ii_fill_list((int)tree, demo);
+    }
+  #endif
   debug_os(" ");
 
   while(1) {

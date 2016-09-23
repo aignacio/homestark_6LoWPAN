@@ -27,6 +27,19 @@
 #ifndef __MIBII_H__
 #define __MIBII_H__
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    uint8_t oid_tree;
+    char oid_value[MAX_STRINGS_LENGTH];
+}oid_data;
+
 resp_con_t mib_ii_check_oid(uint8_t *mib_oid, uint8_t *index);
 resp_con_t mib_ii_get_oid(uint8_t *oid, uint8_t *oid_string);
+resp_con_t mib_ii_update_list(uint8_t tree, char *value);
+resp_con_t mib_ii_fill_list(uint8_t oid_tree_var, const char *value);
+resp_con_t mib_ii_show(void);
+
 #endif

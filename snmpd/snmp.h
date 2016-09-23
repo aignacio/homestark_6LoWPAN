@@ -79,6 +79,10 @@
 #define ASN1_CPX_GET_RESP       0xA2
 #define ASN1_CPX_SET_REQ        0xA3
 
+#define MAX_OIDS                14
+#define MAX_STRINGS_LENGTH      100
+#define TIME_UPDATE_SNMP        2*CLOCK_SECOND
+
 /** @brief value of the version field for the SNMPv1 */
 #define SNMP_VERSION_1					0
 /** @brief value of the version field for the SNMPv2c */
@@ -88,7 +92,7 @@
 /** @brief Decode the initial sequence type */
 #define check_seq(x) (x == ASN1_CPX_SEQUENCE ? 1 : 0)
 
-// #define DEBUG_SNMP_DECODING /** @brief If defined, show decode SNMP messages*/
+#define DEBUG_SNMP_DECODING /** @brief If defined, show decode SNMP messages*/
 
 #define DEBUG_SNMP
 
@@ -174,6 +178,7 @@ resp_con_t snmp_decode_message(char *snmp_packet, snmp_t *snmp_handle);
 
 uint16_t snmp_encode_message(snmp_t *snmp_handle, char *data_encoded);
 
+int ipaddr_sprintf(char *buf, uint8_t buf_len, const uip_ipaddr_t *addr);
 /** @brief SNMP Callback receive
  *
  * 		Receive in callback mode, any data from NSM of SNMP protocol.
@@ -194,5 +199,6 @@ void snmp_cb_data(void);
  **/
 void snmp_init(void);
 
-// resp_con_t send_ping(void);
+void update_snmp_mib(void);
+
 #endif

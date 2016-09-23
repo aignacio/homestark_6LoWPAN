@@ -3,7 +3,7 @@ DEFINES+=PROJECT_CONF_H=\"project-conf.h\"
 all: main_core
 
 SNMP_RESOURCES_DIR = ./snmpd
-SNMP_SOURCEFILES += mibii.c snmp.c snmp_asn1.c 
+SNMP_SOURCEFILES += mibii.c snmp.c snmp_asn1.c
 
 CONTIKI_WITH_IPV6 = 1
 REST_RESOURCES_DIR = ./resources

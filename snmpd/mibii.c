@@ -27,80 +27,119 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "snmp.h"
 #include "mibii.h"
 
-void *mibii_tree[] = {"1.1","1.2","1.3","1.4","1.5","1.6","1.7",
-                      "4.1","4.2","4.3","4.4","4.5","4.6","4.7",
-                      "25.1","25.2","25.3","25.4","25.5","25.6"};
-
-void *mibii_list[] = {"1.1-aignacio\0",
-                      "1.2-aignacio\0",
-                      "1.3-aignacio\0",
-                      "1.4-aignacio\0",
-                      "1.5-aignacio\0",
-                      "1.5-aignacio\0",
-                      "1.7-aignacio\0",
-                      "4.1-aignacio\0",
-                      "4.2-aignacio\0",
-                      "4.3-aignacio\0",
-                      "4.4-aignacio\0",
-                      "4.5-aignacio\0",
-                      "4.6-aignacio\0",
-                      "4.7-aignacio\0",
-                      "25.1-aignacio\0",
-                      "25.2-aignacio\0",
-                      "25.3-aignacio\0",
-                      "25.4-aignacio\0",
-                      "25.5-aignacio\0",
-                      "25.6-aignacio\0"};
+uint8_t  global_index = 0;
+oid_data oid_list[MAX_OIDS];
 
 resp_con_t mib_ii_check_oid(uint8_t *mib_oid, uint8_t *index){
-  uint8_t i;
-  char  oid_tree[4];
-  int mib_1 = *(mib_oid);
-  int mib_2 = *(mib_oid+1);
-  int mib_3 = *(mib_oid+2);
-  int mib_4 = *(mib_oid+3);
+  uint8_t i,
+          mib_s[4],
+          value_s;
 
-  // debug_snmp("MIB_Third_bit:%d",mib_3);
-  if (mib_3 != 0 || mib_4 != 0)
-    return FAIL_CON;
-  sprintf(oid_tree,"%d.%d",mib_1,mib_2);
+  mib_s[0] = *(mib_oid);
+  mib_s[1] = *(mib_oid+1),
+  mib_s[2] = *(mib_oid+2),
+  mib_s[3] = *(mib_oid+3);
+
   #ifdef DEBUG_SNMP_DECODING
-  debug_snmp("MIB to search:%s",oid_tree);
+  debug_snmp("MIB to search: [%d] [%d] [%d] [%d]",mib_s[0],mib_s[1],mib_s[2],mib_s[3]);
   #endif
-  for (i = 0; i < sizeof(mibii_tree)/sizeof(*mibii_tree); i++){
-    if (!strcmp(mibii_tree[i],oid_tree)){
+
+  value_s = mib_s[0]*10+mib_s[1];
+
+  if (mib_s[2] != 0 || mib_s[3] != 0)
+    return FAIL_CON;
+
+  for (i = 0; i < MAX_OIDS; i++){
+    if (oid_list[i].oid_tree == value_s){
       *index = i;
       return SUCCESS_CON;
     }
     // debug_snmp("%s",mibii_tree[i]);
   }
   #ifdef DEBUG_SNMP_DECODING
-  // debug_snmp("MIB2 - There isn't OID mapped!");
+  debug_snmp("MIB2 - There isn't OID mapped!");
   #endif
   return FAIL_CON;
 }
 
 resp_con_t mib_ii_get_oid(uint8_t *oid, uint8_t *oid_string){
-  uint8_t index;
+  #if CONTIKI_TARGET_SRF06_CC26XX
+    uint8_t index;
+    if (!mib_ii_check_oid(oid+7,&index)) return FAIL_CON;
 
-  if (!mib_ii_check_oid(oid+7,&index)) return FAIL_CON;
+    char data[MAX_STRINGS_LENGTH];
+    strcpy(data,oid_list[index].oid_value);
 
-  char data[MAX_OCTET_STRING];
-  sprintf(data,"%s",(char *)mibii_list[index]);
+    uint8_t len = strlen(data),
+            index2 = 0;
+    while (index2 <= len) {
+      *(oid_string+index2) = data[index2];
+      index2++;
+    }
+    *(oid_string+index2) = '\0';
 
-  uint8_t len = strlen(data),
-          index2 = 0;
-  while (index2 <= len) {
-    *(oid_string+index2) = data[index2];
-    index2++;
-  }
-  *(oid_string+index2) = '\0';
+    #ifdef DEBUG_SNMP_DECODING
+    debug_snmp("MIB2 Decode OID received:%s",data);
+    #endif
+    return SUCCESS_CON;
+  #else
+    uint8_t data[] = "z1_snmp\0";
+    uint8_t len = 8,
+            index2 = 0;
+    while (index2 <= len) {
+      *(oid_string+index2) = data[index2];
+      index2++;
+    }
+    *(oid_string+index2) = '\0';
+    #ifdef DEBUG_SNMP_DECODING
+    debug_snmp("MIB2 Decode OID received:%s",(char *)oid_string);
+    #endif
+    return SUCCESS_CON;
+  #endif
+}
+
+resp_con_t mib_ii_update_list(uint8_t tree, char *value){
+  uint8_t index_list;
+  uint8_t tree_format[20];
+  uint8_t mib1 = tree/10;
+  uint8_t mib2 = tree-mib1*10,
+          mib3 = '0',
+          mib4 = '0';
+  sprintf((void *)tree_format,"%c%c%c%c",mib1,mib2,mib3-0x30,mib4-0x30);
+
+  if (!mib_ii_check_oid(tree_format, &index_list)) return FAIL_CON;
+  sprintf(oid_list[index_list].oid_value,"%s",value);
+
   #ifdef DEBUG_SNMP_DECODING
-  // debug_snmp("MIB2 Decode OID received:%s",data);
+  debug_snmp("Update MIB2 Indice:%d",index_list);
+  debug_snmp("OID Tree:%d",oid_list[index_list].oid_tree);
+  debug_snmp("OID Value:%s",oid_list[index_list].oid_value);
+  #endif
+  return SUCCESS_CON;
+}
+
+resp_con_t mib_ii_fill_list(uint8_t oid_tree_var, const char *value){
+  if (global_index == MAX_OIDS) return FAIL_CON;
+  uint8_t index = global_index++;
+
+  oid_list[index].oid_tree  = oid_tree_var;
+  strcpy(oid_list[index].oid_value,value);
+
+
+  return SUCCESS_CON;
+}
+
+resp_con_t mib_ii_show(void){
+  size_t i = 0;
+  #ifdef DEBUG_SNMP_DECODING
+    for (i=0; i < global_index; i++) {
+      debug_snmp("Indice:%d",i);
+      debug_snmp("OID Tree:%d",oid_list[i].oid_tree);
+      debug_snmp("OID Value:%s",oid_list[i].oid_value);
+    }
   #endif
   return SUCCESS_CON;
 }

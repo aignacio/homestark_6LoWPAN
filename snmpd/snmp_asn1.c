@@ -206,7 +206,7 @@ resp_con_t snmp_decode_message(char *snmp_packet, snmp_t *snmp_handle){
   snmp_handle->response_type = ASN1_CPX_GET_RESP;
 
   uint8_t string_value[MAX_OCTET_STRING];
-  uint8_t status_mib2 = mib_ii_get_oid(snmp_handle->oid_encoded,string_value);
+  uint8_t status_mib2 = mib_ii_get_oid(snmp_handle->oid_encoded,&string_value[0]);
 
   switch (snmp_handle->request_type) {
     case ASN1_CPX_SEQUENCE:
@@ -220,7 +220,7 @@ resp_con_t snmp_decode_message(char *snmp_packet, snmp_t *snmp_handle){
           snmp_handle->oid_encoded[aux-6] != 6 ||
           snmp_handle->oid_encoded[aux-7] != 0x2b){
         snmp_handle->oid_encoded[aux] = 1;
-        status_mib2 = mib_ii_get_oid(snmp_handle->oid_encoded,string_value);
+        status_mib2 = mib_ii_get_oid(snmp_handle->oid_encoded,&string_value[0]);
       }
       #ifdef DEBUG_SNMP_DECODING
       debug_snmp("GET Request PDU Type");
@@ -263,7 +263,7 @@ resp_con_t snmp_decode_message(char *snmp_packet, snmp_t *snmp_handle){
         }
         else
           snmp_handle->oid_encoded[aux] = 1; // Let's force not unknow value in the mib tree
-        status_mib2 = mib_ii_get_oid(snmp_handle->oid_encoded,string_value);
+        status_mib2 = mib_ii_get_oid(snmp_handle->oid_encoded,&string_value[0]);
       }
       else{
         if (snmp_handle->oid_encoded[aux-1] == 1 &&
@@ -277,7 +277,7 @@ resp_con_t snmp_decode_message(char *snmp_packet, snmp_t *snmp_handle){
           snmp_handle->oid_encoded[aux+3] = '\0';
         }
         // We need to set to the nearest OID for the snmpwalk... requisition, in this case .1.0
-        status_mib2 = mib_ii_get_oid(snmp_handle->oid_encoded,string_value);
+        status_mib2 = mib_ii_get_oid(snmp_handle->oid_encoded,&string_value[0]);
       }
 
       #ifdef DEBUG_SNMP_DECODING
