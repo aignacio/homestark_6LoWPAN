@@ -54,9 +54,7 @@
 #define UIP_IP_BUF   ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
 #define UIP_UDP_BUF  ((struct uip_udp_hdr *)&uip_buf[uip_l2_l3_hdr_len])
 
-#if CONTIKI_TARGET_SRF06_CC26XX
 static struct etimer              update_snmp;
-#endif
 static struct uip_udp_conn        *server_conn;
 uint16_t test = 0;
 
@@ -118,24 +116,27 @@ int ipaddr_sprintf(char *buf, uint8_t buf_len, const uip_ipaddr_t *addr) {
 void update_snmp_mib(void){
   test++;
 
-  uint8_t oid_tree;
+  uint8_t oid_tree[2];
   char dado[MAX_STRINGS_LENGTH];
 
   /******************************* Hearbeat ***********************************/
-  oid_tree = 11;
+  oid_tree[0] = 1;
+  oid_tree[1] = 1;
   sprintf(dado,"heartbeat_%d",test);
   debug_os("Dado de update: %s",dado);
   mib_ii_update_list(oid_tree,dado);
 
   /******************************** RSSI **************************************/
-  oid_tree = 12;
+  oid_tree[0] = 1;
+  oid_tree[1] = 2;
   int  def_rt_rssi = sicslowpan_get_last_rssi();
   sprintf(dado,"RSSI:%d",def_rt_rssi);
   mib_ii_update_list(oid_tree,dado);
 
   /*************************** Prefered IPv6 **********************************/
   char def_rt_str[64];
-  oid_tree = 13;
+  oid_tree[0] = 1;
+  oid_tree[1] = 3;
   memset(def_rt_str, 0, sizeof(def_rt_str));
   ipaddr_sprintf(def_rt_str, sizeof(def_rt_str), uip_ds6_defrt_choose());
   sprintf(dado,"Pref. route:%s",def_rt_str);
@@ -163,6 +164,7 @@ PROCESS_THREAD(snmp_main, ev, data){
     if (etimer_expired(&update_snmp)){
       etimer_reset(&update_snmp);
       update_snmp_mib();
+      mib_ii_show();
     }
     #endif
   }

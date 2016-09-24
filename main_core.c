@@ -64,14 +64,17 @@ PROCESS_THREAD(init_system_process, ev, data)
   //process_start(&coap_server_process, NULL);
 
   #if CONTIKI_TARGET_SRF06_CC26XX
-    uint8_t tree;
+    uint8_t tree[2];
     const char demo[] = "cc2650_snmp\0";
     size_t i = 0;
-    for (i=0; i < MAX_OIDS; i++) {
-      tree = 11+i;
-      mib_ii_fill_list((int)tree, demo);
+    for (i=1; i < MAX_OIDS; i++) {
+      tree[0] = 1;
+      tree[1] = i;
+      mib_ii_fill_list(tree, demo);
     }
+    mib_ii_show();
   #endif
+
   debug_os(" ");
 
   while(1) {

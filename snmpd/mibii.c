@@ -35,25 +35,22 @@ oid_data oid_list[MAX_OIDS];
 
 resp_con_t mib_ii_check_oid(uint8_t *mib_oid, uint8_t *index){
   uint8_t i,
-          mib_s[4],
-          value_s;
-
+          mib_s[4];
+  // A correct oid for this implementation must be iso.3.6.1.2.1.x.x.0
   mib_s[0] = *(mib_oid);
   mib_s[1] = *(mib_oid+1),
   mib_s[2] = *(mib_oid+2),
   mib_s[3] = *(mib_oid+3);
 
   #ifdef DEBUG_SNMP_DECODING
-  debug_snmp("MIB to search: [%d] [%d] [%d] [%d]",mib_s[0],mib_s[1],mib_s[2],mib_s[3]);
+  debug_snmp("MIB to search: iso.3.6.1.2.1.[%d].[%d].[%d].[%d]",mib_s[0],mib_s[1],mib_s[2],mib_s[3]);
   #endif
-
-  value_s = mib_s[0]*10+mib_s[1];
 
   if (mib_s[2] != 0 || mib_s[3] != 0)
     return FAIL_CON;
 
   for (i = 0; i < MAX_OIDS; i++){
-    if (oid_list[i].oid_tree == value_s){
+    if (oid_list[i].oid_tree[0] == mib_s[0] && oid_list[i].oid_tree[1] == mib_s[1]){
       *index = i;
       return SUCCESS_CON;
     }
@@ -101,31 +98,36 @@ resp_con_t mib_ii_get_oid(uint8_t *oid, uint8_t *oid_string){
   #endif
 }
 
-resp_con_t mib_ii_update_list(uint8_t tree, char *value){
+resp_con_t mib_ii_update_list(uint8_t *tree, char *value){
   uint8_t index_list;
-  uint8_t tree_format[20];
-  uint8_t mib1 = tree/10;
-  uint8_t mib2 = tree-mib1*10,
-          mib3 = '0',
-          mib4 = '0';
-  sprintf((void *)tree_format,"%c%c%c%c",mib1,mib2,mib3-0x30,mib4-0x30);
+  uint8_t tree_format[4];
+  uint8_t mib1 = *tree;
+  uint8_t mib2 = *(tree+1);
 
+  tree_format[0] = mib1;
+  tree_format[1] = mib2;
+  tree_format[2] = 0;
+  tree_format[3] = 0;
+
+  // sprintf((void *)tree_format,"%c%c%c%c",mib1,mib2,mib3-0x30,mib4-0x30);
   if (!mib_ii_check_oid(tree_format, &index_list)) return FAIL_CON;
   sprintf(oid_list[index_list].oid_value,"%s",value);
 
+
   #ifdef DEBUG_SNMP_DECODING
   debug_snmp("Update MIB2 Indice:%d",index_list);
-  debug_snmp("OID Tree:%d",oid_list[index_list].oid_tree);
+  debug_snmp("OID Tree: iso.3.6.1.2.1.%d.%d.0",oid_list[index_list].oid_tree[0],oid_list[index_list].oid_tree[1]);
   debug_snmp("OID Value:%s",oid_list[index_list].oid_value);
   #endif
   return SUCCESS_CON;
 }
 
-resp_con_t mib_ii_fill_list(uint8_t oid_tree_var, const char *value){
+resp_con_t mib_ii_fill_list(uint8_t *oid_tree_var, const char *value){
   if (global_index == MAX_OIDS) return FAIL_CON;
   uint8_t index = global_index++;
 
-  oid_list[index].oid_tree  = oid_tree_var;
+  oid_list[index].oid_tree[0]  = *oid_tree_var;
+  oid_list[index].oid_tree[1]  = *(oid_tree_var+1);
   strcpy(oid_list[index].oid_value,value);
 
 
@@ -136,8 +138,8 @@ resp_con_t mib_ii_show(void){
   size_t i = 0;
   #ifdef DEBUG_SNMP_DECODING
     for (i=0; i < global_index; i++) {
-      debug_snmp("Indice:%d",i);
-      debug_snmp("OID Tree:%d",oid_list[i].oid_tree);
+      debug_snmp("Index:%d",i);
+      debug_snmp("OID Tree: iso.3.6.1.2.1.%d.%d.0",oid_list[i].oid_tree[0],oid_list[i].oid_tree[1]);
       debug_snmp("OID Value:%s",oid_list[i].oid_value);
     }
   #endif
