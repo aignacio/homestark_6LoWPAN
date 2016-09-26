@@ -1,4 +1,4 @@
-obj_srf06-cc26xx/coap-server.o: coap-server.c \
+obj_srf06-cc26xx/coap-server.o: CoAP/coap-server.c \
  /projects/contiki/core/./contiki.h \
  /projects/contiki/core/./contiki-version.h \
  /projects/contiki/platform/srf06-cc26xx/./contiki-conf.h project-conf.h \
@@ -116,7 +116,7 @@ obj_srf06-cc26xx/coap-server.o: coap-server.c \
  /projects/contiki/core/./dev/leds.h \
  /projects/contiki/apps/rest-engine/rest-engine.h \
  /projects/contiki/apps/rest-engine/rest-constants.h homestark.h
-coap-server.c :
+CoAP/coap-server.c :
  /projects/contiki/core/./contiki.h :
  /projects/contiki/core/./contiki-version.h :
  /projects/contiki/platform/srf06-cc26xx/./contiki-conf.h project-conf.h :

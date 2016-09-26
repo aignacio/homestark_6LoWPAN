@@ -1,4 +1,5 @@
-obj_z1/coap-server.o: coap-server.c /projects/contiki/core/./contiki.h \
+obj_z1/coap-server.o: CoAP/coap-server.c \
+ /projects/contiki/core/./contiki.h \
  /projects/contiki/core/./contiki-version.h \
  /projects/contiki/platform/z1/./contiki-conf.h \
  /projects/contiki/platform/z1/./platform-conf.h \
@@ -101,7 +102,8 @@ obj_z1/coap-server.o: coap-server.c /projects/contiki/core/./contiki.h \
  /projects/contiki/core/./dev/leds.h \
  /projects/contiki/apps/rest-engine/rest-engine.h \
  /projects/contiki/apps/rest-engine/rest-constants.h homestark.h
-coap-server.c /projects/contiki/core/./contiki.h :
+CoAP/coap-server.c :
+ /projects/contiki/core/./contiki.h :
  /projects/contiki/core/./contiki-version.h :
  /projects/contiki/platform/z1/./contiki-conf.h :
  /projects/contiki/platform/z1/./platform-conf.h :

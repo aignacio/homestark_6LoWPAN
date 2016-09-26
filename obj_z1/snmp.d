@@ -103,7 +103,16 @@ obj_z1/snmp.o: snmpd/snmp.c /projects/contiki/core/./contiki.h \
  /projects/contiki/core/./net/ip/uip-debug.h \
  /projects/contiki/core/./net/net-debug.h homestark.h snmpd/mibii.h \
  /projects/contiki/core/./net/rpl/rpl.h \
- /projects/contiki/core/./net/rpl/rpl-conf.h
+ /projects/contiki/core/./net/rpl/rpl-conf.h \
+ /projects/contiki/core/./net/rpl/rpl-private.h \
+ /projects/contiki/core/./net/rpl/rpl-ns.h \
+ /projects/contiki/core/./net/ipv6/multicast/uip-mcast6.h \
+ /projects/contiki/core/./net/ipv6/multicast/uip-mcast6-engines.h \
+ /projects/contiki/core/./net/ipv6/multicast/uip-mcast6-route.h \
+ /projects/contiki/core/./net/ipv6/multicast/smrf.h \
+ /projects/contiki/core/./net/ipv6/multicast/esmrf.h \
+ /projects/contiki/core/./net/ipv6/multicast/roll-tm.h \
+ /projects/contiki/core/./net/ipv6/multicast/uip-mcast6-stats.h
 snmpd/snmp.c /projects/contiki/core/./contiki.h :
  /projects/contiki/core/./contiki-version.h :
  /projects/contiki/platform/z1/./contiki-conf.h :
@@ -210,3 +219,12 @@ snmpd/snmp.c /projects/contiki/core/./contiki.h :
  /projects/contiki/core/./net/net-debug.h homestark.h snmpd/mibii.h :
  /projects/contiki/core/./net/rpl/rpl.h :
  /projects/contiki/core/./net/rpl/rpl-conf.h :
+ /projects/contiki/core/./net/rpl/rpl-private.h :
+ /projects/contiki/core/./net/rpl/rpl-ns.h :
+ /projects/contiki/core/./net/ipv6/multicast/uip-mcast6.h :
+ /projects/contiki/core/./net/ipv6/multicast/uip-mcast6-engines.h :
+ /projects/contiki/core/./net/ipv6/multicast/uip-mcast6-route.h :
+ /projects/contiki/core/./net/ipv6/multicast/smrf.h :
+ /projects/contiki/core/./net/ipv6/multicast/esmrf.h :
+ /projects/contiki/core/./net/ipv6/multicast/roll-tm.h :
+ /projects/contiki/core/./net/ipv6/multicast/uip-mcast6-stats.h :

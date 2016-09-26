@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.8"/>
-<title>MQTT-SNContiki: Referência ao ficheiro main_core.c</title>
+<title>HomeStark_6LoWPAN_Device: Referência ao ficheiro main_core.c</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -23,10 +23,10 @@
  <tr style="height: 56px;">
   <td id="projectlogo"><img alt="Logo" src="logo_symbol.png"/></td>
   <td style="padding-left: 0.5em;">
-   <div id="projectname">MQTT-SNContiki
+   <div id="projectname">HomeStark_6LoWPAN_Device
    &#160;<span id="projectnumber">1.0</span>
    </div>
-   <div id="projectbrief">Port do MQTT-SN para o sistema operacional Contiki-OS</div>
+   <div id="projectbrief">Código fonte do dispositivo 6LoWPAN da rede HomeStark</div>
   </td>
  </tr>
  </tbody>
@@ -73,7 +73,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Estruturas de dados</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Funções</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Definições de tipos</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerações</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Valores da enumeração</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Grupos</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Páginas</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Tudo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Estruturas de dados</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Ficheiros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Funções</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variáveis</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Enumerações</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Valores da enumeração</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Grupos</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Páginas</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -92,72 +92,56 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
 </div><!--header-->
 <div class="contents">
 
-<p>Arquivo principal do código fonte da rede mesh 6LoWPAN <br />
- Para compilar este código, execute o makefile com o target desejado, por exemplo: <br />
- <b>"make TARGET=srf06-cc26xx"</b> <br />
- Caso não reconheça qual o TARGET correto, utiliza o comando <br />
- <b>"make targets"</b> <br />
- para listar os tags disponíveis.  
+<p>Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements.  
 <a href="#details">Mais...</a></p>
-<div class="textblock"><code>#include &quot;contiki.h&quot;</code><br />
-<code>#include &quot;lib/random.h&quot;</code><br />
-<code>#include &quot;clock.h&quot;</code><br />
-<code>#include &quot;sys/ctimer.h&quot;</code><br />
-<code>#include &quot;net/ip/uip.h&quot;</code><br />
-<code>#include &quot;net/ipv6/uip-ds6.h&quot;</code><br />
-<code>#include &quot;<a class="el" href="mqtt__sn_8h_source.html">mqtt_sn.h</a>&quot;</code><br />
-<code>#include &quot;dev/leds.h&quot;</code><br />
-<code>#include &quot;net/rime/rime.h&quot;</code><br />
-<code>#include &quot;simple-udp.h&quot;</code><br />
-<code>#include &lt;stdio.h&gt;</code><br />
-<code>#include &lt;string.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &lt;stdlib.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+<code>#include &quot;contiki.h&quot;</code><br />
+<code>#include &quot;contiki-lib.h&quot;</code><br />
+<code>#include &quot;contiki-net.h&quot;</code><br />
+<code>#include &quot;rest-engine.h&quot;</code><br />
+<code>#include &quot;coap-server.h&quot;</code><br />
+<code>#include &quot;net/ipv6/uip-ds6.h&quot;</code><br />
+<code>#include &quot;net/ip/uip.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="snmp_8h_source.html">snmp.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="mibii_8h_source.html">mibii.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Diagrama de dependências de inclusão para main_core.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="main__core_8c__incl.png" border="0" usemap="#main__core_8c" alt=""/></div>
 <map name="main__core_8c" id="main__core_8c">
-<area shape="rect" id="node8" href="mqtt__sn_8h.html" title=" &#160;&#160;&#160;Conjunto de protótipos e definiçoes do protocolo MQTT&#45;SN &#160;" alt="" coords="370,80,450,107"/></map>
+<area shape="rect" id="node9" href="coap-server_8h_source.html" title="coap&#45;server.h" alt="" coords="707,80,808,107"/><area shape="rect" id="node13" href="snmp_8h.html" title="Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements..." alt="" coords="1175,80,1241,107"/><area shape="rect" id="node23" href="mibii_8h.html" title="Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements..." alt="" coords="73,80,133,107"/><area shape="rect" id="node22" href="homestark_8h.html" title="Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements..." alt="" coords="1321,155,1415,181"/></map>
 </div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Funções</h2></td></tr>
-<tr class="memitem:a0a43995afea1479f111fbc2e35be0a7c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0a43995afea1479f111fbc2e35be0a7c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>mqtt_sn_callback</b> (char *topic, char *message)</td></tr>
-<tr class="separator:a0a43995afea1479f111fbc2e35be0a7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a271e0d9822452758a68f6e167c5209f8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a271e0d9822452758a68f6e167c5209f8"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>init_broker</b> (void)</td></tr>
-<tr class="separator:a271e0d9822452758a68f6e167c5209f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a79354dfce54fd0bece29f8d443321b88"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a79354dfce54fd0bece29f8d443321b88"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS</b> (init_system_process,&quot;[Contiki-OS] Iniciando sistema operacional&quot;)</td></tr>
-<tr class="separator:a79354dfce54fd0bece29f8d443321b88"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ba2dbdb1bc5d83cfd3d5faf6e03cf7b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6ba2dbdb1bc5d83cfd3d5faf6e03cf7b"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS</b> (init_system_process,&quot;[Contiki-OS] Starting the OS&quot;)</td></tr>
+<tr class="separator:a6ba2dbdb1bc5d83cfd3d5faf6e03cf7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7683f5bdcb8cfbbb750ce92e76d1b7eb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7683f5bdcb8cfbbb750ce92e76d1b7eb"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>PROCESS_THREAD</b> (init_system_process, ev, data)</td></tr>
 <tr class="separator:a7683f5bdcb8cfbbb750ce92e76d1b7eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variáveis</h2></td></tr>
-<tr class="memitem:a5ca81254b9031056ba22742fb2252fd0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5ca81254b9031056ba22742fb2252fd0"></a>
-<a class="el" href="structmqtt__sn__con__t.html">mqtt_sn_con_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>mqtt_sn_connection</b></td></tr>
-<tr class="separator:a5ca81254b9031056ba22742fb2252fd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac531a18312af7e29d65ccde0edd8b894"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac531a18312af7e29d65ccde0edd8b894"></a>
 AUTOSTART_PROCESSES &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>init_system_process</b></td></tr>
 <tr class="separator:ac531a18312af7e29d65ccde0edd8b894"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Descrição detalhada</h2>
-<div class="textblock"><p>Arquivo principal do código fonte da rede mesh 6LoWPAN <br />
- Para compilar este código, execute o makefile com o target desejado, por exemplo: <br />
- <b>"make TARGET=srf06-cc26xx"</b> <br />
- Caso não reconheça qual o TARGET correto, utiliza o comando <br />
- <b>"make targets"</b> <br />
- para listar os tags disponíveis. </p>
+<div class="textblock"><p>Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. </p>
+<p>See the NOTICE file distributed with this work for additional information regarding copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at</p>
+<p><a href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+<p>Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</p>
+<p>This project is delivered under APACHE 2.0.</p>
 <dl class="section author"><dt>Autor</dt><dd>Ânderson Ignácio da Silva </dd></dl>
-<dl class="section date"><dt>Data</dt><dd>19 Ago 2016 </dd></dl>
+<dl class="section date"><dt>Data</dt><dd>19 Ago 2016 Main file for HomeStark devices - 6LoWPAN </dd></dl>
 <dl class="section see"><dt>Veja também</dt><dd><a href="http://www.aignacio.com">http://www.aignacio.com</a> </dd></dl>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Gerado em Sábado, 3 de Setembro de 2016 01:44:41 para MQTT-SNContiki por &#160;<a href="http://www.doxygen.org/index.html">
+Gerado em Segunda, 26 de Setembro de 2016 00:04:33 para HomeStark_6LoWPAN_Device por &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.8
 </small></address>

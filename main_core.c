@@ -60,18 +60,22 @@ PROCESS_THREAD(init_system_process, ev, data)
   // resolv_set_hostname("anderson");
   //#endif
 
-  snmp_init();
-  //process_start(&coap_server_process, NULL);
+  //snmp_init(); // Init SNMP Agent
+  process_start(&coap_server_process, NULL); // Init CoAP Server Restfull
 
+  // Init the MIB II Structure to fill another time
   #if CONTIKI_TARGET_SRF06_CC26XX
     uint8_t tree[2];
     const char demo[] = "cc2650_snmp\0";
     size_t i = 0;
-    for (i=1; i < MAX_OIDS; i++) {
-      tree[0] = 1;
+    for (i=1; i < MAX_OIDS-1; i++) {
+      tree[0] = 4;
       tree[1] = i;
       mib_ii_fill_list(tree, demo);
     }
+    tree[0] = 4;
+    tree[1] = 20;
+    mib_ii_fill_list(tree, demo);
     mib_ii_show();
   #endif
 

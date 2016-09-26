@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['udp_5fport',['UDP_PORT',['../main__core_8c.html#a7342deb9bd9ebf195e550e2d8e7c38b4',1,'main_core.c']]]
+  ['default_5fsnmp_5fport',['DEFAULT_SNMP_PORT',['../snmp_8h.html#abb9d473894655ab94b1dca8f0ef5fa1d',1,'snmp.h']]]
 ];

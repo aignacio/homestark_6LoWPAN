@@ -7,15 +7,15 @@
 
 var indexSectionsWithContent =
 {
-  0: "_cdfgiklmnpqrstuw",
-  1: "cdmnprsw",
-  2: "ms",
-  3: "_mp",
-  4: "cdfiklmpqstu",
-  5: "mr",
-  6: "mr",
-  7: "f",
-  8: "glmp",
+  0: "_acdefghilmoprsu",
+  1: "ors",
+  2: "hmps",
+  3: "_dimsu",
+  4: "lo",
+  5: "r",
+  6: "fs",
+  7: "acdems",
+  8: "gl",
   9: "l"
 };
 
@@ -26,9 +26,9 @@ var indexSectionNames =
   2: "files",
   3: "functions",
   4: "variables",
-  5: "typedefs",
-  6: "enums",
-  7: "enumvalues",
+  5: "enums",
+  6: "enumvalues",
+  7: "defines",
   8: "groups",
   9: "pages"
 };

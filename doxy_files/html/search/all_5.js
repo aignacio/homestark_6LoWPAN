@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['id_5ftask',['id_task',['../structmqtt__sn__task__t.html#a1dba79ab8685a56d3ae57d84aca21ce8',1,'mqtt_sn_task_t']]],
-  ['ipv6_5fbroker',['ipv6_broker',['../structmqtt__sn__con__t.html#aedc2daa18c79a13bef1abb9f6a2a24f8',1,'mqtt_sn_con_t']]]
+  ['fail_5fcon',['FAIL_CON',['../snmp_8h.html#add91ba4199db8665b9b9fc56fc6783a6ac6ae922662cbaf7958eb387bfd6fe4da',1,'snmp.h']]]
 ];

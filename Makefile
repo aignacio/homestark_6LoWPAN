@@ -6,7 +6,7 @@ SNMP_RESOURCES_DIR = ./snmpd
 SNMP_SOURCEFILES += mibii.c snmp.c snmp_asn1.c
 
 CONTIKI_WITH_IPV6 = 1
-REST_RESOURCES_DIR = ./resources
+REST_RESOURCES_DIR = ./resources ./CoAP
 REST_RESOURCES_FILES += res-hello.c
 
 PROJECTDIRS += $(SNMP_RESOURCES_DIR)

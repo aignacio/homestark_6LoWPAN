@@ -45,16 +45,24 @@
 #include "sys/ctimer.h"
 #include "sys/etimer.h"
 #include "net/ip/uip-debug.h"
+#include "net/rpl/rpl.h"
+#include "net/rpl/rpl-private.h"
 #if CONTIKI_TARGET_SRF06_CC26XX
 #include "core/net/ipv6/uip-ds6-route.h"
 #include "core/net/ipv6/sicslowpan.h"
 #include "lib/newlib/syscalls.c" // Used on heap function, like malloc, free, calloc..
+#include "button-sensor.h"
+#include "batmon-sensor.h"
+#include "board-peripherals.h"
+#include "ti-lib.h"
 #endif
 
 #define UIP_IP_BUF   ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
 #define UIP_UDP_BUF  ((struct uip_udp_hdr *)&uip_buf[uip_l2_l3_hdr_len])
 
+#if !CONTIKI_TARGET_Z1
 static struct etimer              update_snmp;
+#endif
 static struct uip_udp_conn        *server_conn;
 uint16_t test = 0;
 
@@ -113,6 +121,7 @@ int ipaddr_sprintf(char *buf, uint8_t buf_len, const uip_ipaddr_t *addr) {
   return len;
 }
 
+#if !CONTIKI_TARGET_Z1
 void update_snmp_mib(void){
   test++;
 
@@ -120,14 +129,14 @@ void update_snmp_mib(void){
   char dado[MAX_STRINGS_LENGTH];
 
   /******************************* Hearbeat ***********************************/
-  oid_tree[0] = 1;
+  oid_tree[0] = 4;
   oid_tree[1] = 1;
   sprintf(dado,"heartbeat_%d",test);
   debug_os("Dado de update: %s",dado);
   mib_ii_update_list(oid_tree,dado);
 
   /******************************** RSSI **************************************/
-  oid_tree[0] = 1;
+  oid_tree[0] = 4;
   oid_tree[1] = 2;
   int  def_rt_rssi = sicslowpan_get_last_rssi();
   sprintf(dado,"RSSI:%d",def_rt_rssi);
@@ -135,15 +144,35 @@ void update_snmp_mib(void){
 
   /*************************** Prefered IPv6 **********************************/
   char def_rt_str[64];
-  oid_tree[0] = 1;
+  oid_tree[0] = 4;
   oid_tree[1] = 3;
   memset(def_rt_str, 0, sizeof(def_rt_str));
   ipaddr_sprintf(def_rt_str, sizeof(def_rt_str), uip_ds6_defrt_choose());
   sprintf(dado,"Pref. route:%s",def_rt_str);
   mib_ii_update_list(oid_tree,dado);
 
-}
+  /****************************** Rank RPL ************************************/
+  uint16_t rank_rpl = 0;
+  rpl_parent_t *p = nbr_table_head(rpl_parents);
+  rpl_instance_t *default_instance;
+  default_instance = rpl_get_default_instance();
+  while(p != NULL){
+    if (p == default_instance->current_dag->preferred_parent) {
+      // sprintf(packet.message,"No:[%3u]",rpl_get_parent_ipaddr(p)->u8[15]);
+      // debug_snmp("Endereco do NO:%3u",rpl_get_parent_ipaddr(p)->u8[15]);
+      rank_rpl = p->rank;
+      break;
+    }
+    else
+    p = nbr_table_next(rpl_parents, p);
+  }
+  oid_tree[0] = 4;
+  oid_tree[1] = 4;
+  sprintf(dado,"Rank RPL:%5u",rank_rpl);
+  mib_ii_update_list(oid_tree,dado);
 
+}
+#endif
 PROCESS_THREAD(snmp_main, ev, data){
   PROCESS_BEGIN();
 
