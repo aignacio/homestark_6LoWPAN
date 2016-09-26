@@ -258,7 +258,7 @@ resp_con_t snmp_decode_message(char *snmp_packet, snmp_t *snmp_handle){
       aux = snmp_handle->oid_encoded[1]+1;
       if (snmp_handle->oid_encoded[aux] == 0) {
         // We need to increment the OID for the snmpwalk... requisition
-        if (snmp_handle->oid_encoded[aux-1] < 7) {
+        if (snmp_handle->oid_encoded[aux-1] < 9) {
           snmp_handle->oid_encoded[aux-1] = snmp_handle->oid_encoded[aux-1]+1;
         }
         else

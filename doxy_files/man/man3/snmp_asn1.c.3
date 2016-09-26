@@ -332,7 +332,7 @@ Decode SNMP message\&. Decode a SNMP message v1 and format to answer request\&.
 258       aux = snmp_handle->oid_encoded[1]+1;
 259       if (snmp_handle->oid_encoded[aux] == 0) {
 260         // We need to increment the OID for the snmpwalk\&.\&.\&. requisition
-261         if (snmp_handle->oid_encoded[aux-1] < 7) {
+261         if (snmp_handle->oid_encoded[aux-1] < 9) {
 262           snmp_handle->oid_encoded[aux-1] = snmp_handle->oid_encoded[aux-1]+1;
 263         }
 264         else

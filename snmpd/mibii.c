@@ -135,8 +135,8 @@ resp_con_t mib_ii_fill_list(uint8_t *oid_tree_var, const char *value){
 }
 
 resp_con_t mib_ii_show(void){
-  size_t i = 0;
   #ifdef DEBUG_SNMP_DECODING
+  size_t i = 0;
     for (i=0; i < global_index; i++) {
       debug_snmp("Index:%d",i);
       debug_snmp("OID Tree: iso.3.6.1.2.1.%d.%d.0",oid_list[i].oid_tree[0],oid_list[i].oid_tree[1]);

@@ -337,7 +337,7 @@ Decode a S\+N\+M\+P message v1 and format to answer request.
 258       aux = snmp\_handle->oid\_encoded[1]+1;
 259       \textcolor{keywordflow}{if} (snmp\_handle->oid\_encoded[aux] == 0) \{
 260         \textcolor{comment}{// We need to increment the OID for the snmpwalk... requisition}
-261         \textcolor{keywordflow}{if} (snmp\_handle->oid\_encoded[aux-1] < 7) \{
+261         \textcolor{keywordflow}{if} (snmp\_handle->oid\_encoded[aux-1] < 9) \{
 262           snmp\_handle->oid\_encoded[aux-1] = snmp\_handle->oid\_encoded[aux-1]+1;
 263         \}
 264         \textcolor{keywordflow}{else}

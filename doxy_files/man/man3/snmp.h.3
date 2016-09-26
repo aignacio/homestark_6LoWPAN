@@ -131,9 +131,6 @@ Licensed to the Apache Software Foundation (ASF) under one or more contributor l
 .br
 .RI "\fIDecode the initial sequence type\&. \fP"
 .ti -1c
-.RI "#define \fBDEBUG_SNMP_DECODING\fP   /** @brief If defined, show decode SNMP messages */"
-.br
-.ti -1c
 .RI "#define \fBDEBUG_SNMP\fP   /** @brief Enable SNMP Debug message */"
 .br
 .ti -1c
@@ -360,28 +357,28 @@ Convert IPv6 address in char format\&. Format IPv6 address in string char variab
 
 .PP
 .nf
-101                                                                          {
-102   uint16_t a;
-103   uint8_t len = 0;
-104   int i, f;
-105   for(i = 0, f = 0; i < sizeof(uip_ipaddr_t); i += 2) {
-106     a = (addr->u8[i] << 8) + addr->u8[i + 1];
-107     if(a == 0 && f >= 0) {
-108       if(f++ == 0) {
-109         len += snprintf(&buf[len], buf_len - len, "::");
-110       }
-111     } else {
-112       if(f > 0) {
-113         f = -1;
-114       } else if(i > 0) {
-115         len += snprintf(&buf[len], buf_len - len, ":");
-116       }
-117       len += snprintf(&buf[len], buf_len - len, "%x", a);
-118     }
-119   }
-120 
-121   return len;
-122 }
+106                                                                          {
+107   uint16_t a;
+108   uint8_t len = 0;
+109   int i, f;
+110   for(i = 0, f = 0; i < sizeof(uip_ipaddr_t); i += 2) {
+111     a = (addr->u8[i] << 8) + addr->u8[i + 1];
+112     if(a == 0 && f >= 0) {
+113       if(f++ == 0) {
+114         len += snprintf(&buf[len], buf_len - len, "::");
+115       }
+116     } else {
+117       if(f > 0) {
+118         f = -1;
+119       } else if(i > 0) {
+120         len += snprintf(&buf[len], buf_len - len, ":");
+121       }
+122       len += snprintf(&buf[len], buf_len - len, "%x", a);
+123     }
+124   }
+125 
+126   return len;
+127 }
 .fi
 .SS "void snmp_cb_data (void)"
 
@@ -401,31 +398,35 @@ SNMP Callback receive\&. Receive in callback mode, any data from NMS of SNMP pro
 
 .PP
 .nf
-71                        {
-72   static uint16_t len;
-73   static char buf[MAX_UDP_SNMP];
-74   memset(buf, 0, MAX_UDP_SNMP);
-75 
-76   if(uip_newdata()) {
-77     len = uip_datalen();
-78     memcpy(buf, uip_appdata, len);
-79     debug_snmp("%u bytes from [", len);
-80     uip_debug_ipaddr_print(&UIP_IP_BUF->srcipaddr);
-81     printf("]:%u", UIP_HTONS(UIP_UDP_BUF->srcport));
-82     uip_ipaddr_copy(&server_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
-83     server_conn->rport = UIP_UDP_BUF->srcport;
-84     snmp_t snmp_handle;
-85     if (snmp_decode_message(buf, &snmp_handle)){
-86       debug_snmp("New SNMP Request received!");
-87       len = snmp_encode_message(&snmp_handle, buf);
-88       uip_udp_packet_send(server_conn, buf, len);
-89       uip_create_unspecified(&server_conn->ripaddr);
-90       server_conn->rport = 0;
-91     }
-92     else
-93       debug_snmp("Problem on SNMP Request received!");
-94   }
-95 }
+72                        {
+73   static uint16_t len;
+74   static char buf[MAX_UDP_SNMP];
+75   memset(buf, 0, MAX_UDP_SNMP);
+76 
+77   if(uip_newdata()) {
+78     len = uip_datalen();
+79     memcpy(buf, uip_appdata, len);
+80     #ifdef DEBUG_SNMP_DECODING
+81     debug_snmp("%u bytes from [", len);
+82     #endif
+83     uip_debug_ipaddr_print(&UIP_IP_BUF->srcipaddr);
+84     printf("]:%u", UIP_HTONS(UIP_UDP_BUF->srcport));
+85     uip_ipaddr_copy(&server_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
+86     server_conn->rport = UIP_UDP_BUF->srcport;
+87     snmp_t snmp_handle;
+88     if (snmp_decode_message(buf, &snmp_handle)){
+89       #ifdef DEBUG_SNMP_DECODING
+90       debug_snmp("New SNMP Request received!");
+91       #endif
+92       len = snmp_encode_message(&snmp_handle, buf);
+93       uip_udp_packet_send(server_conn, buf, len);
+94       uip_create_unspecified(&server_conn->ripaddr);
+95       server_conn->rport = 0;
+96     }
+97     else
+98       debug_snmp("Problem on SNMP Request received!");
+99   }
+100 }
 .fi
 .SS "\fBresp_con_t\fP snmp_decode_message (char *snmp_packet, \fBsnmp_t\fP *v)"
 
@@ -599,7 +600,7 @@ Decode SNMP message\&. Decode a SNMP message v1 and format to answer request\&.
 258       aux = snmp_handle->oid_encoded[1]+1;
 259       if (snmp_handle->oid_encoded[aux] == 0) {
 260         // We need to increment the OID for the snmpwalk\&.\&.\&. requisition
-261         if (snmp_handle->oid_encoded[aux-1] < 7) {
+261         if (snmp_handle->oid_encoded[aux-1] < 9) {
 262           snmp_handle->oid_encoded[aux-1] = snmp_handle->oid_encoded[aux-1]+1;
 263         }
 264         else
@@ -828,9 +829,9 @@ SNMP Init function\&. Init SNMP AGENT connection
 
 .PP
 .nf
-97                     {
-98   process_start(&snmp_main, NULL);
-99 }
+102                     {
+103   process_start(&snmp_main, NULL);
+104 }
 .fi
 .SS "void update_snmp_mib (void)"
 
@@ -850,56 +851,120 @@ Update SNMP OIDs\&. Update the OIDs of values from network
 
 .PP
 .nf
-125                           {
-126   test++;
-127 
-128   uint8_t oid_tree[2];
-129   char dado[MAX_STRINGS_LENGTH];
-130 
-131   /******************************* Hearbeat ***********************************/
-132   oid_tree[0] = 4;
-133   oid_tree[1] = 1;
-134   sprintf(dado,"heartbeat_%d",test);
-135   debug_os("Dado de update: %s",dado);
-136   mib_ii_update_list(oid_tree,dado);
-137 
-138   /******************************** RSSI **************************************/
-139   oid_tree[0] = 4;
-140   oid_tree[1] = 2;
-141   int  def_rt_rssi = sicslowpan_get_last_rssi();
-142   sprintf(dado,"RSSI:%d",def_rt_rssi);
-143   mib_ii_update_list(oid_tree,dado);
-144 
-145   /*************************** Prefered IPv6 **********************************/
-146   char def_rt_str[64];
-147   oid_tree[0] = 4;
-148   oid_tree[1] = 3;
-149   memset(def_rt_str, 0, sizeof(def_rt_str));
-150   ipaddr_sprintf(def_rt_str, sizeof(def_rt_str), uip_ds6_defrt_choose());
-151   sprintf(dado,"Pref\&. route:%s",def_rt_str);
-152   mib_ii_update_list(oid_tree,dado);
-153 
-154   /****************************** Rank RPL ************************************/
-155   uint16_t rank_rpl = 0;
-156   rpl_parent_t *p = nbr_table_head(rpl_parents);
-157   rpl_instance_t *default_instance;
-158   default_instance = rpl_get_default_instance();
-159   while(p != NULL){
-160     if (p == default_instance->current_dag->preferred_parent) {
-161       // sprintf(packet\&.message,"No:[%3u]",rpl_get_parent_ipaddr(p)->u8[15]);
-162       // debug_snmp("Endereco do NO:%3u",rpl_get_parent_ipaddr(p)->u8[15]);
-163       rank_rpl = p->rank;
-164       break;
-165     }
-166     else
-167     p = nbr_table_next(rpl_parents, p);
-168   }
-169   oid_tree[0] = 4;
-170   oid_tree[1] = 4;
-171   sprintf(dado,"Rank RPL:%5u",rank_rpl);
-172   mib_ii_update_list(oid_tree,dado);
-173 
-174 }
+138                           {
+139   test++;
+140 
+141   uint8_t oid_tree[2];
+142   char dado[MAX_STRINGS_LENGTH];
+143 
+144   /******************************* Hearbeat ***********************************/
+145   oid_tree[0] = 4;
+146   oid_tree[1] = 2;
+147   sprintf(dado,"heartbeat_%d",test);
+148   debug_os("Dado de update: %s",dado);
+149   mib_ii_update_list(oid_tree,dado);
+150 
+151   /******************************** RSSI **************************************/
+152   oid_tree[0] = 4;
+153   oid_tree[1] = 3;
+154   int  def_rt_rssi = sicslowpan_get_last_rssi();
+155   sprintf(dado,"RSSI:%d",def_rt_rssi);
+156   mib_ii_update_list(oid_tree,dado);
+157 
+158   /*************************** Prefered IPv6 **********************************/
+159   char def_rt_str[64];
+160   oid_tree[0] = 4;
+161   oid_tree[1] = 4;
+162   memset(def_rt_str, 0, sizeof(def_rt_str));
+163   ipaddr_sprintf(def_rt_str, sizeof(def_rt_str), uip_ds6_defrt_choose());
+164   sprintf(dado,"Pref\&. route:[%s]",def_rt_str);
+165   mib_ii_update_list(oid_tree,dado);
+166 
+167   /****************************** Rank RPL ************************************/
+168   uint16_t rank_rpl = 0, link_metric_rpl = 0;
+169   rpl_parent_t *p = nbr_table_head(rpl_parents);
+170   rpl_instance_t *default_instance;
+171   default_instance = rpl_get_default_instance();
+172   while(p != NULL){
+173     if (p == default_instance->current_dag->preferred_parent) {
+174       rank_rpl = p->rank;
+175       link_metric_rpl = rpl_get_parent_link_metric(p);
+176       break;
+177     }
+178     else
+179     p = nbr_table_next(rpl_parents, p);
+180   }
+181   oid_tree[0] = 4;
+182   oid_tree[1] = 5;
+183   sprintf(dado,"Rank RPL:%5u",rank_rpl);
+184   mib_ii_update_list(oid_tree,dado);
+185 
+186   oid_tree[0] = 4;
+187   oid_tree[1] = 6;
+188   sprintf(dado,"Parent Link Metric:%5u",link_metric_rpl);
+189   mib_ii_update_list(oid_tree,dado);
+190 
+191   /*********************** Global and Local IPv6 Address **********************/
+192   int i;
+193   uint8_t state;
+194   uip_ipaddr_t global_ipv6_address_node,
+195                local_ipv6_address_node;
+196   #ifdef DEBUG_SNMP_DECODING
+197   debug_snmp("Client IPv6 addresses: ");
+198   #endif
+199   for(i = 0; i < UIP_DS6_ADDR_NB; i++) {
+200     state = uip_ds6_if\&.addr_list[i]\&.state;
+201     if(uip_ds6_if\&.addr_list[i]\&.isused &&
+202       (state == ADDR_TENTATIVE || state == ADDR_PREFERRED)) {
+203       local_ipv6_address_node = uip_ds6_if\&.addr_list[i]\&.ipaddr;
+204       if (i == 1)
+205         global_ipv6_address_node = uip_ds6_if\&.addr_list[i]\&.ipaddr;
+206       else
+207         local_ipv6_address_node = uip_ds6_if\&.addr_list[i]\&.ipaddr;
+208       #ifdef DEBUG_SNMP_DECODING
+209       printf6addr(&uip_ds6_if\&.addr_list[i]\&.ipaddr);
+210       #endif
+211       /* hack to make address "final" */
+212       if (state == ADDR_TENTATIVE)
+213         uip_ds6_if\&.addr_list[i]\&.state = ADDR_PREFERRED;
+214     }
+215   }
+216   char global_ipv6_char[16],
+217        local_ipv6_char[16];
+218 
+219   print_ipv6_addr(&global_ipv6_address_node,&global_ipv6_char[0]);
+220   print_ipv6_addr(&local_ipv6_address_node,&local_ipv6_char[0]);
+221 
+222   oid_tree[0] = 4;
+223   oid_tree[1] = 7;
+224   sprintf(dado,"Local:[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]"
+225                ,local_ipv6_char[0]
+226                ,local_ipv6_char[1]
+227                ,local_ipv6_char[8]
+228                ,local_ipv6_char[9]
+229                ,local_ipv6_char[10]
+230                ,local_ipv6_char[11]
+231                ,local_ipv6_char[12]
+232                ,local_ipv6_char[13]
+233                ,local_ipv6_char[14]
+234                ,local_ipv6_char[15]);
+235   mib_ii_update_list(oid_tree,dado);
+236   oid_tree[0] = 4;
+237   oid_tree[1] = 8;
+238   sprintf(dado,"Global:[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]"
+239                ,global_ipv6_char[0]
+240                ,global_ipv6_char[1]
+241                ,global_ipv6_char[8]
+242                ,global_ipv6_char[9]
+243                ,global_ipv6_char[10]
+244                ,global_ipv6_char[11]
+245                ,global_ipv6_char[12]
+246                ,global_ipv6_char[13]
+247                ,global_ipv6_char[14]
+248                ,global_ipv6_char[15]);
+249   mib_ii_update_list(oid_tree,dado);
+250 
+251 }
 .fi
 .SH "Autor"
 .PP 

@@ -250,8 +250,8 @@ List MIB OID values\&. List all MIB Implementation with OID tree and data
 .PP
 .nf
 137                             {
-138   size_t i = 0;
-139   #ifdef DEBUG_SNMP_DECODING
+138   #ifdef DEBUG_SNMP_DECODING
+139   size_t i = 0;
 140     for (i=0; i < global_index; i++) {
 141       debug_snmp("Index:%d",i);
 142       debug_snmp("OID Tree: iso\&.3\&.6\&.1\&.2\&.1\&.%d\&.%d\&.0",oid_list[i]\&.oid_tree[0],oid_list[i]\&.oid_tree[1]);
@@ -264,7 +264,7 @@ List MIB OID values\&. List all MIB Implementation with OID tree and data
 .SS "\fBresp_con_t\fP mib_ii_update_list (uint8_t *tree, char *value)"
 
 .PP
-Update the MIB OID Tree\&. Search for OID initialized and update the data in the tree
+Update the MIB OID Tree\&. Search for OID initialized and update the data in the tree, we need to fill the OID first
 .PP
 \fBParâmetros:\fP
 .RS 4

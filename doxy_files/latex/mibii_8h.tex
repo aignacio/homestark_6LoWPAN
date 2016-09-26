@@ -261,8 +261,8 @@ List all M\+I\+B Implementation with O\+I\+D tree and data
 
 \begin{DoxyCode}
 137                             \{
-138   \textcolor{keywordtype}{size\_t} i = 0;
-139 \textcolor{preprocessor}{  #ifdef DEBUG\_SNMP\_DECODING}
+138 \textcolor{preprocessor}{  #ifdef DEBUG\_SNMP\_DECODING}
+139   \textcolor{keywordtype}{size\_t} i = 0;
 140     \textcolor{keywordflow}{for} (i=0; i < global\_index; i++) \{
 141       debug\_snmp(\textcolor{stringliteral}{"Index:%d"},i);
 142       debug\_snmp(\textcolor{stringliteral}{"OID Tree: iso.3.6.1.2.1.%d.%d.0"},oid\_list[i].oid\_tree[0],oid\_list[i].oid\_tree[1]);
@@ -284,7 +284,7 @@ List all M\+I\+B Implementation with O\+I\+D tree and data
 
 Update the M\+I\+B O\+I\+D Tree. 
 
-Search for O\+I\+D initialized and update the data in the tree
+Search for O\+I\+D initialized and update the data in the tree, we need to fill the O\+I\+D first
 
 
 \begin{DoxyParams}[1]{Parâmetros}

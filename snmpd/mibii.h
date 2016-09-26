@@ -70,7 +70,7 @@ resp_con_t mib_ii_get_oid(uint8_t *oid, uint8_t *oid_string);
 
 /** @brief Update the MIB OID Tree
  *
- * 	 Search for OID initialized and update the data in the tree
+ * 	 Search for OID initialized and update the data in the tree, we need to fill the OID first
  *
  *  @param [in] oid OID MIB tree string
  *  @param [in] oid_string String of the data in the OID-MIB

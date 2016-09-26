@@ -35,10 +35,12 @@
 #include "coap-server.h"
 #include "net/ipv6/uip-ds6.h"
 #include "net/ip/uip.h"
+#include "net/rpl/rpl.h"
 #include "snmp.h"
 #include "mibii.h"
 
 static char     device_id[17];
+// static struct etimer   test_contiki;
 
 /*---------------------------------------------------------------------------*/
 PROCESS(init_system_process, "[Contiki-OS] Starting the OS");
@@ -60,29 +62,39 @@ PROCESS_THREAD(init_system_process, ev, data)
   // resolv_set_hostname("anderson");
   //#endif
 
-  //snmp_init(); // Init SNMP Agent
+  snmp_init(); // Init SNMP Agent
   process_start(&coap_server_process, NULL); // Init CoAP Server Restfull
 
   // Init the MIB II Structure to fill another time
   #if CONTIKI_TARGET_SRF06_CC26XX
+    size_t i = 0;
     uint8_t tree[2];
     const char demo[] = "cc2650_snmp\0";
-    size_t i = 0;
-    for (i=1; i < MAX_OIDS-1; i++) {
+    char device_address[30];
+
+    sprintf(device_address,"Device:%s",device_id);
+    tree[0] = 4;
+    tree[1] = 1;
+    mib_ii_fill_list(tree, device_address);
+
+    for (i=2; i < MAX_OIDS; i++) {
       tree[0] = 4;
       tree[1] = i;
       mib_ii_fill_list(tree, demo);
     }
-    tree[0] = 4;
-    tree[1] = 20;
-    mib_ii_fill_list(tree, demo);
-    mib_ii_show();
+    // mib_ii_show();
   #endif
 
   debug_os(" ");
 
+  // etimer_set(&test_contiki, 2*CLOCK_SECOND);
+
   while(1) {
       PROCESS_WAIT_EVENT();
+      // if (etimer_expired(&test_contiki)){
+      //   etimer_reset(&test_contiki);
+      //   // rpl_print_neighbor_list();
+      // }
   }
   PROCESS_END();
 }
