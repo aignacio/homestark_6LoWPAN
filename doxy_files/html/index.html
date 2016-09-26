@@ -87,7 +87,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
 </div>
 <p><b>Desenvolvedor:</b> Ânderson Ignácio da Silva</p>
 <p>Projeto de TCC para criação de uma rede mesh 6LoWPAN gerenciável utilizando protocolos de gerenciamento e dados de redes IP. O Target alvo utilizado é o CC2650 da Texas Instruments, porém com pequenas adaptações também funciona em outros dispositivos. O dispositivo implementado é capaz de se conectar a uma rede mesh 6LoWPAN, comunicando via CoAP ou MQTT-SN com broker através de uma interface de gestão/configuração. Também é possível gerenciar a rede mesh através do protocolo SNMPv1 também implementado. </p><div class="image">
-<img src="doxy_files/bee_mote_small.png"  alt="HomeStark CC2650"/>
+<img src="doxy_files/bee_mote_med.png"  alt="HomeStark CC2650"/>
 </div>
 <p> <b>Características:</b></p><ul>
 <li>[x] Protocolo MQTT-SN</li>
@@ -95,14 +95,18 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
 <li>[x] Agent SNMPv1</li>
 <li>[x] Documentação em Doxygen</li>
 </ul>
-<p><b>Implementação:</b> ```make &gt;make TARGET=srf06-cc26xx &gt;make TARGET=z1 ``` A implementação do projeto foi realizada utilizando o dispositivo z1-zolertia em simulações com a ferramenta cooja porém, em função de limites de memória ROM do cross-toolchain (msp-gcc), deve-se utilizar o compilador em anexo na pasta <b>tools</b>, onde também há um shell script de instalação do mesmo. Outro detalhe em relação as simulações são os critérios de memória RAM do z1, a qual limita a utilização de apenas umas das características de protocolos utilizados (mqtt, coap, snmp). Diferentemente da simulação, todas os protocolos podem ser utilizados caso do Target alvo seja o CC2650.</p>
-<p><b>SNMPv1:</b> A implementação do agente SNMP se limita apenas a versão 1 do protocolo onde algumas OIDs da MIB2 são implementadas, no arquivo <a class="el" href="main__core_8c.html" title="Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements...">main_core.c</a> estão as inicializações e descrições de OIDs utilizadas. Como não há definição de MIB para a rede RPL, foram utilizadas OIDs disponíveis de informações do host. O teste do protocolo SNMP foi realizado utilizando o programa para Linux net-snmp com comandos de <b>snmpget</b> e <b>snmpwalk</b>, uma vez que o dispositivo responde a requisições get e get-next. Uma característica é de que o dispositivo responde ao walk somente na OID master da requisição, logo: requisição: snmpget .... iso.3.6.1.2.1.1 resposta: iso.3.6.1.2.1.1.1 = ... iso.3.6.1.2.1.1.2 = ... iso.3.6.1.2.1.1.3 = ... ... Esta característica evita o overhead possível de ser gerado em uma requisição deste tipo. O protocolo SNMP é utilizado somente para gerenciamento da rede RPL os quais fornecem a interface um meio de montar a topologia da rede. Um exemplo de requisição/resposta real pode ser visto abaixo: </p><div class="image">
+<h2>Implementação:</h2>
+<p>```make &gt;make TARGET=srf06-cc26xx &gt;make TARGET=z1 ``` A implementação do projeto foi realizada utilizando o dispositivo z1-zolertia em simulações com a ferramenta cooja porém, em função de limites de memória ROM do cross-toolchain (msp-gcc), deve-se utilizar o compilador em anexo na pasta <b>tools</b>, onde também há um shell script de instalação do mesmo. Outro detalhe em relação as simulações são os critérios de memória RAM do z1, a qual limita a utilização de apenas umas das características de protocolos utilizados (mqtt, coap, snmp). Diferentemente da simulação, todas os protocolos podem ser utilizados caso do Target alvo seja o CC2650.</p>
+<h2>SNMPv1:</h2>
+<p>A implementação do agente SNMP se limita apenas a versão 1 do protocolo onde algumas OIDs da MIB2 são implementadas, no arquivo <a class="el" href="main__core_8c.html" title="Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements...">main_core.c</a> estão as inicializações e descrições de OIDs utilizadas. Como não há definição de MIB para a rede RPL, foram utilizadas OIDs disponíveis de informações do host. O teste do protocolo SNMP foi realizado utilizando o programa para Linux net-snmp com comandos de <b>snmpget</b> e <b>snmpwalk</b>, uma vez que o dispositivo responde a requisições get e get-next. Uma característica é de que o dispositivo responde ao walk somente na OID master da requisição, logo: requisição: snmpget .... iso.3.6.1.2.1.1 resposta: iso.3.6.1.2.1.1.1 = ... iso.3.6.1.2.1.1.2 = ... iso.3.6.1.2.1.1.3 = ... ... Esta característica evita o overhead possível de ser gerado em uma requisição deste tipo. O protocolo SNMP é utilizado somente para gerenciamento da rede RPL os quais fornecem a interface um meio de montar a topologia da rede. Um exemplo de requisição/resposta real pode ser visto abaixo: </p><div class="image">
 <img src="doxy_files/snmp_imp.png"  alt="SNMP_REQ"/>
 </div>
-<p><b>CoAP:</b> A implementação do CoAP fornece acesso a periféricos e ações dos dispositivos para troca de dados, todas os recursos estão contidos na pasta <b>resources</b>. O modo de servidor CoAP é executado no dispositivo que responde as requisições restfull conforme soliticações de clientes. Para teste do protocolo recomenda-se a utilização do plugin copper para o firefox, o qual além de ser capaz de descobrir recursos, fornece ferramentas para diferentes tipos de requisições. </p><div class="image">
+<h2>CoAP:</h2>
+<p>A implementação do CoAP fornece acesso a periféricos e ações dos dispositivos para troca de dados, todas os recursos estão contidos na pasta <b>resources</b>. O modo de servidor CoAP é executado no dispositivo que responde as requisições restfull conforme soliticações de clientes. Para teste do protocolo recomenda-se a utilização do plugin copper para o firefox, o qual além de ser capaz de descobrir recursos, fornece ferramentas para diferentes tipos de requisições. </p><div class="image">
 <img src="doxy_files/coap.png"  alt="SNMP_REQ"/>
 </div>
-<p><b>MQTT-SN:</b> A implementação do MQTT-SN já está contida nesse repositório: <a href="https://github.com/aignacio/MQTT-SN-Contiki---HomeStark">MQTT-SN</a></p>
+<h2>MQTT-SN:</h2>
+<p>A implementação do MQTT-SN já está contida nesse repositório: <a href="https://github.com/aignacio/MQTT-SN-Contiki---HomeStark">MQTT-SN</a></p>
 <h2>Observações</h2>
 <p>Se o CC2650 utilizado for o launchpad, ele pode apresentar erro na programação com o Uniflash Tool, tal problema relacionado com o programador JTAG anexado a placa, para resolver isso, conecte o launchpad a um Windows com o software SmartRF Flash Programmer v2 e clique em "update" que após o update da ferramenta, ele irá ser programado no Linux. Toda documentação das funções está em doxygen no caminho ./doxy_files/html/index.html.</p>
 <h2>Contribuições e licença:</h2>
@@ -112,7 +116,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Localizar');
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Gerado em Segunda, 26 de Setembro de 2016 00:04:33 para HomeStark_6LoWPAN_Device por &#160;<a href="http://www.doxygen.org/index.html">
+Gerado em Segunda, 26 de Setembro de 2016 00:11:15 para HomeStark_6LoWPAN_Device por &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.8
 </small></address>

@@ -10,7 +10,7 @@ outros dispositivos. O dispositivo implementado é capaz de se conectar a uma
 rede mesh 6LoWPAN, comunicando via CoAP ou MQTT-SN com broker através de uma
 interface de gestão/configuração. Também é possível gerenciar a rede mesh
  através do protocolo SNMPv1 também implementado.</br>
-![HomeStark CC2650](doxy_files/bee_mote_big.png)</br>
+![HomeStark CC2650](doxy_files/bee_mote_med.png)</br>
 __Características:__
 - [x] Protocolo MQTT-SN
 - [x] Protocolo CoAP
