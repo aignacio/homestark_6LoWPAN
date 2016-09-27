@@ -60,6 +60,8 @@
 #define ASN1_PRIM_OCT_STR       0x04
 #define ASN1_PRIM_NULL          0x05
 #define ASN1_PRIM_OID           0x06
+#define ASN1_PRIM_IP_ADDRESS    0x40
+#define ASN1_PRIM_TIMESTAMP     0x43
 
 /**
  * @brief Max data types in each kind of variable
@@ -77,10 +79,21 @@
 #define ASN1_CPX_NEXT_REQ       0xA1
 #define ASN1_CPX_GET_RESP       0xA2
 #define ASN1_CPX_SET_REQ        0xA3
+#define ASN1_CPX_TRAP           0xA4
 
 #define MAX_OIDS                14             /** @brief Number max. of address that the device will answer about MIB Implementation */
 #define MAX_STRINGS_LENGTH      100            /** @brief Max length of string in the OID Implementation */
 #define TIME_UPDATE_SNMP        2*CLOCK_SECOND /** @brief Time to update the OIDs of MIB implementation */
+
+#define TIME_TRAP_HEARTBEAT     10*CLOCK_SECOND /** @brief Define the time to send trap callback heartbeat message */
+#define TRAP_COLD_START         0
+#define TRAP_WARM_START         1
+#define TRAP_LINK_DOWN          2
+#define TRAP_LINK_UP            3
+#define TRAP_AUTH_FAILURE       4
+#define TRAP_NEIGHBOR_LOSS      5
+#define TRAP_ENTERPRISE_SPEC    6
+#define TRAP_SNMP_PORT          162
 
 /** @brief value of the version field for the SNMPv1 */
 #define SNMP_VERSION_1					0
@@ -91,7 +104,7 @@
 /** @brief Decode the initial sequence type */
 #define check_seq(x) (x == ASN1_CPX_SEQUENCE ? 1 : 0)
 
-// #define DEBUG_SNMP_DECODING /** @brief If defined, show decode SNMP messages */
+#define DEBUG_SNMP_DECODING /** @brief If defined, show decode SNMP messages */
 #define DEBUG_SNMP          /** @brief Enable SNMP Debug message */
 
 #ifdef DEBUG_SNMP
@@ -260,5 +273,7 @@ void snmp_init(void);
  **/
 void update_snmp_mib(void);
 #endif
+
+uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t heartbeat);
 
 #endif

@@ -448,3 +448,168 @@ uint16_t snmp_encode_message(snmp_t *snmp_handle, char *data_encoded){
   #endif
   return *(data_encoded+1)+2;
 }
+
+// Trap PDU EXAMPLE
+// 0x30, 0x38, // Sequence type
+// 0x02, 0x01, 0x00, // SNMP Version
+// 0x04, 0x06, 0x70, 0x75, 0x62, 0x6c, 0x69, 0x63, // Community String
+// 0xa4, 0x2b, // Type of PDU
+// 0x06, 0x09, 0x2b, 0x06, 0x01, 0x04, 0x01, 0x04, 0x01, 0x02, 0x15, // Enterprise
+// 0x40, 0x04, 0x7f, 0x00, 0x00, 0x01, // IP address of the Agent 127.0.0.1
+// 0x02, 0x01, 0x00, // Generic Trap Code - 0 Cold Start
+// 0x02, 0x01, 0x00, // Specific code trap
+// 0x43, 0x01, 0x00, // Timestamp
+// 0x30, 0x0f, // Ver bind list
+// 0x30, 0x0d, // Var bind vars
+// 0x06, 0x08, 0x2b, 0x06, 0x01, 0x02, 0x01, 0x02, 0x01, 0x00, //oid
+// 0x02, 0x01, 0x21
+// +------------------------------------------------------------------------------------------------------------------------------------------+
+// |                                                         TRAP SNMPv1 PDU                                                                  |
+// +----+------+------------------------------------------------------------------------------------------------------------------------------+
+// |PDU |Length|                                             Data of SNMP PDU                                                                 |
+// |type| Data |                                                                                                                              |
+// +----+------+----------+-------+-------+--------+------+---------------------------------------------------- ------------------------------+
+// |0xA4|Length|Enterprise| Agent |Generic|Specific|Time  |                                VarBind List (Sequence)                            |
+// |    | PDU  |   OID    |Address| Trap  |  Trap  |Stamp +------+--------+------------------------------+------------------------------+-----+
+// |    |      |          |       | Type  | Number |      | 0x30 | Length |           Varbind 1          |         Varbind 22           | ... |
+// |    |      |  (OID)   |       |       |        |      |      |        |          (Sequence)          |         (Sequence)           | ... |
+// |    |      |          |       |       |        |      |      |        +----+-------+-------+---------+----+-------+-------+---------+-----+
+// |    |      |          |       |       |        |      |      |        |0x30| Len 1 | OID 1 | Value 1 |0x30| Len 2 | OID 1 | Value 2 | ... |
+// +----+------+----------+-------+-------+--------+------+------+--------+----+-------+-------+---------+----+-------+-------+---------+-----+
+//                        |                                               |            |<-----Len 1----->|            |<-----Len 2----->|     |
+//                        |                                               |<-----------------------------Length------------------------------>|
+//                        |<--------------------------------------------Lenght PDU----------------------------------------------------------->|
+
+uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t heartbeat){
+  // uint8_t i;//, aux = 0, aux2 = 0;
+  uint16_t length_trap = 0, aux = 0;
+
+  *trap_pdu = ASN1_CPX_SEQUENCE;
+  *(trap_pdu+1) = 52+4;
+
+  // SNMP Version
+  *(trap_pdu+2) = ASN1_PRIM_INTEGER;
+  *(trap_pdu+3) = 0x01;
+  *(trap_pdu+4) = SNMP_VERSION_1;
+
+  // Comunity String - always "public"
+  *(trap_pdu+5) = ASN1_PRIM_OCT_STR;
+  *(trap_pdu+6) = 0x06;
+  *(trap_pdu+7) = 0x70;
+  *(trap_pdu+8) = 0x75;
+  *(trap_pdu+9) = 0x62;
+  *(trap_pdu+10) = 0x6c;
+  *(trap_pdu+11) = 0x69;
+  *(trap_pdu+12) = 0x63;
+
+  // Type of PDU - Trap(0xa4)
+  *(trap_pdu+13) = ASN1_CPX_TRAP;
+  aux = 14;
+  *(trap_pdu+aux) = 39+4;
+
+  // Enterprise OID - 0x06, 0x09, 0x2b, 0x06, 0x01, 0x04, 0x01, 0x04, 0x01, 0x02, 0x15
+  aux++;
+  *(trap_pdu+aux) = ASN1_PRIM_OID;
+  aux++;
+  *(trap_pdu+aux) = 0x09;
+  aux++;
+  *(trap_pdu+aux) = 0x2b;
+  aux++;
+  *(trap_pdu+aux) = 0x06;
+  aux++;
+  *(trap_pdu+aux) = 0x01;
+  aux++;
+  *(trap_pdu+aux) = 0x04;
+  aux++;
+  *(trap_pdu+aux) = 0x01;
+  aux++;
+  *(trap_pdu+aux) = 0x04;
+  aux++;
+  *(trap_pdu+aux) = 0x01;
+  aux++;
+  *(trap_pdu+aux) = 0x02;
+  aux++;
+  *(trap_pdu+aux) = 0x15;
+
+  // IP Address of the agent, always 0.0.0.0 if we cannot send IPv6 in SNMPv1, in SNMPv2 the trap calls inform
+  aux++;
+  *(trap_pdu+aux) = ASN1_PRIM_IP_ADDRESS;
+  aux++;
+  *(trap_pdu+aux) = 4;
+  aux++;
+  *(trap_pdu+aux) = 0;
+  aux++;
+  *(trap_pdu+aux) = 0;
+  aux++;
+  *(trap_pdu+aux) = 0;
+  aux++;
+  *(trap_pdu+aux) = 0;
+
+  // Generic Trap type
+  *(trap_pdu+aux) = ASN1_PRIM_INTEGER;
+  aux++;
+  *(trap_pdu+aux) = 0x01;
+  aux++;
+  *(trap_pdu+aux) = type_trap;
+
+  // Specific Trap Number - we don't use this
+  aux++;
+  *(trap_pdu+aux) = ASN1_PRIM_INTEGER;
+  aux++;
+  *(trap_pdu+aux) = 0x01;
+  aux++;
+  *(trap_pdu+aux) = 0x00;
+
+  // Timestamp - we don't use this - default(0)
+  aux++;
+  *(trap_pdu+aux) = ASN1_PRIM_TIMESTAMP;
+  aux++;
+  *(trap_pdu+aux) = 0x01;
+  aux++;
+  *(trap_pdu+aux) = 0x00;
+
+  // VarBind List - we don't use this - default(0)
+  aux++;
+  *(trap_pdu+aux) = ASN1_CPX_SEQUENCE;
+  aux++;
+  *(trap_pdu+aux) = 3+8+2+2;
+
+  // VarBind List - we don't use this - default(0)
+  aux++;
+  *(trap_pdu+aux) = ASN1_CPX_SEQUENCE;
+  aux++;
+  *(trap_pdu+aux) = 3+8+2;
+
+  // OID
+  aux++;
+  *(trap_pdu+aux) = ASN1_PRIM_OID;
+  aux++;
+  *(trap_pdu+aux) = 0x08;
+  aux++;
+  *(trap_pdu+aux) = 0x2b;
+  aux++;
+  *(trap_pdu+aux) = 0x06;
+  aux++;
+  *(trap_pdu+aux) = 0x01;
+  aux++;
+  *(trap_pdu+aux) = 0x02;
+  aux++;
+  *(trap_pdu+aux) = 0x01;
+  aux++;
+  *(trap_pdu+aux) = 0x02;
+  aux++;
+  *(trap_pdu+aux) = 0x01;
+  aux++;
+  *(trap_pdu+aux) = 0x00;
+
+  // Value - Heartbeat
+  aux++;
+  *(trap_pdu+aux) = ASN1_PRIM_INTEGER;
+  aux++;
+  *(trap_pdu+aux) = 0x01;
+  aux++;
+  *(trap_pdu+aux) = heartbeat;
+
+  length_trap = 54+4;
+  return length_trap;
+}

@@ -47,6 +47,7 @@
 #include "net/ip/uip-debug.h"
 #include "net/rpl/rpl.h"
 #include "net/rpl/rpl-private.h"
+#include "sys/ctimer.h"
 #if CONTIKI_TARGET_SRF06_CC26XX
 #include "core/net/ipv6/uip-ds6-route.h"
 #include "core/net/ipv6/sicslowpan.h"
@@ -64,10 +65,43 @@
 #if !CONTIKI_TARGET_Z1
 static struct etimer              update_snmp;
 #endif
+static struct ctimer              trap_timer;
 static struct uip_udp_conn        *server_conn;
-uint16_t test = 0;
+static uip_ipaddr_t               server_ipaddr;
+
+uint8_t heartbeat_value = 0;
+#if !CONTIKI_TARGET_Z1
+char     global_ipv6_char[16],
+         local_ipv6_char[16];
+#endif
 
 PROCESS(snmp_main, "[SNMP] SNMPD - Agent V1");
+
+static void set_global_address(void) {
+  uip_ipaddr_t ipaddr;
+
+  uip_ip6addr(&ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0, 0, 0, 0);
+  uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
+  uip_ds6_addr_add(&ipaddr, 0, ADDR_AUTOCONF);
+
+  /* set server address */
+  uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0, 0, 0, 1);
+
+}
+
+void cb_timer_trap_heartbeat(void *ptr){
+  static uint8_t buf_trap[MAX_UDP_SNMP], len = 0;
+
+  #ifdef DEBUG_SNMP_DECODING
+  debug_snmp("Trap Heartbeat time expired!");
+  #endif
+  ctimer_reset(&trap_timer);
+  len = snmp_encode_trap(buf_trap, TRAP_COLD_START, heartbeat_value);
+
+  uip_ipaddr_copy(&server_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
+  uip_udp_packet_sendto(server_conn, &buf_trap, len,
+                        &server_ipaddr, UIP_HTONS(TRAP_SNMP_PORT));
+}
 
 void snmp_cb_data(void){
   static uint16_t len;
@@ -126,6 +160,7 @@ int ipaddr_sprintf(char *buf, uint8_t buf_len, const uip_ipaddr_t *addr) {
   return len;
 }
 
+#if !CONTIKI_TARGET_Z1
 static void print_ipv6_addr(const uip_ipaddr_t *ip_addr, char *ip_assign) {
     int i;
     for (i = 0; i < 16; i++) {
@@ -134,9 +169,8 @@ static void print_ipv6_addr(const uip_ipaddr_t *ip_addr, char *ip_assign) {
     }
 }
 
-#if !CONTIKI_TARGET_Z1
 void update_snmp_mib(void){
-  test++;
+  heartbeat_value++;
 
   uint8_t oid_tree[2];
   char dado[MAX_STRINGS_LENGTH];
@@ -144,7 +178,7 @@ void update_snmp_mib(void){
   /******************************* Hearbeat ***********************************/
   oid_tree[0] = 4;
   oid_tree[1] = 2;
-  sprintf(dado,"heartbeat_%d",test);
+  sprintf(dado,"heartbeat_%d",heartbeat_value);
   debug_os("Dado de update: %s",dado);
   mib_ii_update_list(oid_tree,dado);
 
@@ -164,7 +198,7 @@ void update_snmp_mib(void){
   sprintf(dado,"Pref. route:[%s]",def_rt_str);
   mib_ii_update_list(oid_tree,dado);
 
-  /****************************** Rank RPL ************************************/
+  /********************* Rank RPL e Parent Link Metric ************************/
   uint16_t rank_rpl = 0, link_metric_rpl = 0;
   rpl_parent_t *p = nbr_table_head(rpl_parents);
   rpl_instance_t *default_instance;
@@ -213,8 +247,6 @@ void update_snmp_mib(void){
         uip_ds6_if.addr_list[i].state = ADDR_PREFERRED;
     }
   }
-  char global_ipv6_char[16],
-       local_ipv6_char[16];
 
   print_ipv6_addr(&global_ipv6_address_node,&global_ipv6_char[0]);
   print_ipv6_addr(&local_ipv6_address_node,&local_ipv6_char[0]);
@@ -259,9 +291,14 @@ PROCESS_THREAD(snmp_main, ev, data){
   debug_snmp("Listen port: %d, TTL=%u",DEFAULT_SNMP_PORT,server_conn->ttl);
   debug_snmp("Agent SNMPv1 active");
 
+  set_global_address();
+
   #if CONTIKI_TARGET_SRF06_CC26XX
   etimer_set(&update_snmp, TIME_UPDATE_SNMP);
   #endif
+
+  // Init the trap timer to maintain the hearbeat...
+  ctimer_set(&trap_timer, TIME_TRAP_HEARTBEAT, cb_timer_trap_heartbeat, NULL);
 
   while(1){
     PROCESS_YIELD();
