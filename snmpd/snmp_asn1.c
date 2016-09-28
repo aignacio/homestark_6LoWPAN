@@ -546,6 +546,7 @@ uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t heartbea
   *(trap_pdu+aux) = 0;
 
   // Generic Trap type
+  aux++;
   *(trap_pdu+aux) = ASN1_PRIM_INTEGER;
   aux++;
   *(trap_pdu+aux) = 0x01;

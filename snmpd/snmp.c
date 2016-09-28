@@ -67,6 +67,7 @@ static struct etimer              update_snmp;
 #endif
 static struct ctimer              trap_timer;
 static struct uip_udp_conn        *server_conn;
+static struct uip_udp_conn        *trap_conn;
 static uip_ipaddr_t               server_ipaddr;
 
 uint8_t heartbeat_value = 0;
@@ -87,6 +88,8 @@ static void set_global_address(void) {
   /* set server address */
   uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0, 0, 0, 1);
 
+  trap_conn = udp_new(&server_ipaddr, UIP_HTONS(0), NULL);
+  udp_bind(trap_conn, UIP_HTONS(162));
 }
 
 void cb_timer_trap_heartbeat(void *ptr){
@@ -98,8 +101,8 @@ void cb_timer_trap_heartbeat(void *ptr){
   ctimer_reset(&trap_timer);
   len = snmp_encode_trap(buf_trap, TRAP_COLD_START, heartbeat_value);
 
-  uip_ipaddr_copy(&server_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
-  uip_udp_packet_sendto(server_conn, &buf_trap, len,
+  uip_ipaddr_copy(&trap_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
+  uip_udp_packet_sendto(trap_conn, &buf_trap, len,
                         &server_ipaddr, UIP_HTONS(TRAP_SNMP_PORT));
 }
 
