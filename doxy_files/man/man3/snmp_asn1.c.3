@@ -1,4 +1,4 @@
-.TH "snmpd/snmp_asn1.c" 3 "Segunda, 26 de Setembro de 2016" "Version 1.0" "HomeStark_6LoWPAN_Device" \" -*- nroff -*-
+.TH "snmpd/snmp_asn1.c" 3 "Quinta, 29 de Setembro de 2016" "Version 1.0" "HomeStark_6LoWPAN_Device" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -44,6 +44,10 @@ Licensed to the Apache Software Foundation (ASF) under one or more contributor l
 .RI "uint16_t \fBsnmp_encode_message\fP (\fBsnmp_t\fP *snmp_handle, char *data_encoded)"
 .br
 .RI "\fIEncode SNMP message\&. \fP"
+.ti -1c
+.RI "uint16_t \fBsnmp_encode_trap\fP (uint8_t *trap_pdu, uint8_t type_trap, uint8_t heartbeat)"
+.br
+.RI "\fIEncode a SNMPv1 Trap message\&. \fP"
 .in -1c
 .SH "Descrição detalhada"
 .PP 
@@ -542,6 +546,163 @@ Encode SNMP message\&. Encode a SNMP message and format to send the answer\&.
 448   #endif
 449   return *(data_encoded+1)+2;
 450 }
+.fi
+.SS "uint16_t snmp_encode_trap (uint8_t *trap_pdu, uint8_ttype_trap, uint8_theartbeat)"
+
+.PP
+Encode a SNMPv1 Trap message\&. Encode a SNMPv1 Trap type message with AWGES PEN and heartbeat value
+.PP
+\fBParâmetros:\fP
+.RS 4
+\fItrap_pdu\fP Variable that'll receive the packet encoded 
+.br
+\fItype_trap\fP Type of trap that'll send ('coldStart','WarmStart'\&.\&.\&.) 
+.br
+\fIheartbeat\fP Heartbeat value of the node
+.RE
+.PP
+\fBValores retornados:\fP
+.RS 4
+\fIlen\fP Length of encoded packet 
+.RE
+.PP
+
+.PP
+.nf
+483                                                                                   {
+484   // uint8_t i;//, aux = 0, aux2 = 0;
+485   uint16_t length_trap = 0, aux = 0;
+486 
+487   *trap_pdu = ASN1_CPX_SEQUENCE;
+488   *(trap_pdu+1) = 52+4;
+489 
+490   // SNMP Version
+491   *(trap_pdu+2) = ASN1_PRIM_INTEGER;
+492   *(trap_pdu+3) = 0x01;
+493   *(trap_pdu+4) = SNMP_VERSION_1;
+494 
+495   // Comunity String - always "public"
+496   *(trap_pdu+5) = ASN1_PRIM_OCT_STR;
+497   *(trap_pdu+6) = 0x06;
+498   *(trap_pdu+7) = 0x70;
+499   *(trap_pdu+8) = 0x75;
+500   *(trap_pdu+9) = 0x62;
+501   *(trap_pdu+10) = 0x6c;
+502   *(trap_pdu+11) = 0x69;
+503   *(trap_pdu+12) = 0x63;
+504 
+505   // Type of PDU - Trap(0xa4)
+506   *(trap_pdu+13) = ASN1_CPX_TRAP;
+507   aux = 14;
+508   *(trap_pdu+aux) = 39+4;
+509 
+510   // Enterprise OID - 0x06, 0x09, 0x2b, 0x06, 0x01, 0x04, 0x01, 0x04, 0x01, 0x02, 0x15
+511   aux++;
+512   *(trap_pdu+aux) = ASN1_PRIM_OID;
+513   aux++;
+514   *(trap_pdu+aux) = 0x09;
+515   aux++;
+516   *(trap_pdu+aux) = 0x2b;
+517   aux++;
+518   *(trap_pdu+aux) = 0x06;
+519   aux++;
+520   *(trap_pdu+aux) = 0x01;
+521   aux++;
+522   *(trap_pdu+aux) = 0x04;
+523   aux++;
+524   *(trap_pdu+aux) = 0x01;
+525   aux++;
+526   *(trap_pdu+aux) = 0x04;
+527   aux++;
+528   *(trap_pdu+aux) = 0x01;
+529   aux++;
+530   *(trap_pdu+aux) = 0x02;
+531   aux++;
+532   *(trap_pdu+aux) = 0x15;
+533 
+534   // IP Address of the agent, always 0\&.0\&.0\&.0 if we cannot send IPv6 in SNMPv1, in SNMPv2 the trap calls inform
+535   aux++;
+536   *(trap_pdu+aux) = ASN1_PRIM_IP_ADDRESS;
+537   aux++;
+538   *(trap_pdu+aux) = 4;
+539   aux++;
+540   *(trap_pdu+aux) = 0;
+541   aux++;
+542   *(trap_pdu+aux) = 0;
+543   aux++;
+544   *(trap_pdu+aux) = 0;
+545   aux++;
+546   *(trap_pdu+aux) = 0;
+547 
+548   // Generic Trap type
+549   aux++;
+550   *(trap_pdu+aux) = ASN1_PRIM_INTEGER;
+551   aux++;
+552   *(trap_pdu+aux) = 0x01;
+553   aux++;
+554   *(trap_pdu+aux) = type_trap;
+555 
+556   // Specific Trap Number - we don't use this
+557   aux++;
+558   *(trap_pdu+aux) = ASN1_PRIM_INTEGER;
+559   aux++;
+560   *(trap_pdu+aux) = 0x01;
+561   aux++;
+562   *(trap_pdu+aux) = 0x00;
+563 
+564   // Timestamp - we don't use this - default(0)
+565   aux++;
+566   *(trap_pdu+aux) = ASN1_PRIM_TIMESTAMP;
+567   aux++;
+568   *(trap_pdu+aux) = 0x01;
+569   aux++;
+570   *(trap_pdu+aux) = 0x00;
+571 
+572   // VarBind List - we don't use this - default(0)
+573   aux++;
+574   *(trap_pdu+aux) = ASN1_CPX_SEQUENCE;
+575   aux++;
+576   *(trap_pdu+aux) = 3+8+2+2;
+577 
+578   // VarBind List - we don't use this - default(0)
+579   aux++;
+580   *(trap_pdu+aux) = ASN1_CPX_SEQUENCE;
+581   aux++;
+582   *(trap_pdu+aux) = 3+8+2;
+583 
+584   // OID
+585   aux++;
+586   *(trap_pdu+aux) = ASN1_PRIM_OID;
+587   aux++;
+588   *(trap_pdu+aux) = 0x08;
+589   aux++;
+590   *(trap_pdu+aux) = 0x2b;
+591   aux++;
+592   *(trap_pdu+aux) = 0x06;
+593   aux++;
+594   *(trap_pdu+aux) = 0x01;
+595   aux++;
+596   *(trap_pdu+aux) = 0x02;
+597   aux++;
+598   *(trap_pdu+aux) = 0x01;
+599   aux++;
+600   *(trap_pdu+aux) = 0x02;
+601   aux++;
+602   *(trap_pdu+aux) = 0x01;
+603   aux++;
+604   *(trap_pdu+aux) = 0x00;
+605 
+606   // Value - Heartbeat
+607   aux++;
+608   *(trap_pdu+aux) = ASN1_PRIM_INTEGER;
+609   aux++;
+610   *(trap_pdu+aux) = 0x01;
+611   aux++;
+612   *(trap_pdu+aux) = heartbeat;
+613 
+614   length_trap = 54+4;
+615   return length_trap;
+616 }
 .fi
 .SH "Autor"
 .PP 

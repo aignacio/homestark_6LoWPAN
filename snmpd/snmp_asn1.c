@@ -485,7 +485,7 @@ uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t heartbea
   uint16_t length_trap = 0, aux = 0;
 
   *trap_pdu = ASN1_CPX_SEQUENCE;
-  *(trap_pdu+1) = 52+4;
+  *(trap_pdu+1) = 55;
 
   // SNMP Version
   *(trap_pdu+2) = ASN1_PRIM_INTEGER;
@@ -505,13 +505,34 @@ uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t heartbea
   // Type of PDU - Trap(0xa4)
   *(trap_pdu+13) = ASN1_CPX_TRAP;
   aux = 14;
-  *(trap_pdu+aux) = 39+4;
+  *(trap_pdu+aux) = 42;
 
   // Enterprise OID - 0x06, 0x09, 0x2b, 0x06, 0x01, 0x04, 0x01, 0x04, 0x01, 0x02, 0x15
   aux++;
   *(trap_pdu+aux) = ASN1_PRIM_OID;
+  // aux++;
+  // *(trap_pdu+aux) = 0x09;
+  // aux++;
+  // *(trap_pdu+aux) = 0x2b;
+  // aux++;
+  // *(trap_pdu+aux) = 0x06;
+  // aux++;
+  // *(trap_pdu+aux) = 0x01;
+  // aux++;
+  // *(trap_pdu+aux) = 0x04;
+  // aux++;
+  // *(trap_pdu+aux) = 0x01;
+  // aux++;
+  // *(trap_pdu+aux) = 0x04;
+  // aux++;
+  // *(trap_pdu+aux) = 0x01;
+  // aux++;
+  // *(trap_pdu+aux) = 0x02;
+  // aux++;
+  // *(trap_pdu+aux) = 0x15;
+
   aux++;
-  *(trap_pdu+aux) = 0x09;
+  *(trap_pdu+aux) = 0x08;
   aux++;
   *(trap_pdu+aux) = 0x2b;
   aux++;
@@ -523,13 +544,11 @@ uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t heartbea
   aux++;
   *(trap_pdu+aux) = 0x01;
   aux++;
-  *(trap_pdu+aux) = 0x04;
+  *(trap_pdu+aux) = 0x82;
   aux++;
-  *(trap_pdu+aux) = 0x01;
+  *(trap_pdu+aux) = 0xFB;
   aux++;
-  *(trap_pdu+aux) = 0x02;
-  aux++;
-  *(trap_pdu+aux) = 0x15;
+  *(trap_pdu+aux) = 0x68;
 
   // IP Address of the agent, always 0.0.0.0 if we cannot send IPv6 in SNMPv1, in SNMPv2 the trap calls inform
   aux++;
@@ -611,6 +630,6 @@ uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t heartbea
   aux++;
   *(trap_pdu+aux) = heartbeat;
 
-  length_trap = 54+4;
+  length_trap = 57;
   return length_trap;
 }

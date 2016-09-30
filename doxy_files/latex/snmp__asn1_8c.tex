@@ -32,7 +32,9 @@ Diagrama de dependências de inclusão para snmp\+\_\+asn1.\+c\+:\nopagebreak
 \hyperlink{snmp_8h_add91ba4199db8665b9b9fc56fc6783a6}{resp\+\_\+con\+\_\+t} \hyperlink{snmp__asn1_8c_af8347162889dff52c2fb4487d9a83ab3}{snmp\+\_\+decode\+\_\+message} (char $\ast$snmp\+\_\+packet, \hyperlink{structsnmp__t}{snmp\+\_\+t} $\ast$snmp\+\_\+handle)
 \begin{DoxyCompactList}\small\item\em Decode S\+N\+M\+P message. \end{DoxyCompactList}\item 
 uint16\+\_\+t \hyperlink{snmp__asn1_8c_a63d8ffecf9aa0af9824de046643c140f}{snmp\+\_\+encode\+\_\+message} (\hyperlink{structsnmp__t}{snmp\+\_\+t} $\ast$snmp\+\_\+handle, char $\ast$data\+\_\+encoded)
-\begin{DoxyCompactList}\small\item\em Encode S\+N\+M\+P message. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Encode S\+N\+M\+P message. \end{DoxyCompactList}\item 
+uint16\+\_\+t \hyperlink{snmp__asn1_8c_af72c0873252d8160ff31eae19d05a5a1}{snmp\+\_\+encode\+\_\+trap} (uint8\+\_\+t $\ast$trap\+\_\+pdu, uint8\+\_\+t type\+\_\+trap, uint8\+\_\+t heartbeat)
+\begin{DoxyCompactList}\small\item\em Encode a S\+N\+M\+Pv1 Trap message. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Descrição detalhada}
@@ -555,4 +557,171 @@ Encode a S\+N\+M\+P message and format to send the answer.
 448 \textcolor{preprocessor}{  #endif}
 449   \textcolor{keywordflow}{return} *(data\_encoded+1)+2;
 450 \}
+\end{DoxyCode}
+\hypertarget{snmp__asn1_8c_af72c0873252d8160ff31eae19d05a5a1}{\index{snmp\+\_\+asn1.\+c@{snmp\+\_\+asn1.\+c}!snmp\+\_\+encode\+\_\+trap@{snmp\+\_\+encode\+\_\+trap}}
+\index{snmp\+\_\+encode\+\_\+trap@{snmp\+\_\+encode\+\_\+trap}!snmp\+\_\+asn1.\+c@{snmp\+\_\+asn1.\+c}}
+\subsubsection[{snmp\+\_\+encode\+\_\+trap}]{\setlength{\rightskip}{0pt plus 5cm}uint16\+\_\+t snmp\+\_\+encode\+\_\+trap (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{trap\+\_\+pdu, }
+\item[{uint8\+\_\+t}]{type\+\_\+trap, }
+\item[{uint8\+\_\+t}]{heartbeat}
+\end{DoxyParamCaption}
+)}}\label{snmp__asn1_8c_af72c0873252d8160ff31eae19d05a5a1}
+
+
+Encode a S\+N\+M\+Pv1 Trap message. 
+
+Encode a S\+N\+M\+Pv1 Trap type message with A\+W\+G\+E\+S P\+E\+N and heartbeat value
+
+
+\begin{DoxyParams}[1]{Parâmetros}
+\mbox{\tt in}  & {\em trap\+\_\+pdu} & Variable that'll receive the packet encoded \\
+\hline
+\mbox{\tt in}  & {\em type\+\_\+trap} & Type of trap that'll send (\char`\"{}cold\+Start\char`\"{},\char`\"{}\+Warm\+Start\char`\"{}...) \\
+\hline
+\mbox{\tt in}  & {\em heartbeat} & Heartbeat value of the node\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Valores retornados}
+{\em len} & Length of encoded packet \\
+\hline
+\end{DoxyRetVals}
+
+\begin{DoxyCode}
+483                                                                                   \{
+484   \textcolor{comment}{// uint8\_t i;//, aux = 0, aux2 = 0;}
+485   uint16\_t length\_trap = 0, aux = 0;
+486 
+487   *trap\_pdu = \hyperlink{snmp_8h_aa4d923102cb2314e31cbf833482e9090}{ASN1\_CPX\_SEQUENCE};
+488   *(trap\_pdu+1) = 52+4;
+489 
+490   \textcolor{comment}{// SNMP Version}
+491   *(trap\_pdu+2) = \hyperlink{snmp_8h_a45fec4a033960bca8c60e2f40d1d0e04}{ASN1\_PRIM\_INTEGER};
+492   *(trap\_pdu+3) = 0x01;
+493   *(trap\_pdu+4) = \hyperlink{snmp_8h_a1f1b7fadcf29f1de5bb406bf356c1d71}{SNMP\_VERSION\_1};
+494 
+495   \textcolor{comment}{// Comunity String - always "public"}
+496   *(trap\_pdu+5) = ASN1\_PRIM\_OCT\_STR;
+497   *(trap\_pdu+6) = 0x06;
+498   *(trap\_pdu+7) = 0x70;
+499   *(trap\_pdu+8) = 0x75;
+500   *(trap\_pdu+9) = 0x62;
+501   *(trap\_pdu+10) = 0x6c;
+502   *(trap\_pdu+11) = 0x69;
+503   *(trap\_pdu+12) = 0x63;
+504 
+505   \textcolor{comment}{// Type of PDU - Trap(0xa4)}
+506   *(trap\_pdu+13) = ASN1\_CPX\_TRAP;
+507   aux = 14;
+508   *(trap\_pdu+aux) = 39+4;
+509 
+510   \textcolor{comment}{// Enterprise OID - 0x06, 0x09, 0x2b, 0x06, 0x01, 0x04, 0x01, 0x04, 0x01, 0x02, 0x15}
+511   aux++;
+512   *(trap\_pdu+aux) = ASN1\_PRIM\_OID;
+513   aux++;
+514   *(trap\_pdu+aux) = 0x09;
+515   aux++;
+516   *(trap\_pdu+aux) = 0x2b;
+517   aux++;
+518   *(trap\_pdu+aux) = 0x06;
+519   aux++;
+520   *(trap\_pdu+aux) = 0x01;
+521   aux++;
+522   *(trap\_pdu+aux) = 0x04;
+523   aux++;
+524   *(trap\_pdu+aux) = 0x01;
+525   aux++;
+526   *(trap\_pdu+aux) = 0x04;
+527   aux++;
+528   *(trap\_pdu+aux) = 0x01;
+529   aux++;
+530   *(trap\_pdu+aux) = 0x02;
+531   aux++;
+532   *(trap\_pdu+aux) = 0x15;
+533 
+534   \textcolor{comment}{// IP Address of the agent, always 0.0.0.0 if we cannot send IPv6 in SNMPv1, in SNMPv2 the trap calls
+       inform}
+535   aux++;
+536   *(trap\_pdu+aux) = ASN1\_PRIM\_IP\_ADDRESS;
+537   aux++;
+538   *(trap\_pdu+aux) = 4;
+539   aux++;
+540   *(trap\_pdu+aux) = 0;
+541   aux++;
+542   *(trap\_pdu+aux) = 0;
+543   aux++;
+544   *(trap\_pdu+aux) = 0;
+545   aux++;
+546   *(trap\_pdu+aux) = 0;
+547 
+548   \textcolor{comment}{// Generic Trap type}
+549   aux++;
+550   *(trap\_pdu+aux) = \hyperlink{snmp_8h_a45fec4a033960bca8c60e2f40d1d0e04}{ASN1\_PRIM\_INTEGER};
+551   aux++;
+552   *(trap\_pdu+aux) = 0x01;
+553   aux++;
+554   *(trap\_pdu+aux) = type\_trap;
+555 
+556   \textcolor{comment}{// Specific Trap Number - we don't use this}
+557   aux++;
+558   *(trap\_pdu+aux) = \hyperlink{snmp_8h_a45fec4a033960bca8c60e2f40d1d0e04}{ASN1\_PRIM\_INTEGER};
+559   aux++;
+560   *(trap\_pdu+aux) = 0x01;
+561   aux++;
+562   *(trap\_pdu+aux) = 0x00;
+563 
+564   \textcolor{comment}{// Timestamp - we don't use this - default(0)}
+565   aux++;
+566   *(trap\_pdu+aux) = ASN1\_PRIM\_TIMESTAMP;
+567   aux++;
+568   *(trap\_pdu+aux) = 0x01;
+569   aux++;
+570   *(trap\_pdu+aux) = 0x00;
+571 
+572   \textcolor{comment}{// VarBind List - we don't use this - default(0)}
+573   aux++;
+574   *(trap\_pdu+aux) = \hyperlink{snmp_8h_aa4d923102cb2314e31cbf833482e9090}{ASN1\_CPX\_SEQUENCE};
+575   aux++;
+576   *(trap\_pdu+aux) = 3+8+2+2;
+577 
+578   \textcolor{comment}{// VarBind List - we don't use this - default(0)}
+579   aux++;
+580   *(trap\_pdu+aux) = \hyperlink{snmp_8h_aa4d923102cb2314e31cbf833482e9090}{ASN1\_CPX\_SEQUENCE};
+581   aux++;
+582   *(trap\_pdu+aux) = 3+8+2;
+583 
+584   \textcolor{comment}{// OID}
+585   aux++;
+586   *(trap\_pdu+aux) = ASN1\_PRIM\_OID;
+587   aux++;
+588   *(trap\_pdu+aux) = 0x08;
+589   aux++;
+590   *(trap\_pdu+aux) = 0x2b;
+591   aux++;
+592   *(trap\_pdu+aux) = 0x06;
+593   aux++;
+594   *(trap\_pdu+aux) = 0x01;
+595   aux++;
+596   *(trap\_pdu+aux) = 0x02;
+597   aux++;
+598   *(trap\_pdu+aux) = 0x01;
+599   aux++;
+600   *(trap\_pdu+aux) = 0x02;
+601   aux++;
+602   *(trap\_pdu+aux) = 0x01;
+603   aux++;
+604   *(trap\_pdu+aux) = 0x00;
+605 
+606   \textcolor{comment}{// Value - Heartbeat}
+607   aux++;
+608   *(trap\_pdu+aux) = \hyperlink{snmp_8h_a45fec4a033960bca8c60e2f40d1d0e04}{ASN1\_PRIM\_INTEGER};
+609   aux++;
+610   *(trap\_pdu+aux) = 0x01;
+611   aux++;
+612   *(trap\_pdu+aux) = heartbeat;
+613 
+614   length\_trap = 54+4;
+615   \textcolor{keywordflow}{return} length\_trap;
+616 \}
 \end{DoxyCode}

@@ -51,6 +51,9 @@ Diagrama de dependências de inclusão para snmp.\+c\+:\nopagebreak
 \hypertarget{snmp_8c_a017be87c3d2f34ed9931125f00331652}{{\bfseries P\+R\+O\+C\+E\+S\+S} (snmp\+\_\+main,\char`\"{}\mbox{[}S\+N\+M\+P\mbox{]} S\+N\+M\+P\+D -\/ Agent V1\char`\"{})}\label{snmp_8c_a017be87c3d2f34ed9931125f00331652}
 
 \item 
+\hypertarget{snmp_8c_ac872c6219ebe7191f9b637b2f7ab4540}{void {\bfseries cb\+\_\+timer\+\_\+trap\+\_\+heartbeat} (void $\ast$ptr)}\label{snmp_8c_ac872c6219ebe7191f9b637b2f7ab4540}
+
+\item 
 void \hyperlink{snmp_8c_a05848f4eb62dd417b99e461854870bf9}{snmp\+\_\+cb\+\_\+data} (void)
 \begin{DoxyCompactList}\small\item\em S\+N\+M\+P Callback receive. \end{DoxyCompactList}\item 
 void \hyperlink{snmp_8c_a4d88f2fc7655280384131d543e0d83e5}{snmp\+\_\+init} (void)
@@ -65,7 +68,13 @@ void \hyperlink{snmp_8c_a732192a9e72d3182d395c47e2cd9c79e}{update\+\_\+snmp\+\_\
 \subsection*{Variáveis}
 \begin{DoxyCompactItemize}
 \item 
-\hypertarget{snmp_8c_a46eb62b517b9cc09ba4cea868e920b12}{uint16\+\_\+t {\bfseries test} = 0}\label{snmp_8c_a46eb62b517b9cc09ba4cea868e920b12}
+\hypertarget{snmp_8c_a6055f56cef0bd9fe682cd277cb07ed6d}{uint8\+\_\+t {\bfseries heartbeat\+\_\+value} = 0}\label{snmp_8c_a6055f56cef0bd9fe682cd277cb07ed6d}
+
+\item 
+\hypertarget{snmp_8c_aee895689dd33d9428a16235a1de06bb0}{char {\bfseries global\+\_\+ipv6\+\_\+char} \mbox{[}16\mbox{]}}\label{snmp_8c_aee895689dd33d9428a16235a1de06bb0}
+
+\item 
+\hypertarget{snmp_8c_aa9a37ad626aaa7064544988241b7a2a6}{char {\bfseries local\+\_\+ipv6\+\_\+char} \mbox{[}16\mbox{]}}\label{snmp_8c_aa9a37ad626aaa7064544988241b7a2a6}
 
 \end{DoxyCompactItemize}
 
@@ -124,28 +133,28 @@ Format I\+Pv6 address in string char variable.
 \end{DoxyRetVals}
 
 \begin{DoxyCode}
-106                                                                          \{
-107   uint16\_t a;
-108   uint8\_t len = 0;
-109   \textcolor{keywordtype}{int} i, f;
-110   \textcolor{keywordflow}{for}(i = 0, f = 0; i < \textcolor{keyword}{sizeof}(uip\_ipaddr\_t); i += 2) \{
-111     a = (addr->u8[i] << 8) + addr->u8[i + 1];
-112     \textcolor{keywordflow}{if}(a == 0 && f >= 0) \{
-113       \textcolor{keywordflow}{if}(f++ == 0) \{
-114         len += snprintf(&buf[len], buf\_len - len, \textcolor{stringliteral}{"::"});
-115       \}
-116     \} \textcolor{keywordflow}{else} \{
-117       \textcolor{keywordflow}{if}(f > 0) \{
-118         f = -1;
-119       \} \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(i > 0) \{
-120         len += snprintf(&buf[len], buf\_len - len, \textcolor{stringliteral}{":"});
-121       \}
-122       len += snprintf(&buf[len], buf\_len - len, \textcolor{stringliteral}{"%x"}, a);
-123     \}
-124   \}
-125 
-126   \textcolor{keywordflow}{return} len;
-127 \}
+143                                                                          \{
+144   uint16\_t a;
+145   uint8\_t len = 0;
+146   \textcolor{keywordtype}{int} i, f;
+147   \textcolor{keywordflow}{for}(i = 0, f = 0; i < \textcolor{keyword}{sizeof}(uip\_ipaddr\_t); i += 2) \{
+148     a = (addr->u8[i] << 8) + addr->u8[i + 1];
+149     \textcolor{keywordflow}{if}(a == 0 && f >= 0) \{
+150       \textcolor{keywordflow}{if}(f++ == 0) \{
+151         len += snprintf(&buf[len], buf\_len - len, \textcolor{stringliteral}{"::"});
+152       \}
+153     \} \textcolor{keywordflow}{else} \{
+154       \textcolor{keywordflow}{if}(f > 0) \{
+155         f = -1;
+156       \} \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(i > 0) \{
+157         len += snprintf(&buf[len], buf\_len - len, \textcolor{stringliteral}{":"});
+158       \}
+159       len += snprintf(&buf[len], buf\_len - len, \textcolor{stringliteral}{"%x"}, a);
+160     \}
+161   \}
+162 
+163   \textcolor{keywordflow}{return} len;
+164 \}
 \end{DoxyCode}
 \hypertarget{snmp_8c_a05848f4eb62dd417b99e461854870bf9}{\index{snmp.\+c@{snmp.\+c}!snmp\+\_\+cb\+\_\+data@{snmp\+\_\+cb\+\_\+data}}
 \index{snmp\+\_\+cb\+\_\+data@{snmp\+\_\+cb\+\_\+data}!snmp.\+c@{snmp.\+c}}
@@ -172,35 +181,35 @@ Receive in callback mode, any data from N\+M\+S of S\+N\+M\+P protocol.
 \end{DoxyRetVals}
 
 \begin{DoxyCode}
-72                        \{
-73   \textcolor{keyword}{static} uint16\_t len;
-74   \textcolor{keyword}{static} \textcolor{keywordtype}{char} buf[MAX\_UDP\_SNMP];
-75   memset(buf, 0, MAX\_UDP\_SNMP);
-76 
-77   \textcolor{keywordflow}{if}(uip\_newdata()) \{
-78     len = uip\_datalen();
-79     memcpy(buf, uip\_appdata, len);
-80 \textcolor{preprocessor}{    #ifdef DEBUG\_SNMP\_DECODING}
-81     debug\_snmp(\textcolor{stringliteral}{"%u bytes from ["}, len);
-82 \textcolor{preprocessor}{    #endif}
-83     uip\_debug\_ipaddr\_print(&UIP\_IP\_BUF->srcipaddr);
-84     printf(\textcolor{stringliteral}{"]:%u"}, UIP\_HTONS(UIP\_UDP\_BUF->srcport));
-85     uip\_ipaddr\_copy(&server\_conn->ripaddr, &UIP\_IP\_BUF->srcipaddr);
-86     server\_conn->rport = UIP\_UDP\_BUF->srcport;
-87     \hyperlink{structsnmp__t}{snmp\_t} snmp\_handle;
-88     \textcolor{keywordflow}{if} (\hyperlink{snmp_8h_aca484712bcdb0bbc0f065061c4a0ed20}{snmp\_decode\_message}(buf, &snmp\_handle))\{
-89 \textcolor{preprocessor}{      #ifdef DEBUG\_SNMP\_DECODING}
-90       debug\_snmp(\textcolor{stringliteral}{"New SNMP Request received!"});
-91 \textcolor{preprocessor}{      #endif}
-92       len = \hyperlink{snmp_8h_a63d8ffecf9aa0af9824de046643c140f}{snmp\_encode\_message}(&snmp\_handle, buf);
-93       uip\_udp\_packet\_send(server\_conn, buf, len);
-94       uip\_create\_unspecified(&server\_conn->ripaddr);
-95       server\_conn->rport = 0;
-96     \}
-97     \textcolor{keywordflow}{else}
-98       debug\_snmp(\textcolor{stringliteral}{"Problem on SNMP Request received!"});
-99   \}
-100 \}
+109                        \{
+110   \textcolor{keyword}{static} uint16\_t len;
+111   \textcolor{keyword}{static} \textcolor{keywordtype}{char} buf[MAX\_UDP\_SNMP];
+112   memset(buf, 0, MAX\_UDP\_SNMP);
+113 
+114   \textcolor{keywordflow}{if}(uip\_newdata()) \{
+115     len = uip\_datalen();
+116     memcpy(buf, uip\_appdata, len);
+117 \textcolor{preprocessor}{    #ifdef DEBUG\_SNMP\_DECODING}
+118     debug\_snmp(\textcolor{stringliteral}{"%u bytes from ["}, len);
+119 \textcolor{preprocessor}{    #endif}
+120     uip\_debug\_ipaddr\_print(&UIP\_IP\_BUF->srcipaddr);
+121     printf(\textcolor{stringliteral}{"]:%u"}, UIP\_HTONS(UIP\_UDP\_BUF->srcport));
+122     uip\_ipaddr\_copy(&server\_conn->ripaddr, &UIP\_IP\_BUF->srcipaddr);
+123     server\_conn->rport = UIP\_UDP\_BUF->srcport;
+124     \hyperlink{structsnmp__t}{snmp\_t} snmp\_handle;
+125     \textcolor{keywordflow}{if} (\hyperlink{snmp_8h_aca484712bcdb0bbc0f065061c4a0ed20}{snmp\_decode\_message}(buf, &snmp\_handle))\{
+126 \textcolor{preprocessor}{      #ifdef DEBUG\_SNMP\_DECODING}
+127       debug\_snmp(\textcolor{stringliteral}{"New SNMP Request received!"});
+128 \textcolor{preprocessor}{      #endif}
+129       len = \hyperlink{snmp_8h_a63d8ffecf9aa0af9824de046643c140f}{snmp\_encode\_message}(&snmp\_handle, buf);
+130       uip\_udp\_packet\_send(server\_conn, buf, len);
+131       uip\_create\_unspecified(&server\_conn->ripaddr);
+132       server\_conn->rport = 0;
+133     \}
+134     \textcolor{keywordflow}{else}
+135       debug\_snmp(\textcolor{stringliteral}{"Problem on SNMP Request received!"});
+136   \}
+137 \}
 \end{DoxyCode}
 \hypertarget{snmp_8c_a4d88f2fc7655280384131d543e0d83e5}{\index{snmp.\+c@{snmp.\+c}!snmp\+\_\+init@{snmp\+\_\+init}}
 \index{snmp\+\_\+init@{snmp\+\_\+init}!snmp.\+c@{snmp.\+c}}
@@ -227,9 +236,9 @@ Init S\+N\+M\+P A\+G\+E\+N\+T connection
 \end{DoxyRetVals}
 
 \begin{DoxyCode}
-102                     \{
-103   process\_start(&snmp\_main, NULL);
-104 \}
+139                     \{
+140   process\_start(&snmp\_main, NULL);
+141 \}
 \end{DoxyCode}
 \hypertarget{snmp_8c_a732192a9e72d3182d395c47e2cd9c79e}{\index{snmp.\+c@{snmp.\+c}!update\+\_\+snmp\+\_\+mib@{update\+\_\+snmp\+\_\+mib}}
 \index{update\+\_\+snmp\+\_\+mib@{update\+\_\+snmp\+\_\+mib}!snmp.\+c@{snmp.\+c}}
@@ -256,118 +265,116 @@ Update the O\+I\+Ds of values from network
 \end{DoxyRetVals}
 
 \begin{DoxyCode}
-138                           \{
-139   test++;
-140 
-141   uint8\_t oid\_tree[2];
-142   \textcolor{keywordtype}{char} dado[MAX\_STRINGS\_LENGTH];
-143 
-144   \textcolor{comment}{/******************************* Hearbeat ***********************************/}
-145   oid\_tree[0] = 4;
-146   oid\_tree[1] = 2;
-147   sprintf(dado,\textcolor{stringliteral}{"heartbeat\_%d"},test);
-148   debug\_os(\textcolor{stringliteral}{"Dado de update: %s"},dado);
-149   \hyperlink{mibii_8c_af534ed1c73b20f10d822d43da1ccc78e}{mib\_ii\_update\_list}(oid\_tree,dado);
-150 
-151   \textcolor{comment}{/******************************** RSSI **************************************/}
-152   oid\_tree[0] = 4;
-153   oid\_tree[1] = 3;
-154   \textcolor{keywordtype}{int}  def\_rt\_rssi = sicslowpan\_get\_last\_rssi();
-155   sprintf(dado,\textcolor{stringliteral}{"RSSI:%d"},def\_rt\_rssi);
-156   \hyperlink{mibii_8c_af534ed1c73b20f10d822d43da1ccc78e}{mib\_ii\_update\_list}(oid\_tree,dado);
-157 
-158   \textcolor{comment}{/*************************** Prefered IPv6 **********************************/}
-159   \textcolor{keywordtype}{char} def\_rt\_str[64];
-160   oid\_tree[0] = 4;
-161   oid\_tree[1] = 4;
-162   memset(def\_rt\_str, 0, \textcolor{keyword}{sizeof}(def\_rt\_str));
-163   \hyperlink{snmp_8c_a523ab718dec1a794b3f8c8752f1e2ae3}{ipaddr\_sprintf}(def\_rt\_str, \textcolor{keyword}{sizeof}(def\_rt\_str), uip\_ds6\_defrt\_choose());
-164   sprintf(dado,\textcolor{stringliteral}{"Pref. route:[%s]"},def\_rt\_str);
-165   \hyperlink{mibii_8c_af534ed1c73b20f10d822d43da1ccc78e}{mib\_ii\_update\_list}(oid\_tree,dado);
-166 
-167   \textcolor{comment}{/****************************** Rank RPL ************************************/}
-168   uint16\_t rank\_rpl = 0, link\_metric\_rpl = 0;
-169   rpl\_parent\_t *p = nbr\_table\_head(rpl\_parents);
-170   rpl\_instance\_t *default\_instance;
-171   default\_instance = rpl\_get\_default\_instance();
-172   \textcolor{keywordflow}{while}(p != NULL)\{
-173     \textcolor{keywordflow}{if} (p == default\_instance->current\_dag->preferred\_parent) \{
-174       rank\_rpl = p->rank;
-175       link\_metric\_rpl = rpl\_get\_parent\_link\_metric(p);
-176       \textcolor{keywordflow}{break};
-177     \}
-178     \textcolor{keywordflow}{else}
-179     p = nbr\_table\_next(rpl\_parents, p);
-180   \}
-181   oid\_tree[0] = 4;
-182   oid\_tree[1] = 5;
-183   sprintf(dado,\textcolor{stringliteral}{"Rank RPL:%5u"},rank\_rpl);
-184   \hyperlink{mibii_8c_af534ed1c73b20f10d822d43da1ccc78e}{mib\_ii\_update\_list}(oid\_tree,dado);
-185 
-186   oid\_tree[0] = 4;
-187   oid\_tree[1] = 6;
-188   sprintf(dado,\textcolor{stringliteral}{"Parent Link Metric:%5u"},link\_metric\_rpl);
-189   \hyperlink{mibii_8c_af534ed1c73b20f10d822d43da1ccc78e}{mib\_ii\_update\_list}(oid\_tree,dado);
-190 
-191   \textcolor{comment}{/*********************** Global and Local IPv6 Address **********************/}
-192   \textcolor{keywordtype}{int} i;
-193   uint8\_t state;
-194   uip\_ipaddr\_t global\_ipv6\_address\_node,
-195                local\_ipv6\_address\_node;
-196 \textcolor{preprocessor}{  #ifdef DEBUG\_SNMP\_DECODING}
-197   debug\_snmp(\textcolor{stringliteral}{"Client IPv6 addresses: "});
-198 \textcolor{preprocessor}{  #endif}
-199   \textcolor{keywordflow}{for}(i = 0; i < UIP\_DS6\_ADDR\_NB; i++) \{
-200     state = uip\_ds6\_if.addr\_list[i].state;
-201     \textcolor{keywordflow}{if}(uip\_ds6\_if.addr\_list[i].isused &&
-202       (state == ADDR\_TENTATIVE || state == ADDR\_PREFERRED)) \{
-203       local\_ipv6\_address\_node = uip\_ds6\_if.addr\_list[i].ipaddr;
-204       \textcolor{keywordflow}{if} (i == 1)
-205         global\_ipv6\_address\_node = uip\_ds6\_if.addr\_list[i].ipaddr;
-206       \textcolor{keywordflow}{else}
-207         local\_ipv6\_address\_node = uip\_ds6\_if.addr\_list[i].ipaddr;
-208 \textcolor{preprocessor}{      #ifdef DEBUG\_SNMP\_DECODING}
-209       printf6addr(&uip\_ds6\_if.addr\_list[i].ipaddr);
-210 \textcolor{preprocessor}{      #endif}
-211       \textcolor{comment}{/* hack to make address "final" */}
-212       \textcolor{keywordflow}{if} (state == ADDR\_TENTATIVE)
-213         uip\_ds6\_if.addr\_list[i].state = ADDR\_PREFERRED;
+175                           \{
+176   heartbeat\_value++;
+177 
+178   uint8\_t oid\_tree[2];
+179   \textcolor{keywordtype}{char} dado[MAX\_STRINGS\_LENGTH];
+180 
+181   \textcolor{comment}{/******************************* Hearbeat ***********************************/}
+182   oid\_tree[0] = 4;
+183   oid\_tree[1] = 2;
+184   sprintf(dado,\textcolor{stringliteral}{"heartbeat\_%d"},heartbeat\_value);
+185   debug\_os(\textcolor{stringliteral}{"Dado de update: %s"},dado);
+186   \hyperlink{mibii_8c_af534ed1c73b20f10d822d43da1ccc78e}{mib\_ii\_update\_list}(oid\_tree,dado);
+187 
+188   \textcolor{comment}{/******************************** RSSI **************************************/}
+189   oid\_tree[0] = 4;
+190   oid\_tree[1] = 3;
+191   \textcolor{keywordtype}{int}  def\_rt\_rssi = sicslowpan\_get\_last\_rssi();
+192   sprintf(dado,\textcolor{stringliteral}{"RSSI:%d"},def\_rt\_rssi);
+193   \hyperlink{mibii_8c_af534ed1c73b20f10d822d43da1ccc78e}{mib\_ii\_update\_list}(oid\_tree,dado);
+194 
+195   \textcolor{comment}{/*************************** Prefered IPv6 **********************************/}
+196   \textcolor{keywordtype}{char} def\_rt\_str[64];
+197   oid\_tree[0] = 4;
+198   oid\_tree[1] = 4;
+199   memset(def\_rt\_str, 0, \textcolor{keyword}{sizeof}(def\_rt\_str));
+200   \hyperlink{snmp_8c_a523ab718dec1a794b3f8c8752f1e2ae3}{ipaddr\_sprintf}(def\_rt\_str, \textcolor{keyword}{sizeof}(def\_rt\_str), uip\_ds6\_defrt\_choose());
+201   sprintf(dado,\textcolor{stringliteral}{"Pref. route:[%s]"},def\_rt\_str);
+202   \hyperlink{mibii_8c_af534ed1c73b20f10d822d43da1ccc78e}{mib\_ii\_update\_list}(oid\_tree,dado);
+203 
+204   \textcolor{comment}{/********************* Rank RPL e Parent Link Metric ************************/}
+205   uint16\_t rank\_rpl = 0, link\_metric\_rpl = 0;
+206   rpl\_parent\_t *p = nbr\_table\_head(rpl\_parents);
+207   rpl\_instance\_t *default\_instance;
+208   default\_instance = rpl\_get\_default\_instance();
+209   \textcolor{keywordflow}{while}(p != NULL)\{
+210     \textcolor{keywordflow}{if} (p == default\_instance->current\_dag->preferred\_parent) \{
+211       rank\_rpl = p->rank;
+212       link\_metric\_rpl = rpl\_get\_parent\_link\_metric(p);
+213       \textcolor{keywordflow}{break};
 214     \}
-215   \}
-216   \textcolor{keywordtype}{char} global\_ipv6\_char[16],
-217        local\_ipv6\_char[16];
-218 
-219   print\_ipv6\_addr(&global\_ipv6\_address\_node,&global\_ipv6\_char[0]);
-220   print\_ipv6\_addr(&local\_ipv6\_address\_node,&local\_ipv6\_char[0]);
-221 
-222   oid\_tree[0] = 4;
-223   oid\_tree[1] = 7;
-224   sprintf(dado,\textcolor{stringliteral}{"Local:[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]"}
-225                ,local\_ipv6\_char[0]
-226                ,local\_ipv6\_char[1]
-227                ,local\_ipv6\_char[8]
-228                ,local\_ipv6\_char[9]
-229                ,local\_ipv6\_char[10]
-230                ,local\_ipv6\_char[11]
-231                ,local\_ipv6\_char[12]
-232                ,local\_ipv6\_char[13]
-233                ,local\_ipv6\_char[14]
-234                ,local\_ipv6\_char[15]);
-235   \hyperlink{mibii_8c_af534ed1c73b20f10d822d43da1ccc78e}{mib\_ii\_update\_list}(oid\_tree,dado);
-236   oid\_tree[0] = 4;
-237   oid\_tree[1] = 8;
-238   sprintf(dado,\textcolor{stringliteral}{"Global:[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]"}
-239                ,global\_ipv6\_char[0]
-240                ,global\_ipv6\_char[1]
-241                ,global\_ipv6\_char[8]
-242                ,global\_ipv6\_char[9]
-243                ,global\_ipv6\_char[10]
-244                ,global\_ipv6\_char[11]
-245                ,global\_ipv6\_char[12]
-246                ,global\_ipv6\_char[13]
-247                ,global\_ipv6\_char[14]
-248                ,global\_ipv6\_char[15]);
-249   \hyperlink{mibii_8c_af534ed1c73b20f10d822d43da1ccc78e}{mib\_ii\_update\_list}(oid\_tree,dado);
-250 
-251 \}
+215     \textcolor{keywordflow}{else}
+216     p = nbr\_table\_next(rpl\_parents, p);
+217   \}
+218   oid\_tree[0] = 4;
+219   oid\_tree[1] = 5;
+220   sprintf(dado,\textcolor{stringliteral}{"Rank RPL:%5u"},rank\_rpl);
+221   \hyperlink{mibii_8c_af534ed1c73b20f10d822d43da1ccc78e}{mib\_ii\_update\_list}(oid\_tree,dado);
+222 
+223   oid\_tree[0] = 4;
+224   oid\_tree[1] = 6;
+225   sprintf(dado,\textcolor{stringliteral}{"Parent Link Metric:%5u"},link\_metric\_rpl);
+226   \hyperlink{mibii_8c_af534ed1c73b20f10d822d43da1ccc78e}{mib\_ii\_update\_list}(oid\_tree,dado);
+227 
+228   \textcolor{comment}{/*********************** Global and Local IPv6 Address **********************/}
+229   \textcolor{keywordtype}{int} i;
+230   uint8\_t state;
+231   uip\_ipaddr\_t global\_ipv6\_address\_node,
+232                local\_ipv6\_address\_node;
+233 \textcolor{preprocessor}{  #ifdef DEBUG\_SNMP\_DECODING}
+234   debug\_snmp(\textcolor{stringliteral}{"Client IPv6 addresses: "});
+235 \textcolor{preprocessor}{  #endif}
+236   \textcolor{keywordflow}{for}(i = 0; i < UIP\_DS6\_ADDR\_NB; i++) \{
+237     state = uip\_ds6\_if.addr\_list[i].state;
+238     \textcolor{keywordflow}{if}(uip\_ds6\_if.addr\_list[i].isused &&
+239       (state == ADDR\_TENTATIVE || state == ADDR\_PREFERRED)) \{
+240       local\_ipv6\_address\_node = uip\_ds6\_if.addr\_list[i].ipaddr;
+241       \textcolor{keywordflow}{if} (i == 1)
+242         global\_ipv6\_address\_node = uip\_ds6\_if.addr\_list[i].ipaddr;
+243       \textcolor{keywordflow}{else}
+244         local\_ipv6\_address\_node = uip\_ds6\_if.addr\_list[i].ipaddr;
+245 \textcolor{preprocessor}{      #ifdef DEBUG\_SNMP\_DECODING}
+246       printf6addr(&uip\_ds6\_if.addr\_list[i].ipaddr);
+247 \textcolor{preprocessor}{      #endif}
+248       \textcolor{comment}{/* hack to make address "final" */}
+249       \textcolor{keywordflow}{if} (state == ADDR\_TENTATIVE)
+250         uip\_ds6\_if.addr\_list[i].state = ADDR\_PREFERRED;
+251     \}
+252   \}
+253 
+254   print\_ipv6\_addr(&global\_ipv6\_address\_node,&global\_ipv6\_char[0]);
+255   print\_ipv6\_addr(&local\_ipv6\_address\_node,&local\_ipv6\_char[0]);
+256 
+257   oid\_tree[0] = 4;
+258   oid\_tree[1] = 7;
+259   sprintf(dado,\textcolor{stringliteral}{"Local:[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]"}
+260                ,local\_ipv6\_char[0]
+261                ,local\_ipv6\_char[1]
+262                ,local\_ipv6\_char[8]
+263                ,local\_ipv6\_char[9]
+264                ,local\_ipv6\_char[10]
+265                ,local\_ipv6\_char[11]
+266                ,local\_ipv6\_char[12]
+267                ,local\_ipv6\_char[13]
+268                ,local\_ipv6\_char[14]
+269                ,local\_ipv6\_char[15]);
+270   \hyperlink{mibii_8c_af534ed1c73b20f10d822d43da1ccc78e}{mib\_ii\_update\_list}(oid\_tree,dado);
+271   oid\_tree[0] = 4;
+272   oid\_tree[1] = 8;
+273   sprintf(dado,\textcolor{stringliteral}{"Global:[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]"}
+274                ,global\_ipv6\_char[0]
+275                ,global\_ipv6\_char[1]
+276                ,global\_ipv6\_char[8]
+277                ,global\_ipv6\_char[9]
+278                ,global\_ipv6\_char[10]
+279                ,global\_ipv6\_char[11]
+280                ,global\_ipv6\_char[12]
+281                ,global\_ipv6\_char[13]
+282                ,global\_ipv6\_char[14]
+283                ,global\_ipv6\_char[15]);
+284   \hyperlink{mibii_8c_af534ed1c73b20f10d822d43da1ccc78e}{mib\_ii\_update\_list}(oid\_tree,dado);
+285 
+286 \}
 \end{DoxyCode}

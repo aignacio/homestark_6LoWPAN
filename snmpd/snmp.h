@@ -274,6 +274,16 @@ void snmp_init(void);
 void update_snmp_mib(void);
 #endif
 
+/** @brief Encode a SNMPv1 Trap message
+ *
+ * 		Encode a SNMPv1 Trap type message with AWGES PEN (48616) and heartbeat value
+ *
+ *  @param [in] trap_pdu Variable that'll receive the packet encoded
+ *  @param [in] type_trap Type of trap that'll send ("coldStart","WarmStart"...)
+ *  @param [in] heartbeat Heartbeat value of the node
+ *
+ *  @retval len Length of encoded packet
+ **/
 uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t heartbeat);
 
 #endif
