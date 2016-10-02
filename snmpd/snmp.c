@@ -35,6 +35,7 @@
 #include "contiki.h"
 #include "contiki-lib.h"
 #include "contiki-net.h"
+// #include "apps/servreg-hack/servreg-hack.h"
 #include "snmp.h"
 #include "mibii.h"
 #include "net/rpl/rpl.h"
@@ -67,8 +68,8 @@ static struct etimer              update_snmp;
 #endif
 static struct ctimer              trap_timer;
 static struct uip_udp_conn        *server_conn;
-static struct uip_udp_conn        *trap_conn;
-static uip_ipaddr_t               server_ipaddr;
+// static struct uip_udp_conn        *trap_conn;
+static struct simple_udp_connection trap_conn;
 
 uint8_t heartbeat_value = 0;
 #if !CONTIKI_TARGET_Z1
@@ -78,18 +79,48 @@ char     global_ipv6_char[16],
 
 PROCESS(snmp_main, "[SNMP] SNMPD - Agent V1");
 
-static void set_global_address(void) {
-  uip_ipaddr_t ipaddr;
+static void
+receiver(struct simple_udp_connection *c,
+         const uip_ipaddr_t *sender_addr,
+         uint16_t sender_port,
+         const uip_ipaddr_t *receiver_addr,
+         uint16_t receiver_port,
+         const uint8_t *data,
+         uint16_t datalen)
+{
+  printf("Data received on port %d from port %d with length %d\n",
+         receiver_port, sender_port, datalen);
+}
 
-  uip_ip6addr(&ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0, 0, 0, 0);
-  uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
-  uip_ds6_addr_add(&ipaddr, 0, ADDR_AUTOCONF);
+static void init_trap(void) {
+  // uip_ipaddr_t ipaddr;
+  //
+  // uip_ip6addr(&ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0, 0, 0, 0);
+  // uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
+  // uip_ds6_addr_add(&ipaddr, 0, ADDR_AUTOCONF);
+  //
+  // /* set server address */
+  // uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0, 0, 0, 1);
+  //
+  // trap_conn = udp_new(&server_ipaddr, UIP_HTONS(0), NULL);
+  // udp_bind(trap_conn, UIP_HTONS(162));
+  static uip_ipaddr_t nms_addr;
+  static uint16_t nms[] = {0xaaaa, 0, 0, 0, 0, 0, 0, 0x1};
 
-  /* set server address */
-  uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0, 0, 0, 1);
+  uip_ip6addr(&nms_addr, nms[0],
+                         nms[1],
+                         nms[2],
+                         nms[3],
+                         nms[4],
+                         nms[5],
+                         nms[6],
+                         nms[7]);
 
-  trap_conn = udp_new(&server_ipaddr, UIP_HTONS(0), NULL);
-  udp_bind(trap_conn, UIP_HTONS(162));
+  simple_udp_register(&trap_conn,
+                      TRAP_SNMP_PORT,
+                      &nms_addr,
+                      TRAP_SNMP_PORT,
+                      receiver);
 }
 
 void cb_timer_trap_heartbeat(void *ptr){
@@ -101,9 +132,20 @@ void cb_timer_trap_heartbeat(void *ptr){
   ctimer_reset(&trap_timer);
   len = snmp_encode_trap(buf_trap, TRAP_COLD_START, heartbeat_value);
 
-  uip_ipaddr_copy(&trap_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
-  uip_udp_packet_sendto(trap_conn, &buf_trap, len,
-                        &server_ipaddr, UIP_HTONS(TRAP_SNMP_PORT));
+  // uip_ipaddr_copy(&trap_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
+  // uip_udp_packet_sendto(trap_conn, &buf_trap, len,
+  //                       &server_ipaddr, UIP_HTONS(TRAP_SNMP_PORT));
+  // trap_addr = servreg_hack_lookup(190);
+
+  // if(trap_addr != NULL) {
+  //   debug_snmp("Sending unicast trap to ");
+  //   uip_debug_ipaddr_print(trap_addr);
+  uip_ipaddr_t addr;
+  uip_ip6addr(&addr, 0xaaaa, 0, 0, 0, 0, 0, 0, 0x0001);
+  simple_udp_sendto(&trap_conn, buf_trap, len, &addr);
+  // } else {
+  //   printf("Service %d not found\n", 190);
+  // }
 }
 
 void snmp_cb_data(void){
@@ -116,9 +158,9 @@ void snmp_cb_data(void){
     memcpy(buf, uip_appdata, len);
     #ifdef DEBUG_SNMP_DECODING
     debug_snmp("%u bytes from [", len);
-    #endif
     uip_debug_ipaddr_print(&UIP_IP_BUF->srcipaddr);
     printf("]:%u", UIP_HTONS(UIP_UDP_BUF->srcport));
+    #endif
     uip_ipaddr_copy(&server_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
     server_conn->rport = UIP_UDP_BUF->srcport;
     snmp_t snmp_handle;
@@ -294,7 +336,7 @@ PROCESS_THREAD(snmp_main, ev, data){
   debug_snmp("Listen port: %d, TTL=%u",DEFAULT_SNMP_PORT,server_conn->ttl);
   debug_snmp("Agent SNMPv1 active");
 
-  set_global_address();
+  init_trap();
 
   #if CONTIKI_TARGET_SRF06_CC26XX
   etimer_set(&update_snmp, TIME_UPDATE_SNMP);

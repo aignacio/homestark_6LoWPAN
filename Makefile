@@ -17,6 +17,7 @@ PROJECT_SOURCEFILES += $(REST_RESOURCES_FILES)
 PROJECT_SOURCEFILES += coap-server.c
 
 # REST Engine shall use Erbium CoAP implementation
+# APPS += er-coap servreg-hack
 APPS += er-coap
 APPS += rest-engine
 
