@@ -280,10 +280,10 @@ void update_snmp_mib(void);
  *
  *  @param [in] trap_pdu Variable that'll receive the packet encoded
  *  @param [in] type_trap Type of trap that'll send ("coldStart","WarmStart"...)
- *  @param [in] heartbeat Heartbeat value of the node
+ *  @param [in] device_hw Hardware Address
  *
  *  @retval len Length of encoded packet
  **/
-uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t heartbeat);
+uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t *device_hw);
 
 #endif

@@ -74,7 +74,8 @@ static struct simple_udp_connection trap_conn;
 uint8_t heartbeat_value = 0;
 #if !CONTIKI_TARGET_Z1
 char     global_ipv6_char[16],
-         local_ipv6_char[16];
+         local_ipv6_char[16],
+         device_hw[16];
 #endif
 
 PROCESS(snmp_main, "[SNMP] SNMPD - Agent V1");
@@ -86,8 +87,7 @@ receiver(struct simple_udp_connection *c,
          const uip_ipaddr_t *receiver_addr,
          uint16_t receiver_port,
          const uint8_t *data,
-         uint16_t datalen)
-{
+         uint16_t datalen) {
   printf("Data received on port %d from port %d with length %d\n",
          receiver_port, sender_port, datalen);
 }
@@ -121,6 +121,12 @@ static void init_trap(void) {
                       &nms_addr,
                       TRAP_SNMP_PORT,
                       receiver);
+
+  sprintf(device_hw,"%02X%02X%02X%02X%02X%02X%02X%02X",
+          linkaddr_node_addr.u8[0],linkaddr_node_addr.u8[1],
+          linkaddr_node_addr.u8[2],linkaddr_node_addr.u8[3],
+          linkaddr_node_addr.u8[4],linkaddr_node_addr.u8[5],
+          linkaddr_node_addr.u8[6],linkaddr_node_addr.u8[7]);
 }
 
 void cb_timer_trap_heartbeat(void *ptr){
@@ -130,7 +136,11 @@ void cb_timer_trap_heartbeat(void *ptr){
   debug_snmp("Trap Heartbeat time expired!");
   #endif
   ctimer_reset(&trap_timer);
-  len = snmp_encode_trap(buf_trap, TRAP_COLD_START, heartbeat_value);
+
+  uint8_t data_hw[4] = {device_hw[12],device_hw[13],
+                        device_hw[14],device_hw[15]};
+
+  len = snmp_encode_trap(buf_trap, TRAP_COLD_START, data_hw);
 
   // uip_ipaddr_copy(&trap_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
   // uip_udp_packet_sendto(trap_conn, &buf_trap, len,

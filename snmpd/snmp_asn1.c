@@ -480,12 +480,12 @@ uint16_t snmp_encode_message(snmp_t *snmp_handle, char *data_encoded){
 //                        |                                               |<-----------------------------Length------------------------------>|
 //                        |<--------------------------------------------Lenght PDU----------------------------------------------------------->|
 
-uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t heartbeat){
+uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t *device_hw){
   // uint8_t i;//, aux = 0, aux2 = 0;
   uint16_t length_trap = 0, aux = 0;
 
   *trap_pdu = ASN1_CPX_SEQUENCE;
-  *(trap_pdu+1) = 55;
+  *(trap_pdu+1) = 55+1+2;
 
   // SNMP Version
   *(trap_pdu+2) = ASN1_PRIM_INTEGER;
@@ -505,7 +505,7 @@ uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t heartbea
   // Type of PDU - Trap(0xa4)
   *(trap_pdu+13) = ASN1_CPX_TRAP;
   aux = 14;
-  *(trap_pdu+aux) = 42;
+  *(trap_pdu+aux) = 42+1+2;
 
   // Enterprise OID - 0x06, 0x09, 0x2b, 0x06, 0x01, 0x04, 0x01, 0x04, 0x01, 0x02, 0x15
   aux++;
@@ -592,13 +592,13 @@ uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t heartbea
   aux++;
   *(trap_pdu+aux) = ASN1_CPX_SEQUENCE;
   aux++;
-  *(trap_pdu+aux) = 3+8+2+2;
+  *(trap_pdu+aux) = 3+8+2+2+1+2;
 
   // VarBind List - we don't use this - default(0)
   aux++;
   *(trap_pdu+aux) = ASN1_CPX_SEQUENCE;
   aux++;
-  *(trap_pdu+aux) = 3+8+2;
+  *(trap_pdu+aux) = 3+8+2+1+2;
 
   // OID
   aux++;
@@ -624,12 +624,20 @@ uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t heartbea
 
   // Value - Heartbeat
   aux++;
-  *(trap_pdu+aux) = ASN1_PRIM_INTEGER;
+  *(trap_pdu+aux) = ASN1_PRIM_OCT_STR;
   aux++;
-  *(trap_pdu+aux) = 0x01;
-  aux++;
-  *(trap_pdu+aux) = heartbeat;
+  *(trap_pdu+aux) = 0x04;
 
-  length_trap = 57;
+  aux++;
+  *(trap_pdu+aux) = *device_hw;
+  aux++;
+  *(trap_pdu+aux) = *(device_hw+1);
+  aux++;
+  *(trap_pdu+aux) = *(device_hw+2);
+  aux++;
+  *(trap_pdu+aux) = *(device_hw+3);
+
+
+  length_trap = 60;
   return length_trap;
 }

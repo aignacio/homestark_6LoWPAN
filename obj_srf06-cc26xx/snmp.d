@@ -110,8 +110,7 @@ obj_srf06-cc26xx/snmp.o: snmpd/snmp.c /projects/contiki/core/./contiki.h \
  /projects/contiki/core/./net/rime/rucb.h \
  /projects/contiki/core/./net/rime/timesynch.h \
  /projects/contiki/core/./net/rime/trickle.h \
- /projects/contiki/core/./net/netstack.h \
- /projects/contiki/apps/servreg-hack/servreg-hack.h snmpd/snmp.h \
+ /projects/contiki/core/./net/netstack.h snmpd/snmp.h \
  /projects/contiki/core/net/ip/simple-udp.h \
  /projects/contiki/core/sys/clock.h /projects/contiki/core/sys/etimer.h \
  /projects/contiki/core/sys/ctimer.h /projects/contiki/core/lib/list.h \
@@ -301,8 +300,7 @@ snmpd/snmp.c /projects/contiki/core/./contiki.h :
  /projects/contiki/core/./net/rime/rucb.h :
  /projects/contiki/core/./net/rime/timesynch.h :
  /projects/contiki/core/./net/rime/trickle.h :
- /projects/contiki/core/./net/netstack.h :
- /projects/contiki/apps/servreg-hack/servreg-hack.h snmpd/snmp.h :
+ /projects/contiki/core/./net/netstack.h snmpd/snmp.h :
  /projects/contiki/core/net/ip/simple-udp.h :
  /projects/contiki/core/sys/clock.h /projects/contiki/core/sys/etimer.h :
  /projects/contiki/core/sys/ctimer.h /projects/contiki/core/lib/list.h :

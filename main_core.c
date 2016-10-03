@@ -57,7 +57,6 @@ PROCESS_THREAD(init_system_process, ev, data)
           linkaddr_node_addr.u8[4],linkaddr_node_addr.u8[5],
           linkaddr_node_addr.u8[6],linkaddr_node_addr.u8[7]);
 
-
   //#if RESOLV_CONF_SUPPORTS_MDNS
   // resolv_set_hostname("anderson");
   //#endif
