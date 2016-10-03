@@ -74,9 +74,9 @@ static struct simple_udp_connection trap_conn;
 uint8_t heartbeat_value = 0;
 #if !CONTIKI_TARGET_Z1
 char     global_ipv6_char[16],
-         local_ipv6_char[16],
-         device_hw[16];
+         local_ipv6_char[16];
 #endif
+char device_hw[16];
 
 PROCESS(snmp_main, "[SNMP] SNMPD - Agent V1");
 
