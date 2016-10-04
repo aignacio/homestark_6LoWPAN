@@ -229,11 +229,13 @@ void update_snmp_mib(void){
 
   uint8_t oid_tree[2];
   char dado[MAX_STRINGS_LENGTH];
+  uint8_t data_hw[4] = {device_hw[12],device_hw[13],
+                        device_hw[14],device_hw[15]};
 
   /******************************* Hearbeat ***********************************/
   oid_tree[0] = 4;
   oid_tree[1] = 2;
-  sprintf(dado,"heartbeat_%d",heartbeat_value);
+  sprintf(dado,"[%c%c%c%c]-heartbeat_%d",data_hw[0],data_hw[1],data_hw[2],data_hw[3],heartbeat_value);
   debug_os("Dado de update: %s",dado);
   mib_ii_update_list(oid_tree,dado);
 
@@ -241,7 +243,8 @@ void update_snmp_mib(void){
   oid_tree[0] = 4;
   oid_tree[1] = 3;
   int  def_rt_rssi = sicslowpan_get_last_rssi();
-  sprintf(dado,"RSSI:%d",def_rt_rssi);
+  sprintf(dado,"[%c%c%c%c]-RSSI:%d",data_hw[0],data_hw[1],data_hw[2],data_hw[3],
+  def_rt_rssi);
   mib_ii_update_list(oid_tree,dado);
 
   /*************************** Prefered IPv6 **********************************/
@@ -250,7 +253,8 @@ void update_snmp_mib(void){
   oid_tree[1] = 4;
   memset(def_rt_str, 0, sizeof(def_rt_str));
   ipaddr_sprintf(def_rt_str, sizeof(def_rt_str), uip_ds6_defrt_choose());
-  sprintf(dado,"Pref. route:[%s]",def_rt_str);
+  sprintf(dado,"[%c%c%c%c]-PRF:[%s]",data_hw[0],data_hw[1],data_hw[2],data_hw[3],
+  def_rt_str);
   mib_ii_update_list(oid_tree,dado);
 
   /********************* Rank RPL e Parent Link Metric ************************/
@@ -269,12 +273,14 @@ void update_snmp_mib(void){
   }
   oid_tree[0] = 4;
   oid_tree[1] = 5;
-  sprintf(dado,"Rank RPL:%5u",rank_rpl);
+  sprintf(dado,"[%c%c%c%c]-Rank:%5u",data_hw[0],data_hw[1],data_hw[2],data_hw[3],
+  rank_rpl);
   mib_ii_update_list(oid_tree,dado);
 
   oid_tree[0] = 4;
   oid_tree[1] = 6;
-  sprintf(dado,"Parent Link Metric:%5u",link_metric_rpl);
+  sprintf(dado,"[%c%c%c%c]-LM:%5u",data_hw[0],data_hw[1],data_hw[2],data_hw[3],
+  link_metric_rpl);
   mib_ii_update_list(oid_tree,dado);
 
   /*********************** Global and Local IPv6 Address **********************/
@@ -308,7 +314,8 @@ void update_snmp_mib(void){
 
   oid_tree[0] = 4;
   oid_tree[1] = 7;
-  sprintf(dado,"Local:[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]"
+  sprintf(dado,"[%c%c%c%c]-Local:[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]"
+               ,data_hw[0],data_hw[1],data_hw[2],data_hw[3]
                ,local_ipv6_char[0]
                ,local_ipv6_char[1]
                ,local_ipv6_char[8]
@@ -322,7 +329,8 @@ void update_snmp_mib(void){
   mib_ii_update_list(oid_tree,dado);
   oid_tree[0] = 4;
   oid_tree[1] = 8;
-  sprintf(dado,"Global:[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]"
+  sprintf(dado,"[%c%c%c%c]-Global:[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]"
+               ,data_hw[0],data_hw[1],data_hw[2],data_hw[3]
                ,global_ipv6_char[0]
                ,global_ipv6_char[1]
                ,global_ipv6_char[8]

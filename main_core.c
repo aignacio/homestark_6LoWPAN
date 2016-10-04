@@ -71,7 +71,7 @@ PROCESS_THREAD(init_system_process, ev, data)
     const char demo[] = "cc2650_snmp\0";
     char device_address[30];
 
-    sprintf(device_address,"Device:%s",device_id);
+    sprintf(device_address,"[%c%c%c%c]-Device:%s",device_id[12],device_id[13],device_id[14],device_id[15],device_id);
     tree[0] = 4;
     tree[1] = 1;
     mib_ii_fill_list(tree, device_address);
