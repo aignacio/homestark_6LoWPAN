@@ -115,7 +115,7 @@ PROCESS_THREAD(init_system_process, ev, data)
   //#endif
 
   snmp_init(); // Init SNMP Agent
-  //process_start(&coap_server_process, NULL); // Init CoAP Server Restfull
+  process_start(&coap_server_process, NULL); // Init CoAP Server Restfull
 
   // Init the MIB II Structure to fill another time
   #if CONTIKI_TARGET_SRF06_CC26XX

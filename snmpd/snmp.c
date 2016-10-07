@@ -137,7 +137,13 @@ void cb_timer_trap_heartbeat(void *ptr){
   #endif
   ctimer_reset(&trap_timer);
 
-  uint8_t data_hw[4] = {device_hw[12],device_hw[13],
+  uint8_t data_hw[16] = {device_hw[0],device_hw[1],
+                        device_hw[2],device_hw[3],
+                        device_hw[4],device_hw[5],
+                        device_hw[6],device_hw[7],
+                        device_hw[8],device_hw[9],
+                        device_hw[10],device_hw[11],
+                        device_hw[12],device_hw[13],
                         device_hw[14],device_hw[15]};
 
   len = snmp_encode_trap(buf_trap, TRAP_COLD_START, data_hw);

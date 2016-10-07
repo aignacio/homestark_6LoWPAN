@@ -485,7 +485,7 @@ uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t *device_
   uint16_t length_trap = 0, aux = 0;
 
   *trap_pdu = ASN1_CPX_SEQUENCE;
-  *(trap_pdu+1) = 55+1+2;
+  *(trap_pdu+1) = 55+1+2+12;
 
   // SNMP Version
   *(trap_pdu+2) = ASN1_PRIM_INTEGER;
@@ -505,7 +505,7 @@ uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t *device_
   // Type of PDU - Trap(0xa4)
   *(trap_pdu+13) = ASN1_CPX_TRAP;
   aux = 14;
-  *(trap_pdu+aux) = 42+1+2;
+  *(trap_pdu+aux) = 42+1+2+12;
 
   // Enterprise OID - 0x06, 0x09, 0x2b, 0x06, 0x01, 0x04, 0x01, 0x04, 0x01, 0x02, 0x15
   aux++;
@@ -592,13 +592,13 @@ uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t *device_
   aux++;
   *(trap_pdu+aux) = ASN1_CPX_SEQUENCE;
   aux++;
-  *(trap_pdu+aux) = 3+8+2+2+1+2;
+  *(trap_pdu+aux) = 3+8+2+2+1+2+12;
 
   // VarBind List - we don't use this - default(0)
   aux++;
   *(trap_pdu+aux) = ASN1_CPX_SEQUENCE;
   aux++;
-  *(trap_pdu+aux) = 3+8+2+1+2;
+  *(trap_pdu+aux) = 3+8+2+1+2+12;
 
   // OID
   aux++;
@@ -626,18 +626,15 @@ uint16_t snmp_encode_trap(uint8_t *trap_pdu, uint8_t type_trap, uint8_t *device_
   aux++;
   *(trap_pdu+aux) = ASN1_PRIM_OCT_STR;
   aux++;
-  *(trap_pdu+aux) = 0x04;
+  *(trap_pdu+aux) = 0x10;
 
-  aux++;
-  *(trap_pdu+aux) = *device_hw;
-  aux++;
-  *(trap_pdu+aux) = *(device_hw+1);
-  aux++;
-  *(trap_pdu+aux) = *(device_hw+2);
-  aux++;
-  *(trap_pdu+aux) = *(device_hw+3);
+  size_t j;
+  for (j=0; j < 16; j++) {
+    aux++;
+    *(trap_pdu+aux) = *(device_hw+j);
+  }
 
 
-  length_trap = 60;
+  length_trap = 60+12;
   return length_trap;
 }
