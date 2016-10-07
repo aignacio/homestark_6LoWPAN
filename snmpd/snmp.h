@@ -85,7 +85,7 @@
 #define MAX_STRINGS_LENGTH      100            /** @brief Max length of string in the OID Implementation */
 #define TIME_UPDATE_SNMP        2*CLOCK_SECOND /** @brief Time to update the OIDs of MIB implementation */
 
-#define TIME_TRAP_HEARTBEAT     30*CLOCK_SECOND /** @brief Define the time to send trap callback heartbeat message */
+#define TIME_TRAP_HEARTBEAT     10*CLOCK_SECOND /** @brief Define the time to send trap callback heartbeat message */
 #define TRAP_COLD_START         0
 #define TRAP_WARM_START         1
 #define TRAP_LINK_DOWN          2

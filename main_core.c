@@ -47,6 +47,59 @@ PROCESS(init_system_process, "[Contiki-OS] Starting the OS");
 AUTOSTART_PROCESSES(&init_system_process);
 /*---------------------------------------------------------------------------*/
 
+void init_mib2_list(){
+  uint8_t tree[2];
+  const char demo[] = "cc2650_snmp\0";
+  char device_address[30];
+
+  sprintf(device_address,"[%c%c%c%c]-Device-%s",device_id[12],device_id[13],device_id[14],device_id[15],device_id);
+
+  // Endereço IPv6 Global
+  tree[0] = 4;
+  tree[1] = 20;
+  mib_ii_fill_list(tree, demo);
+
+  // Endereço da rota preferencial
+  tree[0] = 4;
+  tree[1] = 21;
+  mib_ii_fill_list(tree, demo);
+
+  // Endereço Local IPv6
+  tree[0] = 4;
+  tree[1] = 2;
+  mib_ii_fill_list(tree, demo);
+
+  // Heartbeat
+  tree[0] = 25;
+  tree[1] = 1;
+  mib_ii_fill_list(tree, demo);
+
+  // RSSI
+  tree[0] = 25;
+  tree[1] = 2;
+  mib_ii_fill_list(tree, demo);
+
+  // Rank RPL
+  tree[0] = 25;
+  tree[1] = 3;
+  mib_ii_fill_list(tree, demo);
+
+  // Link Metric
+  tree[0] = 25;
+  tree[1] = 4;
+  mib_ii_fill_list(tree, demo);
+
+  // Hardware Address
+  tree[0] = 25;
+  tree[1] = 5;
+  mib_ii_fill_list(tree, device_address);
+  // for (i=2; i < MAX_OIDS; i++) {
+  //   tree[0] = 4;
+  //   tree[1] = i;
+  //   mib_ii_fill_list(tree, demo);
+  // }
+}
+
 PROCESS_THREAD(init_system_process, ev, data)
 {
   PROCESS_BEGIN();
@@ -66,21 +119,7 @@ PROCESS_THREAD(init_system_process, ev, data)
 
   // Init the MIB II Structure to fill another time
   #if CONTIKI_TARGET_SRF06_CC26XX
-    size_t i = 0;
-    uint8_t tree[2];
-    const char demo[] = "cc2650_snmp\0";
-    char device_address[30];
-
-    sprintf(device_address,"[%c%c%c%c]-Device:%s",device_id[12],device_id[13],device_id[14],device_id[15],device_id);
-    tree[0] = 4;
-    tree[1] = 1;
-    mib_ii_fill_list(tree, device_address);
-
-    for (i=2; i < MAX_OIDS; i++) {
-      tree[0] = 4;
-      tree[1] = i;
-      mib_ii_fill_list(tree, demo);
-    }
+    init_mib2_list();
     // mib_ii_show();
   #endif
 

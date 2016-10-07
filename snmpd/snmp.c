@@ -164,6 +164,10 @@ void snmp_cb_data(void){
   memset(buf, 0, MAX_UDP_SNMP);
 
   if(uip_newdata()) {
+    //#if !CONTIKI_TARGET_Z1
+    //ctimer_stop(&trap_timer);
+    //#endif
+
     len = uip_datalen();
     memcpy(buf, uip_appdata, len);
     #ifdef DEBUG_SNMP_DECODING
@@ -233,27 +237,27 @@ void update_snmp_mib(void){
                         device_hw[14],device_hw[15]};
 
   /******************************* Hearbeat ***********************************/
-  oid_tree[0] = 4;
-  oid_tree[1] = 2;
-  sprintf(dado,"[%c%c%c%c]-heartbeat_%d",data_hw[0],data_hw[1],data_hw[2],data_hw[3],heartbeat_value);
+  oid_tree[0] = 25;
+  oid_tree[1] = 1;
+  sprintf(dado,"[%c%c%c%c]-heartbeat-%d",data_hw[0],data_hw[1],data_hw[2],data_hw[3],heartbeat_value);
   debug_os("Dado de update: %s",dado);
   mib_ii_update_list(oid_tree,dado);
 
   /******************************** RSSI **************************************/
-  oid_tree[0] = 4;
-  oid_tree[1] = 3;
+  oid_tree[0] = 25;
+  oid_tree[1] = 2;
   int  def_rt_rssi = sicslowpan_get_last_rssi();
-  sprintf(dado,"[%c%c%c%c]-RSSI:%d",data_hw[0],data_hw[1],data_hw[2],data_hw[3],
+  sprintf(dado,"[%c%c%c%c]-RSSI-|%d",data_hw[0],data_hw[1],data_hw[2],data_hw[3],
   def_rt_rssi);
   mib_ii_update_list(oid_tree,dado);
 
   /*************************** Prefered IPv6 **********************************/
   char def_rt_str[64];
   oid_tree[0] = 4;
-  oid_tree[1] = 4;
+  oid_tree[1] = 21;
   memset(def_rt_str, 0, sizeof(def_rt_str));
   ipaddr_sprintf(def_rt_str, sizeof(def_rt_str), uip_ds6_defrt_choose());
-  sprintf(dado,"[%c%c%c%c]-PRF:[%s]",data_hw[0],data_hw[1],data_hw[2],data_hw[3],
+  sprintf(dado,"[%c%c%c%c]-PRF-[%s]",data_hw[0],data_hw[1],data_hw[2],data_hw[3],
   def_rt_str);
   mib_ii_update_list(oid_tree,dado);
 
@@ -271,15 +275,15 @@ void update_snmp_mib(void){
     else
     p = nbr_table_next(rpl_parents, p);
   }
-  oid_tree[0] = 4;
-  oid_tree[1] = 5;
-  sprintf(dado,"[%c%c%c%c]-Rank:%5u",data_hw[0],data_hw[1],data_hw[2],data_hw[3],
+  oid_tree[0] = 25;
+  oid_tree[1] = 3;
+  sprintf(dado,"[%c%c%c%c]-Rank-%5u",data_hw[0],data_hw[1],data_hw[2],data_hw[3],
   rank_rpl);
   mib_ii_update_list(oid_tree,dado);
 
-  oid_tree[0] = 4;
-  oid_tree[1] = 6;
-  sprintf(dado,"[%c%c%c%c]-LM:%5u",data_hw[0],data_hw[1],data_hw[2],data_hw[3],
+  oid_tree[0] = 25;
+  oid_tree[1] = 4;
+  sprintf(dado,"[%c%c%c%c]-LM-%5u",data_hw[0],data_hw[1],data_hw[2],data_hw[3],
   link_metric_rpl);
   mib_ii_update_list(oid_tree,dado);
 
@@ -313,8 +317,8 @@ void update_snmp_mib(void){
   print_ipv6_addr(&local_ipv6_address_node,&local_ipv6_char[0]);
 
   oid_tree[0] = 4;
-  oid_tree[1] = 7;
-  sprintf(dado,"[%c%c%c%c]-Local:[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]"
+  oid_tree[1] = 2;
+  sprintf(dado,"[%c%c%c%c]-Local-[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]"
                ,data_hw[0],data_hw[1],data_hw[2],data_hw[3]
                ,local_ipv6_char[0]
                ,local_ipv6_char[1]
@@ -328,8 +332,8 @@ void update_snmp_mib(void){
                ,local_ipv6_char[15]);
   mib_ii_update_list(oid_tree,dado);
   oid_tree[0] = 4;
-  oid_tree[1] = 8;
-  sprintf(dado,"[%c%c%c%c]-Global:[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]"
+  oid_tree[1] = 20;
+  sprintf(dado,"[%c%c%c%c]-Global-[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]"
                ,data_hw[0],data_hw[1],data_hw[2],data_hw[3]
                ,global_ipv6_char[0]
                ,global_ipv6_char[1]
@@ -360,8 +364,10 @@ PROCESS_THREAD(snmp_main, ev, data){
   etimer_set(&update_snmp, TIME_UPDATE_SNMP);
   #endif
 
+  // #if !CONTIKI_TARGET_Z1
   // Init the trap timer to maintain the hearbeat...
   ctimer_set(&trap_timer, TIME_TRAP_HEARTBEAT, cb_timer_trap_heartbeat, NULL);
+  // #endif
 
   while(1){
     PROCESS_YIELD();
