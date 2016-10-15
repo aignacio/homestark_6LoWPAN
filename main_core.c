@@ -69,10 +69,10 @@ void init_mib2_list(){
   tree[1] = 2;
   mib_ii_fill_list(tree, demo);
 
-  // Heartbeat
+  // Atualmente = Tipo de dispositivo, antes era = Heartbeat
   tree[0] = 25;
   tree[1] = 1;
-  mib_ii_fill_list(tree, demo);
+  mib_ii_fill_list(tree, DEVICE_TYPE_STR);
 
   // RSSI
   tree[0] = 25;
@@ -123,7 +123,7 @@ PROCESS_THREAD(init_system_process, ev, data)
     // mib_ii_show();
   #endif
 
-  debug_os(" ");
+  debug_os("Device type: %s",DEVICE_TYPE_STR);
 
   // etimer_set(&test_contiki, 2*CLOCK_SECOND);
 

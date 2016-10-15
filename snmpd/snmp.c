@@ -49,6 +49,8 @@
 #include "net/rpl/rpl.h"
 #include "net/rpl/rpl-private.h"
 #include "sys/ctimer.h"
+#include "homestark.h"
+
 #if CONTIKI_TARGET_SRF06_CC26XX
 #include "core/net/ipv6/uip-ds6-route.h"
 #include "core/net/ipv6/sicslowpan.h"
@@ -242,11 +244,11 @@ void update_snmp_mib(void){
   uint8_t data_hw[4] = {device_hw[12],device_hw[13],
                         device_hw[14],device_hw[15]};
 
-  /******************************* Hearbeat ***********************************/
+  /******************************* Type of device *****************************/
   oid_tree[0] = 25;
   oid_tree[1] = 1;
-  sprintf(dado,"[%c%c%c%c]-heartbeat-%d",data_hw[0],data_hw[1],data_hw[2],data_hw[3],heartbeat_value);
-  debug_os("Dado de update: %s",dado);
+  sprintf(dado,"[%c%c%c%c]-type-%s",data_hw[0],data_hw[1],data_hw[2],data_hw[3],DEVICE_TYPE_STR);
+  // debug_os("Dado de update: %s",dado);
   mib_ii_update_list(oid_tree,dado);
 
   /******************************** RSSI **************************************/
@@ -324,7 +326,7 @@ void update_snmp_mib(void){
 
   oid_tree[0] = 4;
   oid_tree[1] = 2;
-  sprintf(dado,"[%c%c%c%c]-Local-[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]"
+  sprintf(dado,"[%c%c%c%c]-Local-[%02x%02x::%02x%02x:%02x%02x:%02x%02x:%02x%02x]"
                ,data_hw[0],data_hw[1],data_hw[2],data_hw[3]
                ,local_ipv6_char[0]
                ,local_ipv6_char[1]
@@ -339,7 +341,7 @@ void update_snmp_mib(void){
   mib_ii_update_list(oid_tree,dado);
   oid_tree[0] = 4;
   oid_tree[1] = 20;
-  sprintf(dado,"[%c%c%c%c]-Global-[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]"
+  sprintf(dado,"[%c%c%c%c]-Global-[%02x%02x::%02x%02x:%02x%02x:%02x%02x:%02x%02x]"
                ,data_hw[0],data_hw[1],data_hw[2],data_hw[3]
                ,global_ipv6_char[0]
                ,global_ipv6_char[1]

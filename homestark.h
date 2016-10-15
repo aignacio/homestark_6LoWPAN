@@ -43,4 +43,61 @@
 #define debug_coap(fmt, ...)
 #endif
 
+
+// typedef enum {
+//    water_device,
+//    switch_device,
+//    light_device,
+//    servo_device,
+//    smoke_device,
+//    printer_device,
+//    combo_switch,
+//    combo_printer,
+//    combo_water,
+//    combo_servo
+// } devices_t;
+//
+// devices_t thisDevice = switch_device;
+
+// Define o tipo de dispositivo que será compilado
+//#define WATER_DEVICE
+//#define SWITCH_DEVICE
+#define LIGHT_DEVICE
+// #define SERVO_DEVICE
+// #define SMOKE_DEVICE
+// #define PRINTER_DEVICE
+// #define COMBO_SWITCH
+// #define COMBO_SERVO
+#ifdef WATER_DEVICE
+  #define DEVICE_TYPE_STR "device_water\0"
+#endif
+
+#ifdef SWITCH_DEVICE
+  #define DEVICE_TYPE_STR "device_switch\0"
+#endif
+
+#ifdef LIGHT_DEVICE
+  #define DEVICE_TYPE_STR "device_light\0"
+#endif
+
+#ifdef SERVO_DEVICE
+  #define DEVICE_TYPE_STR "device_servo\0"
+#endif
+
+#ifdef SMOKE_DEVICE
+  #define DEVICE_TYPE_STR "device_smoke\0"
+#endif
+
+#ifdef PRINTER_DEVICE
+  #define DEVICE_TYPE_STR "device_printer\0"
+#endif
+
+#ifdef COMBO_SWITCH
+  #define DEVICE_TYPE_STR "device_cswitch\0"
+#endif
+
+#ifdef COMBO_SERVO
+  #define DEVICE_TYPE_STR "device_cservo\0"
+#endif
+
 #endif

@@ -104,7 +104,7 @@
 /** @brief Decode the initial sequence type */
 #define check_seq(x) (x == ASN1_CPX_SEQUENCE ? 1 : 0)
 
-#define DEBUG_SNMP_DECODING /** @brief If defined, show decode SNMP messages */
+//#define DEBUG_SNMP_DECODING /** @brief If defined, show decode SNMP messages */
 #define DEBUG_SNMP          /** @brief Enable SNMP Debug message */
 
 #ifdef DEBUG_SNMP
