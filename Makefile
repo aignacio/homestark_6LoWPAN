@@ -2,6 +2,11 @@ DEFINES+=PROJECT_CONF_H=\"project-conf.h\"
 
 all: main_core
 
+CRYPTO_SHA_DIR = ./sha
+CRYPTO_SHA_FILES = sha256.c
+PROJECTDIRS += $(CRYPTO_SHA_DIR)
+PROJECT_SOURCEFILES += $(CRYPTO_SHA_FILES)
+
 SNMP_RESOURCES_DIR = ./snmpd
 SNMP_SOURCEFILES += mibii.c snmp.c snmp_asn1.c
 

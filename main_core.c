@@ -38,6 +38,7 @@
 #include "net/rpl/rpl.h"
 #include "snmp.h"
 #include "mibii.h"
+#include "sha256.h"
 
 static char     device_id[17];
 // static struct etimer   test_contiki;
@@ -123,9 +124,25 @@ PROCESS_THREAD(init_system_process, ev, data)
     // mib_ii_show();
   #endif
 
-  debug_os("Device type: %s",DEVICE_TYPE_STR);
-
   // etimer_set(&test_contiki, 2*CLOCK_SECOND);
+  debug_os("Tipo de dispositivo: %s",DEVICE_TYPE_STR);
+
+  /************************* SHA-256 - Hash ***********************************/
+  unsigned char text1[]={"homestark"},
+                hash[32];
+  int idx;
+  SHA256_CTX ctx;
+
+  // Hash one
+  sha256_init(&ctx);
+  sha256_update(&ctx,text1,strlen((const char *)text1));
+  sha256_final(&ctx,hash);
+
+  debug_os("Hash[homestark]: ");
+  for (idx=0; idx < 32; idx++)
+     printf("%02x",hash[idx]);
+  printf("\n");
+  /************************* SHA-256 - Hash ***********************************/
 
   while(1) {
       PROCESS_WAIT_EVENT();

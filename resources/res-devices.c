@@ -10,7 +10,7 @@
 #include "board-peripherals.h"
 #endif
 
-uint8_t switch_demo = 1,
+uint8_t switch_demo = 0,
         dimmer_value = 50;
 uint16_t light_status = 500,
          water_level = 50;
@@ -61,6 +61,10 @@ res_post_handler_switch(void *request, void *response, uint8_t *buffer,
   }
 
   switch_demo = atoi(switch_value);
+  if (switch_demo == 1)
+    leds_on(LEDS_ALL);
+  else
+    leds_off(LEDS_ALL);
 }
 /*********************************** SWITCH ***********************************/
 
