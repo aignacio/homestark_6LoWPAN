@@ -68,7 +68,60 @@ obj_srf06-cc26xx/res-devices.o: resources/res-devices.c \
  /projects/contiki/core/./net/mac/frame802154.h \
  /projects/contiki/core/./net/mac/framer.h \
  /projects/contiki/core/./net/ipv6/uip-ds6-nbr.h \
- /projects/contiki/core/./sys/ctimer.h
+ /projects/contiki/core/./sys/ctimer.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/./ti-lib.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/./ti-lib-rom.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/aon_batmon.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aon_batmon.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/aon_event.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_device.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aon_event.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/aon_ioc.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aon_ioc.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/aon_rtc.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aon_rtc.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/aon_wuc.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aon_wuc.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/aux_adc.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_event.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_adi.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_adi_4_aux.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aux_anaif.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/aux_wuc.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aux_wuc.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/chipinfo.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_fcfg1.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/ddi.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_ddi.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aux_smph.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/i2c.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_i2c.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_sysctl.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/ioc.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/osc.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_ddi_0_osc.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/prcm.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_prcm.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/pwr_ctrl.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aon_sysctl.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_adi_2_refsys.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/adi.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_uart.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/sys_ctrl.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_rfc_pwr.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_adi_3_refsys.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/vims.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_vims.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/ssi.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_ssi.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/systick.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/timer.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_gpt.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/trng.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_trng.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/uart.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/watchdog.h \
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_wdt.h
 resources/res-devices.c :
  /projects/contiki/core/./contiki.h :
  /projects/contiki/core/./contiki-version.h :
@@ -140,3 +193,56 @@ resources/res-devices.c :
  /projects/contiki/core/./net/mac/framer.h :
  /projects/contiki/core/./net/ipv6/uip-ds6-nbr.h :
  /projects/contiki/core/./sys/ctimer.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/./ti-lib.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/./ti-lib-rom.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/aon_batmon.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aon_batmon.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/aon_event.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_device.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aon_event.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/aon_ioc.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aon_ioc.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/aon_rtc.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aon_rtc.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/aon_wuc.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aon_wuc.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/aux_adc.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_event.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_adi.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_adi_4_aux.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aux_anaif.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/aux_wuc.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aux_wuc.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/chipinfo.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_fcfg1.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/ddi.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_ddi.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aux_smph.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/i2c.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_i2c.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_sysctl.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/ioc.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/osc.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_ddi_0_osc.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/prcm.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_prcm.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/pwr_ctrl.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_aon_sysctl.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_adi_2_refsys.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/adi.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_uart.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/sys_ctrl.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_rfc_pwr.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_adi_3_refsys.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/vims.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_vims.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/ssi.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_ssi.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/systick.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/timer.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_gpt.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/trng.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_trng.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/uart.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/watchdog.h :
+ /projects/contiki/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/hw_wdt.h :

@@ -40,8 +40,9 @@
 #include "mibii.h"
 #include "sha256.h"
 
+
 static char     device_id[17];
-// static struct etimer   test_contiki;
+static struct   etimer   test_contiki;
 
 /*---------------------------------------------------------------------------*/
 PROCESS(init_system_process, "[Contiki-OS] Starting the OS");
@@ -146,8 +147,10 @@ PROCESS_THREAD(init_system_process, ev, data)
 
   while(1) {
       PROCESS_WAIT_EVENT();
+      // readADC();
+      // AUXADCDisable();
       // if (etimer_expired(&test_contiki)){
-      //   etimer_reset(&test_contiki);
+      // etimer_reset(&test_contiki);
       //   // rpl_print_neighbor_list();
       // }
   }

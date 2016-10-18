@@ -63,8 +63,8 @@
 
 // Define o tipo de dispositivo que será compilado
 //#define WATER_DEVICE
-//#define SWITCH_DEVICE
-#define LIGHT_DEVICE
+#define SWITCH_DEVICE
+//#define LIGHT_DEVICE
 // #define SERVO_DEVICE
 // #define SMOKE_DEVICE
 // #define PRINTER_DEVICE
