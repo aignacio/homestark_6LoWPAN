@@ -46,7 +46,29 @@ obj_srf06-cc26xx/res-devices.o: resources/res-devices.c \
  /projects/contiki/apps/rest-engine/rest-constants.h \
  /projects/contiki/core/./dev/leds.h CoAP/coap-server.h homestark.h \
  /projects/contiki/platform/srf06-cc26xx/launchpad/board-peripherals.h \
- /projects/contiki/platform/srf06-cc26xx/common/ext-flash.h
+ /projects/contiki/platform/srf06-cc26xx/common/ext-flash.h sha/sha256.h \
+ /projects/contiki/core/./net/rpl/rpl.h \
+ /projects/contiki/core/./net/rpl/rpl-conf.h \
+ /projects/contiki/core/./lib/list.h \
+ /projects/contiki/core/./net/ip/uip.h \
+ /projects/contiki/core/./net/ip/uipopt.h \
+ /projects/contiki/core/./net/ip/tcpip.h \
+ /projects/contiki/core/./net/ipv6/uip-ds6.h \
+ /projects/contiki/core/./sys/stimer.h \
+ /projects/contiki/core/./net/ipv6/uip-nd6.h \
+ /projects/contiki/core/./net/ipv6/uip-ds6-route.h \
+ /projects/contiki/core/./net/nbr-table.h \
+ /projects/contiki/core/./net/linkaddr.h \
+ /projects/contiki/core/./net/netstack.h \
+ /projects/contiki/core/./net/llsec/llsec.h \
+ /projects/contiki/core/./net/mac/mac.h \
+ /projects/contiki/core/./dev/radio.h \
+ /projects/contiki/core/./net/mac/rdc.h \
+ /projects/contiki/core/./net/llsec/llsec802154.h \
+ /projects/contiki/core/./net/mac/frame802154.h \
+ /projects/contiki/core/./net/mac/framer.h \
+ /projects/contiki/core/./net/ipv6/uip-ds6-nbr.h \
+ /projects/contiki/core/./sys/ctimer.h
 resources/res-devices.c :
  /projects/contiki/core/./contiki.h :
  /projects/contiki/core/./contiki-version.h :
@@ -95,4 +117,26 @@ resources/res-devices.c :
  /projects/contiki/apps/rest-engine/rest-constants.h :
  /projects/contiki/core/./dev/leds.h CoAP/coap-server.h homestark.h :
  /projects/contiki/platform/srf06-cc26xx/launchpad/board-peripherals.h :
- /projects/contiki/platform/srf06-cc26xx/common/ext-flash.h :
+ /projects/contiki/platform/srf06-cc26xx/common/ext-flash.h sha/sha256.h :
+ /projects/contiki/core/./net/rpl/rpl.h :
+ /projects/contiki/core/./net/rpl/rpl-conf.h :
+ /projects/contiki/core/./lib/list.h :
+ /projects/contiki/core/./net/ip/uip.h :
+ /projects/contiki/core/./net/ip/uipopt.h :
+ /projects/contiki/core/./net/ip/tcpip.h :
+ /projects/contiki/core/./net/ipv6/uip-ds6.h :
+ /projects/contiki/core/./sys/stimer.h :
+ /projects/contiki/core/./net/ipv6/uip-nd6.h :
+ /projects/contiki/core/./net/ipv6/uip-ds6-route.h :
+ /projects/contiki/core/./net/nbr-table.h :
+ /projects/contiki/core/./net/linkaddr.h :
+ /projects/contiki/core/./net/netstack.h :
+ /projects/contiki/core/./net/llsec/llsec.h :
+ /projects/contiki/core/./net/mac/mac.h :
+ /projects/contiki/core/./dev/radio.h :
+ /projects/contiki/core/./net/mac/rdc.h :
+ /projects/contiki/core/./net/llsec/llsec802154.h :
+ /projects/contiki/core/./net/mac/frame802154.h :
+ /projects/contiki/core/./net/mac/framer.h :
+ /projects/contiki/core/./net/ipv6/uip-ds6-nbr.h :
+ /projects/contiki/core/./sys/ctimer.h :

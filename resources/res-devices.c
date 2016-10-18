@@ -4,16 +4,61 @@
 #include "coap-server.h"
 #include "homestark.h"
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
 #if CONTIKI_TARGET_SRF06_CC26XX
 #include "board-peripherals.h"
 #endif
+#include "sha256.h"
+#include "net/rpl/rpl.h"
+#include "net/ip/uip.h"
+#include "net/ipv6/uip-ds6.h"
 
 uint8_t switch_demo = 0,
         dimmer_value = 50;
 uint16_t light_status = 500,
          water_level = 50;
+
+void generateVerf(char *message, char *readySend){
+  /************************* SHA-256 - Hash ***********************************/
+  unsigned char buffer[50],
+               hash[32];
+  int idx;
+  SHA256_CTX ctx;
+
+  sha256_init(&ctx);
+  sprintf(buffer,"%02X%02X&%s",linkaddr_node_addr.u8[6],linkaddr_node_addr.u8[7],message);
+  sha256_update(&ctx,buffer,strlen((const char *)buffer));
+  sha256_final(&ctx,hash);
+  sprintf(readySend,"%x%x",hash[0],hash[31],message);
+  /************************* SHA-256 - Hash ***********************************/
+}
+
+void generateHash(char *message, char *readySend){
+  /************************* SHA-256 - Hash ***********************************/
+  unsigned char buffer[50],
+                hash[32];
+  int idx;
+  SHA256_CTX ctx;
+
+  sha256_init(&ctx);
+
+  // debug_os("Buffer a encriptar:%s",buffer);
+  sprintf(buffer,"%02X%02X&%s",linkaddr_node_addr.u8[6],linkaddr_node_addr.u8[7],message);
+  sha256_update(&ctx,buffer,strlen((const char *)buffer));
+  sha256_final(&ctx,hash);
+
+  // debug_os("Hash[data]: ");
+  // for (idx=0; idx < 32; idx++)
+  //    printf("%02x",hash[idx]);
+  // printf("\n");
+
+  sprintf(readySend,"h=%x%x&%s",hash[0],hash[31],message);
+  // debug_os("Mensagem encriptada:%s",buffer);
+  // readySend = &buffer;
+  /************************* SHA-256 - Hash ***********************************/
+}
 
 /*********************************** SWITCH ***********************************/
 static void
@@ -22,21 +67,29 @@ res_get_handler_switch(void *request, void *response, uint8_t *buffer,
   unsigned int accept = -1;
   REST.get_header_accept(request, &accept);
 
+  char message[100],
+       readySend[50];
+  sprintf(message,"switch=%d",switch_demo);
+  generateHash(&message,&readySend);
+  #ifdef ENABLE_HASH_MESSAGES
+  debug_os("Mensagem com hash a enviar:%s",readySend);
+  #endif
+
   if(accept == -1 || accept == REST.type.TEXT_PLAIN) {
     REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
-    snprintf((char *)buffer, REST_MAX_CHUNK_SIZE, "switch=%d", switch_demo);
+    snprintf((char *)buffer, REST_MAX_CHUNK_SIZE, "%s", readySend);
 
-    REST.set_response_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
-  } else if(accept == REST.type.APPLICATION_JSON) {
-    REST.set_header_content_type(response, REST.type.APPLICATION_JSON);
-    snprintf((char *)buffer, REST_MAX_CHUNK_SIZE, "{\"SWITCH\":\"%d\"}",
-             switch_demo);
-
-    REST.set_response_payload(response, buffer, strlen((char *)buffer));
-  } else if(accept == REST.type.APPLICATION_XML) {
-    REST.set_header_content_type(response, REST.type.APPLICATION_XML);
-    snprintf((char *)buffer, REST_MAX_CHUNK_SIZE,
-             "<switch val=\"%d\"/>", switch_demo);
+    // REST.set_response_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
+  // } else if(accept == REST.type.APPLICATION_JSON) {
+  //   REST.set_header_content_type(response, REST.type.APPLICATION_JSON);
+  //   snprintf((char *)buffer, REST_MAX_CHUNK_SIZE, "{\"SWITCH\":\"%d\"}",
+  //            switch_demo);
+  //
+  //   REST.set_response_payload(response, buffer, strlen((char *)buffer));
+  // } else if(accept == REST.type.APPLICATION_XML) {
+  //   REST.set_header_content_type(response, REST.type.APPLICATION_XML);
+  //   snprintf((char *)buffer, REST_MAX_CHUNK_SIZE,
+  //            "<switch val=\"%d\"/>", switch_demo);
 
     REST.set_response_payload(response, buffer, strlen((char *)buffer));
   } else {
@@ -50,21 +103,57 @@ res_get_handler_switch(void *request, void *response, uint8_t *buffer,
 static void
 res_post_handler_switch(void *request, void *response, uint8_t *buffer,
                 uint16_t preferred_size, int32_t *offset) {
-  size_t len = 0;
-  const char *text = NULL;
-  char switch_value[10];
+  size_t len = 0,
+         len2 = 0;
+  const char *text = NULL,
+             *text2 = NULL;
+  char switch_value[10],
+       hash_value[10];
+  uint8_t  data_switch, verify = 0;
+
   memset(switch_value, 0, 10);
+  memset(hash_value, 0, 10);
 
   len = REST.get_post_variable(request, "switch_value", &text);
-  if(len > 0 && len < 10) {
-    memcpy(switch_value, text, len);
-  }
+  len2 = REST.get_post_variable(request, "h", &text2);
 
-  switch_demo = atoi(switch_value);
-  if (switch_demo == 1)
-    leds_on(LEDS_ALL);
+  if(len > 0 && len < 10 && len2 > 0 && len2 < 10) {
+    memcpy(switch_value, text, len);
+    memcpy(hash_value, text2, len2);
+  }
+  data_switch = atoi(switch_value);
+
+  /************************* Verificando hash *********************************/
+  char message[100],
+       localHash[50],
+       receivedHash[10];
+  sprintf(message,"switch_value=%d",data_switch);
+  generateVerf(&message,&localHash);
+
+  sprintf(receivedHash,"%c%c%c%c",hash_value[0],hash_value[1],hash_value[2],hash_value[3]);
+  #ifdef ENABLE_HASH_MESSAGES
+  debug_os("Recebido: %s",receivedHash);
+  debug_os("Gerado: %s",localHash);
+  debug_os("Comparacao: %d",strstr(localHash,receivedHash));
+  #endif
+  if (strstr(localHash,receivedHash) != NULL)
+    verify = 1;
+  /************************* Verificando hash *********************************/
+
+  if (verify){
+    #ifdef ENABLE_HASH_MESSAGES
+    debug_os("Mensagem integra!");
+    #endif
+    switch_demo = data_switch;
+    if (switch_demo == 1)
+      leds_on(LEDS_ALL);
+    else
+      leds_off(LEDS_ALL);
+  }
+  #ifdef ENABLE_HASH_MESSAGES
   else
-    leds_off(LEDS_ALL);
+    debug_os("Mensagem nao integra!");
+  #endif
 }
 /*********************************** SWITCH ***********************************/
 
@@ -75,21 +164,28 @@ res_get_handler_light(void *request, void *response, uint8_t *buffer,
   unsigned int accept = -1;
   REST.get_header_accept(request, &accept);
 
+  char message[100],
+       readySend[50];
+  sprintf(message,"light=%d",light_status);
+  generateHash(&message,&readySend);
+  #ifdef ENABLE_HASH_MESSAGES
+  debug_os("Mensagem com hash a enviar:%s",readySend);
+  #endif
   if(accept == -1 || accept == REST.type.TEXT_PLAIN) {
     REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
-    snprintf((char *)buffer, REST_MAX_CHUNK_SIZE, "light=%d", light_status);
+    snprintf((char *)buffer, REST_MAX_CHUNK_SIZE, "%s", readySend);
+  //
+  //   REST.set_response_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
+  // } else if(accept == REST.type.APPLICATION_JSON) {
+  //   REST.set_header_content_type(response, REST.type.APPLICATION_JSON);
+  //   snprintf((char *)buffer, REST_MAX_CHUNK_SIZE, "{\"LIGHT\":\"%d\"}",
+  //            light_status);
 
-    REST.set_response_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
-  } else if(accept == REST.type.APPLICATION_JSON) {
-    REST.set_header_content_type(response, REST.type.APPLICATION_JSON);
-    snprintf((char *)buffer, REST_MAX_CHUNK_SIZE, "{\"LIGHT\":\"%d\"}",
-             light_status);
-
-    REST.set_response_payload(response, buffer, strlen((char *)buffer));
-  } else if(accept == REST.type.APPLICATION_XML) {
-    REST.set_header_content_type(response, REST.type.APPLICATION_XML);
-    snprintf((char *)buffer, REST_MAX_CHUNK_SIZE,
-             "<light val=\"%d\"/>", light_status);
+  //   REST.set_response_payload(response, buffer, strlen((char *)buffer));
+  // } else if(accept == REST.type.APPLICATION_XML) {
+  //   REST.set_header_content_type(response, REST.type.APPLICATION_XML);
+  //   snprintf((char *)buffer, REST_MAX_CHUNK_SIZE,
+  //            "<light val=\"%d\"/>", light_status);
 
     REST.set_response_payload(response, buffer, strlen((char *)buffer));
   } else {
@@ -103,17 +199,53 @@ res_get_handler_light(void *request, void *response, uint8_t *buffer,
 static void
 res_post_handler_light(void *request, void *response, uint8_t *buffer,
                 uint16_t preferred_size, int32_t *offset) {
-  size_t len = 0;
-  const char *text = NULL;
-  char dimmer[10];
+  size_t len = 0,
+         len2 = 0;
+  const char *text = NULL,
+             *text2 = NULL;
+  char dimmer[10],
+       hash_value[10];
+  uint8_t  data_dimmer, verify = 0;
+
   memset(dimmer, 0, 10);
+  memset(hash_value, 0, 10);
 
   len = REST.get_post_variable(request, "dimmer_value", &text);
-  if(len > 0 && len < 10) {
+  len2 = REST.get_post_variable(request, "h", &text2);
+
+  if(len > 0 && len < 10 && len2 > 0 && len2 < 10) {
     memcpy(dimmer, text, len);
+    memcpy(hash_value, text2, len2);
   }
-  dimmer_value = atoi(dimmer);
-  // switch_demo = atoi(light_value);
+  data_dimmer = atoi(dimmer);
+
+  /************************* Verificando hash *********************************/
+  char message[100],
+       localHash[50],
+       receivedHash[10];
+  sprintf(message,"dimmer_value=%d",data_dimmer);
+  generateVerf(&message,&localHash);
+
+  sprintf(receivedHash,"%c%c%c%c",hash_value[0],hash_value[1],hash_value[2],hash_value[3]);
+  #ifdef ENABLE_HASH_MESSAGES
+  debug_os("Recebido: %s",receivedHash);
+  debug_os("Gerado: %s",localHash);
+  debug_os("Comparacao: %d",strstr(localHash,receivedHash));
+  #endif
+  if (strstr(localHash,receivedHash) != NULL)
+    verify = 1;
+  /************************* Verificando hash *********************************/
+
+  if (verify) {
+    #ifdef ENABLE_HASH_MESSAGES
+    debug_os("Mensagem integra");
+    #endif
+    dimmer_value = atoi(dimmer);
+  }
+  #ifdef ENABLE_HASH_MESSAGES
+  else
+    debug_os("Mensagem nao integra");
+  #endif
 }
 /*********************************** LIGHT ************************************/
 
@@ -124,21 +256,28 @@ res_get_handler_water(void *request, void *response, uint8_t *buffer,
   unsigned int accept = -1;
   REST.get_header_accept(request, &accept);
 
+  char message[100],
+       readySend[50];
+  sprintf(message,"water=%d",water_level);
+  generateHash(&message,&readySend);
+  #ifdef ENABLE_HASH_MESSAGES
+  debug_os("Mensagem com hash a enviar:%s",readySend);
+  #endif
   if(accept == -1 || accept == REST.type.TEXT_PLAIN) {
     REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
-    snprintf((char *)buffer, REST_MAX_CHUNK_SIZE, "water=%d", water_level);
-
-    REST.set_response_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
-  } else if(accept == REST.type.APPLICATION_JSON) {
-    REST.set_header_content_type(response, REST.type.APPLICATION_JSON);
-    snprintf((char *)buffer, REST_MAX_CHUNK_SIZE, "{\"WATER\":\"%d\"}",
-             water_level);
-
-    REST.set_response_payload(response, buffer, strlen((char *)buffer));
-  } else if(accept == REST.type.APPLICATION_XML) {
-    REST.set_header_content_type(response, REST.type.APPLICATION_XML);
-    snprintf((char *)buffer, REST_MAX_CHUNK_SIZE,
-             "<light val=\"%d\"/>", water_level);
+    snprintf((char *)buffer, REST_MAX_CHUNK_SIZE, "%s", readySend);
+  //
+  //   REST.set_response_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
+  // } else if(accept == REST.type.APPLICATION_JSON) {
+  //   REST.set_header_content_type(response, REST.type.APPLICATION_JSON);
+  //   snprintf((char *)buffer, REST_MAX_CHUNK_SIZE, "{\"WATER\":\"%d\"}",
+  //            water_level);
+  //
+  //   REST.set_response_payload(response, buffer, strlen((char *)buffer));
+  // } else if(accept == REST.type.APPLICATION_XML) {
+  //   REST.set_header_content_type(response, REST.type.APPLICATION_XML);
+  //   snprintf((char *)buffer, REST_MAX_CHUNK_SIZE,
+  //            "<light val=\"%d\"/>", water_level);
 
     REST.set_response_payload(response, buffer, strlen((char *)buffer));
   } else {

@@ -28,6 +28,8 @@
 #ifndef HOMESTARK_H
 #define HOMESTARK_H
 
+/** @brief Defina isto para habilitar mensagens de conversão HASH para garantia de integridade */
+//#define ENABLE_HASH_MESSAGES
 
 #define DEBUG_OS
 #ifdef DEBUG_OS
@@ -61,8 +63,8 @@
 
 // Define o tipo de dispositivo que será compilado
 //#define WATER_DEVICE
-#define SWITCH_DEVICE
-//#define LIGHT_DEVICE
+//#define SWITCH_DEVICE
+#define LIGHT_DEVICE
 // #define SERVO_DEVICE
 // #define SMOKE_DEVICE
 // #define PRINTER_DEVICE
