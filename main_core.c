@@ -31,14 +31,11 @@
 #include "contiki.h"
 #include "contiki-lib.h"
 #include "contiki-net.h"
-#include "rest-engine.h"
-#include "coap-server.h"
 #include "net/ipv6/uip-ds6.h"
 #include "net/ip/uip.h"
 #include "net/rpl/rpl.h"
 #include "snmp.h"
 #include "mibii.h"
-#include "sha256.h"
 
 
 static char     device_id[17];
@@ -117,7 +114,7 @@ PROCESS_THREAD(init_system_process, ev, data)
   //#endif
 
   snmp_init(); // Init SNMP Agent
-  process_start(&coap_server_process, NULL); // Init CoAP Server Restfull
+  //process_start(&coap_server_process, NULL); // Init CoAP Server Restfull
 
   // Init the MIB II Structure to fill another time
   #if CONTIKI_TARGET_SRF06_CC26XX
@@ -127,23 +124,6 @@ PROCESS_THREAD(init_system_process, ev, data)
 
   // etimer_set(&test_contiki, 2*CLOCK_SECOND);
   debug_os("Tipo de dispositivo: %s",DEVICE_TYPE_STR);
-
-  /************************* SHA-256 - Hash ***********************************/
-  unsigned char text1[]={"homestark"},
-                hash[32];
-  int idx;
-  SHA256_CTX ctx;
-
-  // Hash one
-  sha256_init(&ctx);
-  sha256_update(&ctx,text1,strlen((const char *)text1));
-  sha256_final(&ctx,hash);
-
-  debug_os("Hash[homestark]: ");
-  for (idx=0; idx < 32; idx++)
-     printf("%02x",hash[idx]);
-  printf("\n");
-  /************************* SHA-256 - Hash ***********************************/
 
   while(1) {
       PROCESS_WAIT_EVENT();
