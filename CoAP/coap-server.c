@@ -12,10 +12,7 @@
 
 /*---------------------------------------------------------------------------*/
 /* Common resources */
-extern resource_t res_hello,
-                  res_switch,
-                  res_light,
-                  res_water;
+extern resource_t res_hello;
 
 /*---------------------------------------------------------------------------*/
 const char *coap_server_not_found_msg = "Resource not found";
@@ -27,17 +24,7 @@ const char *coap_server_supported_msg = "Supported:"
 static void
 start_board_resources(void) {
   rest_activate_resource(&res_hello, "test/hello");
-  #ifdef SWITCH_DEVICE
-  rest_activate_resource(&res_switch, "switch");
-  #endif
 
-  #ifdef LIGHT_DEVICE
-  rest_activate_resource(&res_light, "light");
-  #endif
-
-  #ifdef WATER_DEVICE
-  rest_activate_resource(&res_water, "water");
-  #endif
 }
 /*---------------------------------------------------------------------------*/
 PROCESS(coap_server_process, "CoAP Server");
